@@ -56,8 +56,8 @@ const BaiduView = new View({
   resolutions,
   maxZoom: 22,
   minZoom: 1,
-  zoom: 10,
-  //extent,
+  //   zoom: 10,
+  extent,
   center: [12609158.722154098, 2647747.527494556]
 });
 const searchSource = new VectorSource();
@@ -164,15 +164,18 @@ export default function createdMap(param) {
   let map = new Map({
     target,
     layers: [searchFeatureLayer, editGeometryLayer],
-    interactions: [modify, snap],
+    // interactions: [modify, snap],
     view: BaiduView,
-    overlays: [popup],
+    // overlays: [popup]
     controls: defaultControls({
-      attribution: false,
+      attribution: true,
       zoom: true,
-      rotate: false
+      rotate: true
     }).extend([scaleLine])
   });
+  map.addOverlay(popup);
+  map.addInteraction(modify);
+  map.addInteraction(snap);
   BaiduView.setCenter(editPoint);
   BaiduView.setZoom(15);
   map.on("click", function(e) {
@@ -190,7 +193,6 @@ export default function createdMap(param) {
     }
   });
   let cbaseMapLayer = baseMapLayer["百度地图"];
-  console.log(cbaseMapLayer);
   map.addLayer(cbaseMapLayer);
   return {
     /**
@@ -245,7 +247,7 @@ export default function createdMap(param) {
      * @returns {[number,number]}
      */
     getEditPoint() {
-      return ol_editPoint.getClosestPoint();
+      return ol_editPoint.getCoordinates();
     },
     /**
      * 切换地图 目前支持两种

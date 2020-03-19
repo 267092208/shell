@@ -1,5 +1,5 @@
 <template>
-  <div class="layertable">
+  <div class="layertable" >
     <div class="title">
       {{ getTableTitle }}
       <i
@@ -228,6 +228,7 @@
           <el-button
             icon="iconfont icon-dingwei"
             class="iconbtn"
+            :disabled="saveRow == null"
             @click="posCrtVisble = true"
           ></el-button>
         </el-tooltip>
@@ -303,7 +304,7 @@
       :historyLoading="historyLoading"
       :historyVisible.sync="historyVisible"
     />
-    <pos-control  :dialogVisible.sync="posCrtVisble" :editPoint="getEditPoint"></pos-control>
+    <pos-control @updateLngLat="updateTableRowWithLnglat"  :dialogVisible.sync="posCrtVisble" :editPoint="getEditPoint" :data='saveRow' ></pos-control>
   </div>
 </template>
 <script>
@@ -542,7 +543,10 @@ export default {
 
     },
     getEditPoint() {
-      if (this.saveRow) { return [this.saveRow.lng_baidu , this.saveRow.lat_baidu] }
+      if (this.saveRow) {
+        if (this.saveRow.lng_baidu === 0 &&  this.saveRow.lat_baidu === 0) return [];
+        else return [this.saveRow.lng_baidu , this.saveRow.lat_baidu] 
+        }
       else { return [] }
     },
     //修改位置, 删除, 跳转到地图, 历史记录, 导出
@@ -760,6 +764,19 @@ export default {
           if (row["Brand"].indexOf("%") > 0) return v.toFixed(2) + "%";
           else return v.toFixed(0);
         }
+      }
+    },
+    /**
+     * 更新table行的lnglat 通过rowId
+     * must be have lng_baidu lat_baidu
+     * @param {Array<number, number>} lnglat
+     * @param {number} rowId
+     */
+    updateTableRowWithLnglat(lnglat, rowId) {
+      const row = this.tableData.find(item => item.ID === rowId)
+      if (row) {
+        row.lng_baidu = lnglat[0];
+        row.lat_baidu = lnglat[1];
       }
     },
     useYZFields() {

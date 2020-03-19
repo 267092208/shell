@@ -192,10 +192,7 @@ import("@/store").then(m => {
   store.watch(
     () => store.state.selectFeature.selectFeature,
     (newval,oldval) => {
-      console.log("selectFeature+++++",newval);
-      
       if (newval) {
-
         const layer = store.state.selectFeature.selectFeatureLayer
 
         if(layer.id === "shellyz" ||layer.id === "gsyz" ||layer.id === "xyyz"){

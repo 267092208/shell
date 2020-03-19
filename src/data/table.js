@@ -271,6 +271,13 @@ async function exportTable(layerId, model) {
     return res;
 }
 
+export async function updateLocation(ID, lng, lat) {
+    const url = `/dataPages/xyyz/Handler.ashx?action=updateLocation&ID=${ID}&lng=${lng}&lat=${lat}&_=${new Date().getTime()}`;
+    const { data } = await axios.get(url);
+
+    return data;
+}
+
 
 
 export default {
@@ -287,6 +294,7 @@ export default {
     getTableFields,
     getTableDatas,
     delTableForRow,
-    exportTable
+    exportTable,
+    updateLocation
 }
 
