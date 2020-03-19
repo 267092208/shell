@@ -2,7 +2,7 @@ import { mapState } from "vuex";
 import { map } from "./map";
 import VectorLayer from "ol/layer/Vector";
 import VectorSource from "ol/source/Vector";
-import { Text, Fill, Circle as CircleStyle, Style } from "ol/style";
+import { Text, Fill, Circle as CircleStyle, Style, Stroke } from "ol/style";
 import { createdRenderer } from "../layerManager.js";
 import { getLayerOL } from "./utils";
 
@@ -91,12 +91,12 @@ function getOLText(feature) {
  * @param {*} index 扩展图层的索引
  */
 function showExtLayer(layerid, renderer, index) {
-  
-  const source = `${layerid}_source`;
+  // const source = `${layerid}_source`;
+
   const id = getExtLayerId(layerid, index);
   const tu = textanchor(layerid, index);
-  console.log("align",align);
-  
+  let align = null;
+  //文本偏移策略
   switch (tu["text-anchor"]) {
     case "left":
       align = "left";
@@ -108,6 +108,7 @@ function showExtLayer(layerid, renderer, index) {
       align = "center";
       break;
   }
+
   if (getLayerOL(id)) {
     getLayerOL(id)
       .getSource()
@@ -123,6 +124,10 @@ function showExtLayer(layerid, renderer, index) {
 
     getLayerOL(id).setVisible(true);
   } else {
+    let extRender = {};
+
+    extRender = createExtRender(renderer, layerid, index);
+
     const layerSource = new VectorSource();
     const originFeatures = getLayerOL(layerid)
       .getSource()
@@ -131,95 +136,59 @@ function showExtLayer(layerid, renderer, index) {
       layerSource.addFeature(item.clone());
     });
 
-    const layerinfo = new VectorLayer({
+    const extLayer = new VectorLayer({
       source: layerSource,
       zIndex: 2
+      // declutter: true //标签整理
     });
-    map.addLayer(layerinfo);
-    // 文本扩展层
-    if (renderer.type == "simple" || renderer.uniqueValueInfos[1].symbol.type == "text") {
-      const symbol = renderer.symbol || renderer.uniqueValueInfos[1].symbol;
+    map.addLayer(extLayer);
 
-      if (renderer.type == "unique-value") {
-        layerinfo
+    console.log();
+
+    if (renderer.linkLayerIndex ) {
+      //关联图层已存在，只修改关联图层某些要素的样式
+      let linkId = getExtLayerId(layerid, renderer.linkLayerIndex);
+      if (getLayerOL(linkId)) {
+        let linkStyleFun = getLayerOL(linkId).getStyleFunction();
+
+        getLayerOL(linkId)
           .getSource()
           .getFeatures()
-          .forEach(item => {
-            if (item.get(renderer.field)) {
-              item.setStyle(
-                new Style({
-                  text: new Text({
-                    font: symbol.size || 12,
-                    text: item.get(symbol.field).toString(),
-                    fill: new Fill({
-                      color: symbol.color || "#00f"
-                    }),
-                    offsetX: (tu["text-offset"][0] * 24) / 2 || 0,
-                    offsetY: tu["text-offset"][1] * 24 || 0,
-                    textAlign: align
-                  })
-                })
-                
-              );
-              item.changed();
-            } else {
-              item.setStyle(
-                new Style({
-                  text: new Text()
-                })
-              );
+          .forEach(f => {
+            if (f.get(renderer.field)) {
+              // console.log(linkStyleFun(f).getText());
+              extRender = {
+                offsetX: linkStyleFun(f)
+                  .getText()
+                  .getOffsetX(),
+                offsetY: linkStyleFun(f)
+                  .getText()
+                  .getOffsetY(),
+                textAlign: linkStyleFun(f)
+                  .getText()
+                  .getTextAlign()
+              };
+              // f.setStyle(createdRenderer(renderer,extRender))
+
+              // f.changed()
             }
           });
-      } else {
-        layerinfo
-          .getSource()
-          .getFeatures()
-          .forEach(item => {
-            let textContent = item.get(symbol.field).toString();
 
-            item.setStyle(
-              new Style({
-                text: new Text({
-                  font: symbol.size || 12,
-                  text: textContent,
-                  fill: new Fill({
-                    color: symbol.color || "#00f"
-                  }),
-                  offsetX: (tu["text-offset"][0] * 24) / 2 || 0,
-                  offsetY: tu["text-offset"][1] * 24 || 0,
-                  textAlign: align
-                })
-              })
-            );
-          });
       }
-
-      layerinfo.setProperties({
-        id: id,
-        sourceName: source,
-        type: "symbol"
-      });
+    } else {
+      extRender = createExtRender(renderer, layerid, index);
     }
-    // 图标扩展层,符号为默认符号的部分不显示
-    else if (renderer.type == "unique-value") {
-      layerinfo.setStyle(createdRenderer(renderer));
-      layerinfo.setProperties({
-        id: id,
-        sourceName: source,
-        type: "symbol"
-      });
-    }
+    extLayer.setStyle(createdRenderer(renderer, extRender));
+    extLayer.setProperties({
+      id: id,
+      type: "symbol"
+    });
   }
 }
 
 function hideExtLayer(layerid, index) {
   const id = getExtLayerId(layerid, index);
-  const extLayer = map
-    .getLayers()
-    .getArray()
-    .find(item => {
-      return item.get("id") === id;
-    });
+  const extLayer = getLayerOL(id);
 
   if (extLayer) {
     extLayer.setVisible(false);
@@ -232,7 +201,53 @@ function extLayerExist(layerid, index) {
   return !!getLayerOL(getExtLayerId(layerid, index));
 }
 
+function createExtRender(renderer, layerid, index) {
+  const tu = textanchor(layerid, index);
+  let align = null;
+  //文本偏移策略
+  switch (tu["text-anchor"]) {
+    case "left":
+      align = "left";
+      break;
+    case "right":
+      align = "right";
+      break;
+    case "top":
+      align = "center";
+      break;
+  }
+  let extRender = {};
+  if (renderer.type === "simple") {
+    extRender = {
+      offsetX: (tu["text-offset"][0] * 24) / 2,
+      offsetY: tu["text-offset"][1] * 24,
+      textAlign: align
+    };
+  } else if (renderer.type === "unique-value") {
+    const symbolType = renderer.uniqueValueInfos[1].symbol.type;
+
+    extRender = {};
+    if (symbolType === "text") {
+      extRender = {
+        offsetX: (tu["text-offset"][0] * 24) / 2,
+        offsetY: tu["text-offset"][1] * 24,
+        textAlign: align
+        // backgroundFillColor: "#FFFF00",
+        // StrokeColor: "#FF0000",
+        // padding: [0, 0.5, 0, 0.5]
+      };
+    }
+  }
+
+  return extRender;
+}
+
 const mixin = {
+  data() {
+    return {
+      renderList: []
+    };
+  },
   computed: {
     ...mapState({
       layersVisibleEx: state => state.layer.visible,

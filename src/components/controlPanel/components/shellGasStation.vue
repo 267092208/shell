@@ -222,7 +222,7 @@
                   justify="center"
                   align="center"
                   class="icon-btn"
-                  @click.native="exportLayerVisible = true"
+                  @click.native="exportBatchLayerVisible = true"
                 >
                   <div class="icon-title">导出</div>
                   <el-avatar shape="square" :size="50" fit="fill" class="iconfont icon-daochu icon"></el-avatar>
@@ -232,7 +232,7 @@
                   justify="center"
                   align="center"
                   class="icon-btn"
-                  @click.native="importLayerVisible = true"
+                  @click.native="importBatchLayerVisible = true"
                 >
                   <div class="icon-title">导入</div>
                   <el-avatar shape="square" :size="50" fit="fill" class="iconfont icon-daoru1 icon"></el-avatar>
@@ -248,15 +248,17 @@
     <import-layer-ctrl
       :dialogVisible.sync="importLayerCtrlVisible"
       exampleXlsPath="./dataPages/shellyz/shellyz-improt-test.xlsx"
+      
     ></import-layer-ctrl>
     <multi-site-compare :dialogVisible.sync="mscompareVisible" :mscData="selectFeatures"></multi-site-compare>
     <history-sales-chart :dialogVisible.sync="historyChartVisible" :yzdata="selectFeatures"></history-sales-chart>
-    <export-layer
-      :dialogVisible.sync="exportLayerVisible"
+    <export-batch-layer
+      :dialogVisible.sync="exportBatchLayerVisible"
       :fieldList="fields"
       :layerTable="layerTable"
-    ></export-layer>
-    <import-layer :dialogVisible.sync="importLayerVisible"></import-layer>
+      
+    ></export-batch-layer>
+    <import-batch-layer :dialogVisible.sync="importBatchLayerVisible"  ></import-batch-layer>
     <import-sale-datas
       :dialogVisible.sync="importSaleDatasVisible"
       exampleXlsPath="./dataPages/shellyz/shellyz%E9%94%80%E9%87%8F%E6%95%B0%E6%8D%AE-improt-test.xlsx"
@@ -269,6 +271,7 @@
 <script>
 import { mapState } from "vuex";
 import xymixin from "@/components/controlPanel/mixin/yzmixin";
+
 
 export default {
   mixins: [xymixin],

@@ -5,26 +5,26 @@ import VectorSource from "ol/source/Vector";
 import Overlay from "ol/Overlay";
 import { fromLonLat } from "ol/proj";
 import { toVectorFeature } from "./utils";
-
-
-import {
-  Circle as CircleStyle,
-  Icon,
-  Style
-} from "ol/style";
-
-//小弹窗
-let popupOverlay = null;
-
+import clickFu from "@/config/layer/clickFu"
+import { Circle as CircleStyle, Icon, Style } from "ol/style";
 /**
  * 显示搜索
- * @type {}
+ * @type {VectorSource}
  */
 let searchSource = new VectorSource();
+const layerId = "searchLayer";
 const searchFeatureLayer = new VectorLayer({
-  source: searchSource
+  source: searchSource,
+  clickFu: clickFu[layerId],
+  layerId,
+  zIndex: 3,
+  style: new Style({
+    image: new Icon({
+      anchor: [0.5, 1],
+      src: "/images/search.png"
+    })
+  })
 });
-
 const mixin = {
   data() {
     return {
@@ -40,47 +40,16 @@ const mixin = {
   methods: {
     async initSearch() {
       map.addLayer(searchFeatureLayer);
-      searchFeatureLayer.setProperties({ layerType: "searchLayer" });
-      searchFeatureLayer.setZIndex(3);
-      this.initPopup();
-      
-    },
-    createSearchStyle() {
-      let style = new Style({
-        image: new Icon({
-          anchor: [0.5, 1],
-          src: "./images/search.png"
-        })
-      });
-      return style;
-    },
-    initPopup() {
-      popupOverlay = new Overlay({
-        positioning: "bottom-center",
-        element: this.$refs.popup,
-        autoPan: true,
-        autoPanAnimation: {
-          duration: 250
-        },
-        offset: [-80 + 48, -30]
-      });
-
-      map.addOverlay(popupOverlay);
-    },
-    popupcloser() {
-      this.$store.dispatch("locationFeatures", null);  
     }
   },
   watch: {
     resultFeatures(resultFeatures, oldResultFeatures) {
       searchSource.clear();
       let searchFeature = toVectorFeature(resultFeatures)
-      let searchStyle = this.createSearchStyle();
-
       searchFeature.forEach(item => {
-        item.setStyle(searchStyle);
         searchSource.addFeature(item);
       });
+      // searchSource
 
       if (resultFeatures.length) {
         // 设置地图范围
@@ -120,18 +89,21 @@ const mixin = {
         }
       } else {
         // 如果结果集被清空，关闭弹出框
-        popupOverlay.setPosition(undefined);
-
+        this.$store.dispatch("popupcloser")
       }
     },
     searchLocationFeatures(val) {
       if (val) {
-        this.popupContent = val.getPopupHtml(val);
         let [x, y] = val.geometry.coordinates;
-        popupOverlay.setPosition(fromLonLat([x, y], "EPSG:3857"));
         this.$store.dispatch("setMapCenter", { x, y });
-      }else{
-      popupOverlay.setPosition(undefined);
+        this.$store.dispatch("openPopup", {
+          position: [x, y],
+          popupContent: val.getPopupHtml(val),
+          isPopupcloser: true,
+          move: [0, -20]
+        })
+      } else {
+        this.$store.dispatch("popupcloser")
       }
     }
   }

@@ -30,7 +30,7 @@
 import { mapState } from "vuex";
 import { getPhotos, getPhotoHis, uploadPhoto, deletePhoto } from "@/data/photo";
 
-const baseInfoItem = () => import("@/components/infoPanel/baseInfoItem");
+const baseInfoItem = () => import("@/components/infoPanel/common/baseInfoItem");
 const baseInfo = () => import("@/components/infoPanel/baseInfo");
 const detailInfo = () => import("@/components/infoPanel/detailInfo");
 
@@ -253,6 +253,7 @@ export default {
   },
   watch: {
     selectFeature: function() {
+      
       this.photoLoading = true;
       if (this.selectFeature) {
         this.info = this.selectFeature.properties;
@@ -306,7 +307,7 @@ export default {
   // .info-content {
   .el-tabs__content {
     padding: 0;
-
+    height: 100%;
     position: static;
   }
 
@@ -331,6 +332,10 @@ export default {
     background-color: $theme-bg-color;
     width: 100%;
     z-index: 999;
+  }
+
+  .detail {
+    height: 100%;
   }
   // }
   // }

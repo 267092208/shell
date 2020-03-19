@@ -9,7 +9,12 @@ import layer from './module/layer';
 import selectFeature from './module/selectFeature'
 import mapState from './module/mapState'
 import search from './module/search'
-import geometry from './module/geometry'
+import editGeometry from './module/editGeometry'
+import table from './module/table'
+import measure from './module/measure'
+import popup from './module/popup'
+import featureHelp from './module/featureHelp'
+import linkFeature from './module/linkFeature'
 
 Vue.use(Vuex)
 export default new Vuex.Store({
@@ -23,6 +28,11 @@ export default new Vuex.Store({
         selectFeature,
         mapState,
         search,
-        geometry
+        editGeometry,
+        table,
+        measure,
+        popup,
+        featureHelp,
+        linkFeature
     }
 });

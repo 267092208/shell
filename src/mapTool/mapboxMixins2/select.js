@@ -1,10 +1,13 @@
 import { mapState } from "vuex";
 import { map } from "./map";
-import { Circle as CircleStyle, RegularShape, Stroke, Style } from "ol/style";
+import { Circle as CircleStyle, RegularShape, Stroke, Style, Fill } from "ol/style";
+import { getLayerOL } from "./utils";
+
 const mixin = {
   data() {
     return {
-      singleSelectFeature: null
+      singleSelectFeature: null,
+      selecteAllFeatures: []
     };
   },
   computed: {
@@ -12,8 +15,10 @@ const mixin = {
       selectFeatures: state => state.selectFeature.selectFeatures,
       selectFeatureLayer: state => state.selectFeature.selectFeatureLayer,
       selectMode: state => state.selectFeature.selectMode,
+      selectAll: state => state.selectFeature.selectAll,
       symbolScaling: state => state.layer.symbolScaling,
-      layerbase: state => state.layer.base
+      layerbase: state => state.layer.base,
+      drawMode: state => state.editGeometry.drawMode,
     })
   },
   methods: {
@@ -22,74 +27,23 @@ const mixin = {
       this.pointerCursor();
     },
     /**
-     * 选中元素,给所选元素图标添加红框效果
+     * 选中元素
      */
     singleSelect() {
       let _this = this;
       let selected = [];
-      map.on("click", function(e) {
-        var featureLayer = map.forEachFeatureAtPixel(e.pixel, function(feature, layer) {
+      // 绑定事件
+      map.on("click", function (e) {
+        // 编辑中不会选中
+        if (this.drawMode) { return }
+        let featureLayer = map.forEachFeatureAtPixel(e.pixel, function (feature, layer) {
           return { selFeature: feature, selLayer: layer };
         });
-
-        if (featureLayer && featureLayer.selFeature && featureLayer.selLayer) {
-          let feature = featureLayer.selFeature;
-          let layer = featureLayer.selLayer;
-
-          if (layer.get("type") === "symbol") {
-            return;
-          }
-
-          if (layer.get("layerType") === "searchLayer") {
-            ///TODO:点击地图上经过搜索出来的结果时弹出信息框
-            return;
-            // _this.$store.dispatch("locationFeatures",feature)
-          } else {
-            let selIndex = selected.indexOf(feature);
-            let newStyle = _this.createStyle(layer, feature);
-
-            if (_this.selectMode === "single") {
-              //多选变单选时，先清空多选的元素
-              selected.forEach(item => {
-                item.setStyle(null);
-              });
-
-              if (_this.singleSelectFeature !== feature) {
-                if (_this.singleSelectFeature) {
-                  _this.singleSelectFeature.setStyle(null);
-                }
-
-                feature.setStyle(newStyle);
-                _this.singleSelectFeature = feature;
-              } else {
-
-                _this.singleSelectFeature = "";
-                feature.setStyle(null);
-              }
-            }
-
-            if (_this.selectMode === "multiple") {
-              if (selIndex < 0) {
-                selected.push(feature);
-                feature.setStyle(newStyle);
-              } else {
-                selected.splice(selIndex, 1);
-                feature.setStyle(null);
-              }
-            }
-
-            let layerId = layer.get("layerId");
-            layer = _this.layerbase.find(l => l.id === layerId);
-
-            feature.id = feature.get("ID");
-            feature.properties = feature.getProperties();
-            feature.geometry = feature.getGeometry();
-
-            _this.$store.dispatch("selectFeatureAndLayer", {
-              feature,
-              layer
-            });
-          }
+        // 
+        //获取图层是否有 clickFu 事件 。触发
+        if (featureLayer && featureLayer.selLayer && featureLayer.selFeature) {
+          const clickFu = featureLayer.selLayer.get("clickFu");
+          clickFu && clickFu(featureLayer.selFeature, featureLayer.selLayer)
         }
       });
     },
@@ -97,13 +51,20 @@ const mixin = {
      * 鼠标形状变化
      */
     pointerCursor() {
-      map.on("pointermove", function(e) {
+      map.on("pointermove", function (e) {
         if (e.dragging) {
           return;
         }
-        var pixel = map.getEventPixel(e.originalEvent);
-        var hit = map.hasFeatureAtPixel(pixel);
+        let pixel = map.getEventPixel(e.originalEvent);
+        let hit = map.hasFeatureAtPixel(pixel);
         map.getTarget().style.cursor = hit ? "pointer" : "";
+        let feature = map.forEachFeatureAtPixel(e.pixel, function (feature, layer) {
+          return feature;
+        });
+        if (feature && feature.getGeometry().getType() === "Point") {
+          let text = feature.getProperties()["油站编号"] || feature.getProperties()["站名"] || feature.getProperties()["名称"] || feature.getProperties()["name"];
+          map.getTarget().title = hit ? (text ? text : "") : "";
+        }
       });
     },
     /**
@@ -112,11 +73,25 @@ const mixin = {
     createStyle(layer, feature) {
       let styleFunction = layer.getStyle();
       let oldStyle = styleFunction(feature);
+      oldStyle = Array.isArray(oldStyle) ? oldStyle : [oldStyle]
 
       let styles = [];
-      styles.push(oldStyle);
+      styles.push(...oldStyle);
+
+      // styles.push(oldStyle)
+      //面图层选中样式
+      if (this.selectFeatureLayer && (this.selectFeatureLayer.id === "ma" || this.selectFeatureLayer.id === "xzqh")) {
+        styles.push(
+          new Style({
+            fill: new Fill({
+              color: [28, 134, 238, 0.4]
+            })
+          })
+        );
+        return styles;
+      }
+      //点图层选中样式
       styles.push(
-        //红框样式
         new Style({
           geometry: feature.getGeometry(),
           image: new RegularShape({
@@ -132,12 +107,46 @@ const mixin = {
     }
   },
   watch: {
-    selectFeatures(selectFeatures, oldSelectFeatures) {
-      if (oldSelectFeatures && !this.selectFeatures.length) {
-        oldSelectFeatures.map(feature => {
-          feature.setStyle(null);
-          this.singleSelectFeature = null;
-        });
+    // selectFeatures(selectFeatures, oldSelectFeatures) {
+    //   if (oldSelectFeatures && !this.selectFeatures.length) {
+    //     oldSelectFeatures.map(feature => {
+    //       feature.setStyle(null);
+    //       this.singleSelectFeature = null;
+    //     });
+    //   }
+    // },
+    selectAll(selectAll) {
+      for (const layerid in selectAll) {
+        this.selecteAllFeatures = []
+        let layer = getLayerOL(layerid);
+        //如果该图层设置为全选，则该图层所有要素的样式添加选中样式
+        if (layer && selectAll[layerid]) {
+          layer
+            .getSource()
+            .getFeatures()
+            .forEach(f => {
+              f.setStyle(this.createStyle(layer, f));
+              f.changed();
+              this.selecteAllFeatures.push(f)
+            });
+        }
+        //如果该图层设置为非全选，则该图层所有要素的样式取消选中样式
+
+        if (layer && !selectAll[layerid]) {
+          this.selecteAllFeatures = []
+          layer
+            .getSource()
+            .getFeatures()
+            .forEach(f => {
+              f.setStyle(null);
+              f.changed();
+            });
+        }
+
+        this.$store.dispatch("selectAllFeaturesAndLayer", {
+          features: this.selecteAllFeatures,
+          layer: layerid
+        })
       }
     }
   }

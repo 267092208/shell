@@ -149,8 +149,39 @@ const filter = {
             type: 'datetime',
             input: { type: 'input' }
         }
+    ],
+    "ma":[
+        {
+            label: '关键字',
+            placeholder: '查找包含本文本的任意字段',
+            field: null,
+            relation: "IASF",
+            type: 'string',
+            input: { type: 'input' }
+        }
+    ],
+    "nti":[
+        {
+            label: '关键字',
+            placeholder: '查找包含本文本的任意字段',
+            field: null,
+            relation: "IASF",
+            type: 'string',
+            input: { type: 'input' }
+        },
+        {
+            label: '是否CRT油站',
+            field: '是否CRT油站',
+            relation: 'booleanExist-false',
+            type: 'bool?',
+            input: { type: 'checkbox', enmus: [{ text: '是', value: true }, { text: '否', value: false }] }
+        }
+
     ]
+
 }
 
 filter['gsyz'] = filter['shellyz'] = filter['xyyz'];
+filter['xzqh'] = filter['ma'] 
+filter['gsnti'] =  filter['nti']
 export default filter;

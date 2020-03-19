@@ -89,10 +89,12 @@
 
 <script>
 import { mapState } from "vuex";
+import gcoord from "gcoord";
+import { createdRenderer } from "@/mapTool/layerManager.js";
 
 export default {
   filters: {
-    formFilter: function(value, type) {
+    formFilter: function (value, type) {
       switch (type) {
         case "geometryX":
         case "geometryY":
@@ -110,7 +112,9 @@ export default {
       filtersPanelVisible: state => state.header.filtersPanelVisible,
       layersPanelVisible: state => state.header.layersPanelVisible,
       base: state => state.layer.base,
-      currentLayer: state => state.layer.currentLayer
+      currentLayer: state => state.layer.currentLayer,
+      layersRenderer: state => state.layer.renderer,
+
       // geometry: state => state.geometry.geometry
     }),
     filterForm() {
@@ -194,7 +198,8 @@ export default {
           return time.getTime() > Date.now();
         }
       },
-      geometry: null
+      geometry: null,
+      newPoint: null
     };
   },
   methods: {
@@ -214,18 +219,23 @@ export default {
         if (valid) {
           // do something
           this.saving = true;
+
           this.$store
             .dispatch("addLayerFeature", {
               layerid: this.currentLayer.id,
               feature: {
-                geometry: this.geometry.geometry,
+                geometry: {
+                  type: this.geometry.getGeometry().getGeometry().getType(),
+                  coordinates: this.newPoint
+                },
                 properties: this.form
               }
             })
             .then(res => {
               this.$message.success({ message: "添加成功", offset: 60 });
               this.saving = false;
-              this.endPoint();
+              // this.endPoint();
+              this.closeAddLayer()
             })
             .catch(err => {
               this.$message.error({ message: "添加失败!", offset: 60 });
@@ -303,31 +313,39 @@ export default {
     createLabelWidth(name) {
       // return name.indexOf("第三方优惠") > 0 ? "170px" : "";
     },
-    beginSetPoint() {
-      return this.$store
-        .dispatch("getGeometry", "point")
+    async beginSetPoint() {
+      this.$store
+        .dispatch("getGeometry", { drawMode: "Point" })
         .then(res => {
-          this.geometry = res;
-          this.geometry.on("update", e => {
-            this.updateCoordinate(e);
+          this.geometry = res
+          res.on("update", () => {
+            let point = res.getFeature().getGeometry().getCoordinates();
+            this.newPoint = point
+            //   this.geometry.getGeometry().setStyle(style);
+            this.updateCoordinate(this.pointLatLng(point));
           });
-          this.updateCoordinate(res.geometry);
+
         })
         .catch(err => {
-          // console.log(err);
+          console.log("err-----", err);
         });
     },
     endPoint() {
-      this.$store.dispatch("drawDisable");
-      if (this.geometry != null) this.geometry.disable();
+      // this.$store.dispatch("drawDisable");
+      this.geometry && this.geometry.disable();
     },
     updateCoordinate(geometry) {
       this.form["lng_baidu"] = Number.parseFloat(
-        geometry.coordinates[0]
+        geometry[0]
       ).toFixed(6);
       this.form["lat_baidu"] = Number.parseFloat(
-        geometry.coordinates[1]
+        geometry[1]
       ).toFixed(6);
+    },
+    //获取的xy经纬度转为经纬度坐标
+    pointLatLng(xy) {
+      let latlng = gcoord.transform(xy, gcoord.EPSG3857, gcoord.BD09);
+      return latlng;
     },
     init() {
       if (this.currentLayer != null) {
@@ -338,8 +356,9 @@ export default {
       this.$parent.afterClose = this.endPoint.bind(this);
     },
     close() {
-      this.resetForm("form");
+      // this.resetForm("form");
       this.endPoint();
+
     }
   },
   mounted() {
@@ -353,7 +372,7 @@ export default {
       }
       this.form = form;
       // this.$parent.afterClose = this.endPoint.bind(this);
-      this.beginSetPoint();
+      //   this.beginSetPoint();
       this.$parent.autoClose = false;
     }
   },

@@ -9,6 +9,7 @@
     :close-on-click-modal="false"
     custom-class="dialog"
     class="car-flow"
+    v-dialogDrag
   >
     <el-table style="width: 100%;min-height:300px" heigth="400" :data="tableData">
       <el-table-column v-for="(item,index) in fields" :key="index" :label="item.name" width align="center">

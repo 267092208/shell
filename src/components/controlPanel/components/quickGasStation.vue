@@ -196,7 +196,7 @@
                   justify="center"
                   align="center"
                   class="icon-btn"
-                  @click.native="exportLayerVisible = true"
+                  @click.native="exportBatchLayerVisible = true"
                 >
                   <div class="icon-title">导出</div>
                   <el-avatar shape="square" :size="50" fit="fill" class="iconfont icon-daochu icon"></el-avatar>
@@ -206,7 +206,7 @@
                   justify="center"
                   align="center"
                   class="icon-btn"
-                  @click.native="importLayerVisible = true"
+                  @click.native="importBatchLayerVisible = true"
                 >
                   <div class="icon-title">导入</div>
                   <el-avatar shape="square" :size="50" fit="fill" class="iconfont icon-daoru1 icon"></el-avatar>
@@ -228,12 +228,12 @@
     ></import-layer-for-quick>
     <multi-site-compare :dialogVisible.sync="mscompareVisible" :mscData="selectFeatures"></multi-site-compare>
     <history-sales-chart :dialogVisible.sync="historyChartVisible" :yzdata="selectFeatures"></history-sales-chart>
-    <export-layer
-      :dialogVisible.sync="exportLayerVisible"
+    <export-batch-layer
+      :dialogVisible.sync="exportBatchLayerVisible"
       :fieldList="fields"
       :layerTable="layerTable"
-    ></export-layer>
-    <import-layer :dialogVisible.sync="importLayerVisible"></import-layer>
+    ></export-batch-layer>
+    <import-batch-layer :dialogVisible.sync="importBatchLayerVisible"  ></import-batch-layer>
     <area-statistics :dialogVisible.sync="areaStatisticsVisible" :tableData="areaData"></area-statistics>
     <table-views v-if="isopenTable"></table-views>
   </div>

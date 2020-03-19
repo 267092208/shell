@@ -5,16 +5,13 @@
     appear-to-class="fade-leave"
     appear-active-class="fade-enter-active"
   >
-    <component v-loading="currentLayer == null" :is="getCurrentLayerName" :title="this.title"></component>
+    <component v-loading="currentLayer == null" :is="getCurrentLayerName"></component>
   </transition>
 </template>
 
 <script>
 import { mapState, mapGetters } from "vuex";
 import asyncComponent from "@/assets/js/asyncComponent";
-import hadStation from "@/components/controlPanel/components/hadStation";
-import quickGasStation from "@/components/controlPanel/components/quickGasStation";
-import shellGasStation from "@/components/controlPanel/components/shellGasStation";
 
 export default {
   computed: {
@@ -25,15 +22,11 @@ export default {
     getCurrentLayerName() {
       if (this.currentLayer != null) {
         let layer = this.currentLayer.id;
-        this.title = this.currentLayer.name;
         return this.currentLayer.id || "gsyz";
       } else {
-        // if (this.$store.state.panel.panelVisible  && this.$store.state.panel.panelComponent.bottom === 'actions' ) {
-        // if (this.$store.getters.isOpenWithCName('actions')) {
         this.$store.dispatch("clear", {
           position: "bottom"
         });
-        // }
         return null;
       }
     }
@@ -63,10 +56,63 @@ export default {
     xyyz: () => ({
       ...asyncComponent,
       component: import("@/components/controlPanel/components/hadStation_to")
+    }),
+    ma: () => ({
+      ...asyncComponent,
+      component: import("@/components/controlPanel/components/MAInfo")
+    }),
+    nti: () => ({
+      ...asyncComponent,
+      component: import("@/components/controlPanel/components/NTI")
+    }),
+    gsnti: () => ({
+      ...asyncComponent,
+      component: import("@/components/controlPanel/components/quickNTI")
+    }),
+    poi: () => ({
+      ...asyncComponent,
+      component: import("@/components/controlPanel/components/poi")
+    }),
+    corridor: () => ({
+      ...asyncComponent,
+      component: import("@/components/controlPanel/components/corridor")
+    }),
+    xzqh: () => ({
+      ...asyncComponent,
+      component: import("@/components/controlPanel/components/xzqh")
+    }),
+    target: () => ({
+            ...asyncComponent,
+      component: import("@/components/controlPanel/components/target")
+    }),
+    poigroups: () => ({
+      ...asyncComponent,
+      component: import("@/components/controlPanel/components/poigroups")
+    }),
+    sq: () => ({
+      ...asyncComponent,
+      component: import("@/components/controlPanel/components/sq")
+    }),
+    roadnetwork: () => ({
+      ...asyncComponent,
+      component: import("@/components/controlPanel/components/roadnetwork")
+    }),
+    lsd: () => ({
+      ...asyncComponent,
+      component: import("@/components/controlPanel/components/lsd")
+    }),
+    scyk: () => ({
+      ...asyncComponent,
+      component: import("@/components/controlPanel/components/scyk")
+    }),
+    lpglng: () => ({
+      ...asyncComponent,
+      component: import("@/components/controlPanel/components/lpglng")
+    }),
+    xl: () => ({
+      ...asyncComponent,
+      component: import("@/components/controlPanel/components/xl")
     })
-    // shellyz: shellGasStation,
-    // gsyz: quickGasStation,
-    // xyyz: hadStation
   },
   methods: {
     init(){
@@ -77,7 +123,7 @@ export default {
   watch: {
     currentLayer (val) {
       if (val)
-      this.$parent.title = `操作面板 (Alt+2)-当前图层:${val.name}`;
+      'title' in this.$parent && (this.$parent.title = `操作面板 (Alt+2)-当前图层:${val.name}`)
     }
   }
 };

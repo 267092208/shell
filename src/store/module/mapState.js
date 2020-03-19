@@ -33,6 +33,16 @@ const mapState = {
          * @type {number}
          */
         inputZoom: null,
+        /**
+         * 是否最小zoom
+         * @type {boolean}
+         */
+        isMinZoom: false,
+        /**
+        * 是否最大zoom
+        * @type {boolean}
+        */
+        isMaxZoom: false
     },
     actions: {
         /**

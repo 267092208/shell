@@ -5,7 +5,10 @@ import mapstate from './mapstate'
 import select from './select'
 import search from './search'
 import extLayers from './extLayers'
-import geometry from './geometry'
+import editGeometry from './editGeometry'
+import handleLayers from './handleLayers'
+import measure from './measure'
+
 export default [
     map,
     basemap,
@@ -14,5 +17,7 @@ export default [
     select,
     search,
     extLayers,
-    geometry
+    handleLayers,
+    editGeometry,
+    measure
 ]

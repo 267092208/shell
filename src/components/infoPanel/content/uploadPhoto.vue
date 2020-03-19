@@ -8,6 +8,8 @@
     custom-class="dialog"
     :close-on-click-modal="false"
     :append-to-body="true"
+    v-dialogDrag
+
   >
     <div class="import_content">
       <el-upload
@@ -55,7 +57,6 @@ import { uploadPhoto, getPhotos } from "@/data/photo";
 export default {
   props: {
     dialogVisible: Boolean,
-    renewPhoto: Function
   },
   computed: {
     ...mapState({
@@ -139,12 +140,13 @@ export default {
 
       uploadPhoto(this.selectFeature, this.selectFeatureLayer.id, formData)
         .then(res => {
-          let date = new Date().toLocaleString
+          let date = new Date().toLocaleString()
           this.uploading = false;
           this.ishasFile = false;
           this.isShowFileList = false;
           this.fileList = [];
           this.$message.success({ message: "文件上传成功", offset: 60 });
+          
           this.$store.dispatch("setPhotoStatus", date);
 
         })

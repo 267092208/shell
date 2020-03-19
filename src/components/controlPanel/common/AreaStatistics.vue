@@ -8,6 +8,7 @@
     :append-to-body="true"
     :close-on-click-modal="false"
     custom-class="dialog"
+    v-dialogDrag
   >
     <el-table
       :data="tableData"

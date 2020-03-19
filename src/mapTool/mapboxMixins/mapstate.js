@@ -1,6 +1,6 @@
 import { mapState } from 'vuex';
 import { map } from './map';
-
+import ol from "ol"
 const mixin = {
     computed: {
         ...mapState({
@@ -10,13 +10,13 @@ const mixin = {
         })
     },
     methods: {
-        async initMapState () {
+        async initMapState() {
             map.on('statechanged', () => {
                 this.updateMapState();
             });
             this.updateMapState();
         },
-        updateMapState () {
+        updateMapState() {
             this.$store.state.mapState.bounds = map.getBounds();
 
             const newcenter = map.getCenter();
@@ -33,13 +33,13 @@ const mixin = {
         }
     },
     watch: {
-        inputBounds (val) {
+        inputBounds(val) {
             val && map.setBounds(val);
         },
-        inputCenter (val) {
+        inputCenter(val) {
             val && map.setCenter(val);
         },
-        inputZoom (val) {
+        inputZoom(val) {
             val && map.setZoom(val);
         }
     }

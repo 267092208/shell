@@ -1,6 +1,6 @@
 <template>
   <el-dialog
-    title="导入数据表"
+    :title="title ? title : '导入数据表'"
     :before-close="handleClose"
     :visible="dialogVisible"
     width="750px"
@@ -8,7 +8,9 @@
     custom-class="dialog"
     :close-on-click-modal="false"
     :append-to-body="true"
+    v-dialogDrag
   >
+
     <div class="import_content">
       <el-upload
         class="upload-demo"
@@ -27,12 +29,12 @@
           <em>点击上传</em>
         </div>
         <div class="el-upload__tip" style="color: #909399;" slot="tip">
-        <el-tag size="small"><el-link style="font-size: 12px;" :underline="false" :href="exampleXlsPath">示例文件下载</el-link></el-tag><br/>
-          导入数据时出现不是预期格式时, 请另存为office2007版本或用wps保存
+          <el-tag size="small">
+            <el-link style="font-size: 12px;" :underline="false" :href="exampleXlsPath">示例文件下载</el-link>
+          </el-tag>
+          <br />导入数据时出现不是预期格式时, 请另存为office2007版本或用wps保存
         </div>
-
       </el-upload>
-
     </div>
     <span slot="footer" class="dialog-footer">
       <el-button size="mini" icon="el-icon-remove-outline" @click="handleClose(false)">取 消</el-button>
@@ -51,12 +53,12 @@
 <script>
 import XLSX from "xlsx";
 import { mapState } from "vuex";
-import { importExcel } from "@/data/layerExcelIO";
+import { importExcel, importExcelForAnyOne } from "@/data/layerExcelIO";
 
 export default {
-  props: ["dialogVisible", "exampleXlsPath"],
+  props: ["dialogVisible", "exampleXlsPath", "title", "layerId"],
   computed: {
-    ...mapState({ currentLayer: state => state.layer.currentLayer })
+    ...mapState({ currentLayer: state => state.layer.currentLayer }),
   },
   data() {
     return {
@@ -85,15 +87,15 @@ export default {
         this.uploading = false;
         this.$refs.upload.clearFiles();
         this.ishasFile = false;
-        this.$message.warning({message: "已取消上传", offset: 60});
+        this.$message.warning({ message: "已取消上传", offset: 60 });
       }
-       this.$emit("update:dialogVisible", false);
+      this.$emit("update:dialogVisible", false);
     },
     // updateVisible(b) {
     //   this.$emit("update:dialogVisible", b);
     // },
     onUploadExceed() {
-      this.$message.error({message: "一次只能上传一个文件!", offset: 60});
+      this.$message.error({ message: "一次只能上传一个文件!", offset: 60 });
     },
     onFileChange(file) {
       this.ishasFile = true;
@@ -106,7 +108,10 @@ export default {
           if (!/\.[csv|xlsx|xls]/.test(file.name)) {
             this.ishasFile = false;
             this.$refs.upload.clearFiles();
-            this.$message.error({ message: "请上传csv文件或Excel文件",offset: 60});
+            this.$message.error({
+              message: "请上传csv文件或Excel文件",
+              offset: 60
+            });
             break;
           }
       }
@@ -118,21 +123,34 @@ export default {
       const formData = new FormData();
       formData.append("table", file.raw);
       this.uploading = true;
-      importExcel(this.currentLayer.id, formData)
+      const id = this.layerId ? this.layerId : this.currentLayer.id
+      importExcelForAnyOne(id, formData)
         .then(res => {
           this.uploading = false;
           this.$refs.upload.clearFiles();
           this.ishasFile = false;
           let msg = `文件上传成功!新增${res.succeed}条, 更新${res.update}条。`;
-          msg += (res.errorString == '') ? '' : `<div style="color: #F56C6C; max-height: 100px; width: 300px; overflow: scroll;">错误信息: <br/>${res.errorString.replace(/\n/g, '。<br/>')}</div>` 
-          this.$message.success({dangerouslyUseHTMLString: true, message: msg, offset: 60, showClose: true, duration: 0});
+          msg +=
+            res.errorString == ""
+              ? ""
+              : `<div style="color: #F56C6C; max-height: 100px; width: 300px; overflow: scroll;">错误信息: <br/>${res.errorString.replace(
+                  /\n/g,
+                  "。<br/>"
+                )}</div>`;
+          this.$message.success({
+            dangerouslyUseHTMLString: true,
+            message: msg,
+            offset: 60,
+            showClose: true,
+            duration: 0
+          });
         })
         .catch(err => {
           this.uploading = false;
           // console.log(err)
-          this.$message.error({message: "文件上传失败,请重试。", offset: 60});
+          this.$message.error({ message: "文件上传失败,请重试。", offset: 60 });
         });
-    },
+    }
     // handleSuccess(responce)
   }
 };

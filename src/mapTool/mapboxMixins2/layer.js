@@ -3,8 +3,9 @@ import { map } from "./map";
 import { geoJSONLayers, createdRenderer } from "../layerManager.js";
 import VectorLayer from "ol/layer/Vector";
 import VectorSource from "ol/source/Vector";
-import { getLayerOL,toVectorFeature } from "./utils";
-
+import { getLayerOL, toVectorFeature, toGeoJSON } from "./utils";
+import clickFu from "@/config/layer/clickFu";
+import zindex from "@/config/layer/zindex";
 const mapLayerLoaded = {};
 const mixin = {
   computed: {
@@ -21,6 +22,11 @@ const mixin = {
     async initLayers() {
       this.updateGeoJSONLayers(this.layersSource);
     },
+    /**
+     * 更新图层
+     * @param {*} layersSource
+     * @param {*} oldLayersSource
+     */
     async updateGeoJSONLayers(layersSource, oldLayersSource = {}) {
       for (const layerId in layersSource) {
         if (layersSource.hasOwnProperty(layerId) && !mapLayerLoaded[layerId]) {
@@ -31,8 +37,9 @@ const mixin = {
           let vectorLayer = new VectorLayer({
             source: vectorSource,
             style: createdRenderer(this.layersRenderer[layerId]),
-            zIndex: 1,
-            visible: this.layersVisible[layerId]
+            zIndex: zindex[layerId] || 1,
+            visible: this.layersVisible[layerId],
+            clickFu: clickFu[layerId]
           });
           vectorLayer.set("layerId", layerId);
 
@@ -40,22 +47,31 @@ const mixin = {
         } else if (layersSource.hasOwnProperty(layerId) && mapLayerLoaded[layerId]) {
           let currentLayer = getLayerOL(layerId);
           currentLayer.getSource().clear();
-          currentLayer.getSource().addFeatures(toVectorFeature(layersSource[layerId]));
+          let newFeatures = toVectorFeature(layersSource[layerId]);
+          // newFeatures.forEach(t => {
+
+          //   t.setStyle(createdRenderer(this.layersRenderer[layerId]));
+
+          // });
+
+          currentLayer.getSource().addFeatures(newFeatures);
+
+          currentLayer.setStyle(createdRenderer(this.layersRenderer[layerId]));
+          currentLayer.changed();
+          // console.log(currentLayer.getSource().getFeatures());
         }
       }
-    },  
+    }
   },
   watch: {
     layersVisible(layersVisible, oldLayersVisible) {
       for (const layerId in layersVisible) {
         if (layersVisible.hasOwnProperty(layerId)) {
           const layerVisible = layersVisible[layerId];
-          if (geoJSONLayers.hasOwnProperty(layerId)) {
-            geoJSONLayers[layerId].setVisible(layerVisible);
-          }
+
           //根据图层的可见性设置对应图标的显示与隐藏
           map.getLayers().forEach(layer => {
-            if (layer.values_.layerId && layer.values_["layerId"] === layerId) {
+            if (layer && layer.get("layerId") === layerId) {
               layer.setVisible(layerVisible);
             }
           });
@@ -65,15 +81,17 @@ const mixin = {
     layersRenderer(layersRenderer, oldLayersRenderer) {
       for (const layerId in layersRenderer) {
         if (layersRenderer.hasOwnProperty(layerId)) {
-          const layerRenderer = layersRenderer[layerId];
-          if (geoJSONLayers.hasOwnProperty(layerId)) {
-            const renderer = createdRenderer(layerRenderer);
-            geoJSONLayers[layerId].setRenderer(renderer);
+          let layer = getLayerOL(layerId);
+          if (layer) {
+            let id = layer.get("id") || layer.get("layerId");
+            layer.setStyle(createdRenderer(layersRenderer[id]));
           }
         }
       }
     },
     async layersSource(layersSource, oldLayersSource) {
+      console.log("layersSource", layersSource);
+
       this.updateGeoJSONLayers(layersSource, oldLayersSource);
     },
     layerSymbolScaling(symbolScaling) {
@@ -81,25 +99,33 @@ const mixin = {
       //操作面板设置图标缩放级别后实现图标缩放
       for (const layerId in symbolScaling) {
         const scal = symbolScaling[layerId];
+
         const mapboxLayerId = `${layerId}_layer_0`;
-        let layerList = map.getLayers().getArray();
-        let layer = layerList.find(item => {
-          return item.get("id") === layerId || item.get("layerId") === layerId;
-        });
+        let layer = getLayerOL(layerId);
 
-        if (layer) {
-          let styleFunction = layer.getStyleFunction();
+        layer && layer.setStyle(createdRenderer(this.layersRenderer[layerId], { scal }));
 
-          let style = null;
+        // if (layer) {
+        // let styleFunction = layer.getStyleFunction();
+
+        // let style = null;
+
+        layer &&
           layer
             .getSource()
             .getFeatures()
             .forEach(feature => {
-              style = styleFunction(feature);
-              style.getImage().setScale(scal);
-              feature.changed();
+              // style = styleFunction(feature);
+              // style.getImage() && style.getImage().setScale(scal);
+              // feature.changed();
+              // console.log("style",feature.getStyle());
+              feature.getStyle() &&
+                feature.getStyle().forEach(s => {
+                  s.getImage().setScale(scal);
+                });
             });
-        }
+
+        // }
 
         /// TODO:图标大小发生更变后，尚未处理文本标签、选择状态的样式
       }

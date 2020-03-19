@@ -8,6 +8,7 @@
     custom-class="dialog"
     :close-on-click-modal="false"
     :append-to-body="true"
+    v-dialogDrag
   >
     <div class="import_content">
       <el-upload

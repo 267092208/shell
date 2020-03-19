@@ -5,6 +5,7 @@
 /// TODO:要素照片管理接口目前仅针对油站层硬编码
 
 import axios from "@/assets/js/axios";
+import qs from 'qs';
 
 /**
  * 指定图层要素的照片列表(最新年份的)
@@ -69,4 +70,50 @@ export async function deletePhoto(feature, layerid, urls) {
     bh: feature.properties["油站编号"],
     pics: urls.join(";")
   });
+}
+
+/**
+ * 通用图片上传接口
+ * @param {string} layerId 图层id
+ * @param {number} featureId 要素Id
+ * @param {*} formData 
+ */
+export async function generalUploadPhoto(layerId, featureId, formData) {
+  formData.append('action', 'UploadPhoto');
+  formData.append('id', featureId)
+  const url = `/dataPages/${layerId}/Handler.ashx`
+  const { data } = await axios.post(url, formData, {
+    headers: { "Content-Type": "multipart/form-data", "Accept": 'image/*' }
+  })
+  
+  return data;
+}
+
+/**
+ *  获取商圈图片列表 通过商圈 id
+ * @param {number} sqId 商圈id 
+ */
+export async function getPhotoListForSQ(sqId) {
+  const url = '/dataPages/sq/Handler.ashx';
+  const  { data } = await axios.post(url, qs.stringify({
+    action: 'GetPhotoListByBh',
+    id: sqId
+  }))
+  return data;
+}
+
+/**
+ * 删除目标商圈的图片 by id and src
+ * @param {number} sqId 商圈id 
+ * @param {string} src 图片路径 
+ */
+export async function delPhotoForSQ(sqId, src) {
+  const url = `/dataPages/sq/Handler.ashx`;
+  const { data } = await axios.post(url, qs.stringify({
+    action: 'DelPhoto',
+    id: sqId,
+    pics: src
+  }));
+
+  return data;
 }

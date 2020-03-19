@@ -92,6 +92,7 @@ import filterData from "@/config/filter.js";
 import { getCityAndMATreeObj } from "@/data/division.js";
 import Vue from "vue";
 import { deepCopy } from "@/assets/js/utils.js";
+import gcoord from "gcoord"
 let geometryInstance = null;
 /**
  * default
@@ -188,25 +189,28 @@ export default {
         this.$parent.autoClose = false;
         this.isDrawAreaing = true;
         this.$parent.afterClose = () => {
-          this.$store.dispatch("drawDisable");
+          // this.$store.dispatch("drawDisable");
+          geometryInstance && geometryInstance.disable()
           this.isDrawAreaing = false;
         };
-        geometryInstance = await this.$store.dispatch("getGeometry",{drawMode:'Polygon'});
+        geometryInstance = await this.$store.dispatch("getGeometry", { drawMode: 'Polygon' });
         if (geometryInstance) {
-          let value = geometryInstance.getGeometry().getGeometry().getCoordinates();  
-             value[0] =  res[0].map(([x,y]) => {return transform([x,y], "EPSG:3857","EPSG:4326");
-              }).join(";");
+          // let value = geometryInstance.getFeature().getGeometry().getCoordinates();
+          // value[0] = res[0].map(([x, y]) => {            return transform([x, y], "EPSG:3857", "EPSG:4326");
+          // }).join(";");
           const formDatas = this.formDatas[this.currentLayer.id];
-          formDatas[item.label] = value;
+          // formDatas[item.label] = value;
           geometryInstance.on("update", geometry => {
-            let value = geometryInstance.getGeometry().getGeometry().getCoordinates();  
-             value[0] =  res[0].map(([x,y]) => {return transform([x,y], "EPSG:3857","EPSG:4326");
-              }).join(";");
+            let value = geometryInstance.getFeature().getGeometry().getCoordinates();
+
+            value[0] = value[0].map(([x, y]) => {              return gcoord.transform([x, y], gcoord.EPSG3857, gcoord.BD09);
+            }).join(";");
             formDatas[item.label] = value;
           });
         }
       } else {
-        this.$store.dispatch("drawDisable");
+        geometryInstance && geometryInstance.disable()
+        // this.$store.dispatch("drawDisable");
         this.$parent.autoClose = true;
         this.isDrawAreaing = false;
       }
@@ -246,11 +250,11 @@ export default {
 
       const defaultFormData = defaultFormDatas[currentLayerID];
       const formData = this.formDatas[currentLayerID];
-      // const
       for (const key in formData) {
         if (formData.hasOwnProperty(key)) {
           const element = formData[key];
           const defaultElement = defaultFormData[key];
+
           if (
             element.length !== defaultElement.length &&
             element.length !== 0
@@ -272,7 +276,8 @@ export default {
       if (!currentLayerID) {
         layerFilters = null;
       }
-      this.$store.dispatch("drawDisable");
+      geometryInstance && geometryInstance.disable()
+      // this.$store.dispatch("drawDisable");
       this.isDrawAreaing = false;
       //设置筛选条件(含通用和图层筛选)
       this.$store
@@ -313,7 +318,7 @@ export default {
     },
     init() {
       this.$parent.title = "筛选面板(Alt+1)";
-      if (this.currentLayer) {
+      if (this.currentLayer && filterData[this.currentLayer.id]["自定义区域"]) {
         this.formDatas[this.currentLayer.id]["自定义区域"] = "";
       }
     }

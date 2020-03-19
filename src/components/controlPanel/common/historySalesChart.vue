@@ -11,6 +11,9 @@
     :append-to-body="true"
     :close-on-click-modal="false"
     :destroy-on-close="true"
+    :no-data-height="120"
+    :row-height="25"
+    v-dialogDrag
   >
     <div v-loading="loading">
       <div class="title" v-if="!loading">油站日销量柴汽油变化</div>

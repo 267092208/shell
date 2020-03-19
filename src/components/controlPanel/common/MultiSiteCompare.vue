@@ -10,6 +10,7 @@
       :close-on-click-modal="false"
       custom-class="dialog"
       @open="openDiaglog"
+    v-dialogDrag
     >
       <el-table
         :data="tableData"
@@ -108,6 +109,7 @@ export default {
           }
         }
       }
+
       return table;
     },
     comDisabledBtn(num) {

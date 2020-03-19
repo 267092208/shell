@@ -19,10 +19,30 @@ Vue.component("addLayer", () => ({
   ...asyncComponent,
   component: import("@/components/controlPanel/common/addLayer.vue")
 }));
+Vue.component('addMA', () => ({
+  ...asyncComponent,
+  component: import("@/components/controlPanel/MA/newMA.vue")
+}));
 Vue.component("infoPanel", () => ({
   ...asyncComponent,
   component: import("@/components/infoPanel/infoPanelCopy")
 }));
+Vue.component("MAinfo", () => ({
+  ...asyncComponent,
+  component: import("@/components/controlPanel/MA/newMA.vue")
+}));
+Vue.component('commAddPanel', () => ({
+  ...asyncComponent,
+  component: import("@/components/controlPanel/common/generalPropertyPanel")
+}))
+Vue.component('commPropertyPanel', () => ({
+  ...asyncComponent,
+  component: import("@/components/controlPanel/common/generalPropertyPanel")
+}))
+Vue.component('createXzqh', () => ({
+  ...asyncComponent,
+  component: import("@/components/controlPanel/XZQH/createXzqh_to")
+}))
 
 const user = {
   state: {
@@ -64,7 +84,8 @@ const user = {
      */
     routMap: {
       layerlist: {
-        position: "right"
+        position: "right",
+        visible:false
       },
       filters: {
         position: "left"
@@ -75,18 +96,36 @@ const user = {
       addLayer: {
         position: "right"
       },
+      addMA: {
+        position: "right"
+      },
+      MAinfo:{
+        position: "right"
+      },
       infoPanel: {
         position: "right"
+      },
+      commPropertyPanel: {
+        position: "right"
+      },
+      commAddPanel: {
+        position: 'right'
+      },
+      createXzqh: {
+        position: 'right'
       }
     },
     /**
      * 照片状态
      */
-    photoStatus: false
+    photoStatus: false,
+    /** panel 扩展数据 */
+    extent: null
   },
   mutations: {},
   actions: {
-    replace({ state }, { path }) {
+    replace({ state }, { path, extent }) {
+      state.extent = extent;
       const r = state.routMap[path];
       if (!state.panelVisible[r.position]) {
         state.panelVisible[r.position] = true;
@@ -129,6 +168,10 @@ const user = {
     //更改照片状态
     setPhotoStatus({ state }, b) {
       state.photoStatus = b;
+    },
+
+    setLayerListVisible({ state }, b){
+      state.routMap.layerlist.visible = b
     }
   },
   getters: {
@@ -142,19 +185,40 @@ const user = {
   }
 };
 
+
 // 监听选中元素的改变
 import("@/store").then(m => {
   const store = m.default;
   store.watch(
     () => store.state.selectFeature.selectFeature,
-    newval => {
+    (newval,oldval) => {
+      console.log("selectFeature+++++",newval);
+      
       if (newval) {
-        store.dispatch("replace", { path: "infoPanel" });
+
+        const layer = store.state.selectFeature.selectFeatureLayer
+
+        if(layer.id === "shellyz" ||layer.id === "gsyz" ||layer.id === "xyyz"){
+          store.dispatch("replace", { path: "infoPanel" });
+        } else if(layer.id === "ma" ){
+          store.dispatch("replace", { path: "MAinfo" });
+        } 
+        else {
+          store.dispatch("replace", { path: "commPropertyPanel" });
+        }    
       } else {
+        
+        if(store.state.panel.routMap.layerlist.visible){
+          
+          return ;
+        }
+        console.log("clear rightPanel");
+        
         store.dispatch("clear", { position: "right" });
         
       }
     }
   );
-});
+})
+
 export default user;

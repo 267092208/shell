@@ -9,6 +9,8 @@
     :close-on-click-modal="false"
     custom-class="dialog"
     class="history-imgs"
+    v-dialogDrag
+    
   >
     <div v-if="Object.keys(historyImgs).length===0">暂无图片</div>
     <el-scrollbar style="height:500px">

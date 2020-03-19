@@ -135,6 +135,7 @@ const mixin = {
                 const scal = symbolScaling[layerId];
                 const mapboxLayerId = `${layerId}_layer_0`;
                 /// TODO:图标大小发生更变后，尚未处理文本标签、选择状态的样式
+                console.log(map._map.getLayoutProperty(mapboxLayerId, 'icon-size'));
                 map._map.getLayer(mapboxLayerId) && map._map.setLayoutProperty(mapboxLayerId, 'icon-size', scal);
             }
         }

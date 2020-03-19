@@ -9,10 +9,8 @@ import XYZ from 'ol/source/XYZ';
  * @type {{[sourceKey:string]:XYZ }}
  */
 const baseMapRasterSource = {
-    'no_base_map': new XYZ({
-        url: ''
-    }),
-    '高德地图':[ 
+    'no_base_map': false,
+    '高德地图': [
         new XYZ({
             url: 'https://webrd0{1-4}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}',
             attributions: '&copy TileData-高德地图-GS(2018)1709号',
@@ -23,14 +21,14 @@ const baseMapRasterSource = {
     ],
     '高德影像': [
         new XYZ({
-            url:'https://webst0{1-4}.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}',
+            url: 'https://webst0{1-4}.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}',
             maxZoom: 20,//默认18
             minZoom: 0,//默认0
             // projection: 'EPSG:4326'
             projection: "EPSG:3857"//坐标系
         }),
         new XYZ({
-            url:'http://webst0{1-4}.is.autonavi.com/appmaptile?x={x}&y={y}&z={z}&lang=zh_cn&size=1&scale=1&style=8',
+            url: 'http://webst0{1-4}.is.autonavi.com/appmaptile?x={x}&y={y}&z={z}&lang=zh_cn&size=1&scale=1&style=8',
             attributions: '&copy TileData-高德地图-GS(2018)1709号',
             maxZoom: 20,//默认18
             minZoom: 0,//默认0
@@ -60,14 +58,14 @@ const baseMapRasterSource = {
     ],
     'Google影像有路网': [
         new XYZ({
-            url : 'https://mt{0-3}.google.cn/vt/lyrs=s&hl=zh-CN&gl=CN&x={x}&y={y}&z={z}&s=Gali',
+            url: 'https://mt{0-3}.google.cn/vt/lyrs=s&hl=zh-CN&gl=CN&x={x}&y={y}&z={z}&s=Gali',
             attributions: '&copy TileData-GoogleMap-GS(2018)5572号',
             minZoom: 0,//默认0
             // projection: 'EPSG:4326'
             projection: "EPSG:3857"//坐标系
         }),
         new XYZ({
-            url:'https://mt{0-3}.google.cn/vt/imgtp=png32&lyrs=h@207000000&hl=zh-CN&gl=cn&x={x}&y={y}&z={z}&s=Galil',
+            url: 'https://mt{0-3}.google.cn/vt/imgtp=png32&lyrs=h@207000000&hl=zh-CN&gl=cn&x={x}&y={y}&z={z}&s=Galil',
             attributions: '&copy TileData-GoogleMap-GS(2018)5572号',
             minZoom: 0,//默认0
             // projection: 'EPSG:4326'
@@ -85,14 +83,14 @@ const baseMapRasterSource = {
     ],
     'Google影像英文': [
         new XYZ({
-            url:'https://mt{0-3}.google.cn/vt/lyrs=s&hl=en-US&gl=EN&x={x}&y={y}&z={z}&s=Gali',
+            url: 'https://mt{0-3}.google.cn/vt/lyrs=s&hl=en-US&gl=EN&x={x}&y={y}&z={z}&s=Gali',
             attributions: '&copy TileData-GoogleMap-GS(2018)5572号',
             minZoom: 0,//默认0
             // projection: 'EPSG:4326'
             projection: "EPSG:3857"//坐标系
         }),
         new XYZ({
-            url:'https://mt{0-3}.google.cn/vt/imgtp=png32&lyrs=h@207000000&hl=en-US&gl=cn&x={x}&y={y}&z={z}&s=Galil',
+            url: 'https://mt{0-3}.google.cn/vt/imgtp=png32&lyrs=h@207000000&hl=en-US&gl=cn&x={x}&y={y}&z={z}&s=Galil',
             attributions: '&copy TileData-GoogleMap-GS(2018)5572号',
             minZoom: 0,//默认0
             // projection: 'EPSG:4326'
@@ -101,14 +99,14 @@ const baseMapRasterSource = {
     ],
     '天地图': [
         new XYZ({
-            url:'https://t{0-7}.tianditu.gov.cn/DataServer?T=vec_w&X={x}&Y={y}&L={z}&tk=c26cf19d1e197d4fc55c61f2ce9aae4b',
+            url: 'https://t{0-7}.tianditu.gov.cn/DataServer?T=vec_w&X={x}&Y={y}&L={z}&tk=c26cf19d1e197d4fc55c61f2ce9aae4b',
             attributions: '&copy TileData-天地图-GS(2019)1719号',
             minZoom: 0,//默认0
             // projection: 'EPSG:4326'
             projection: "EPSG:3857"//坐标系
         }),
         new XYZ({
-            url:'https://t{0-7}.tianditu.gov.cn/DataServer?T=cva_w&X={x}&Y={y}&L={z}&tk=c26cf19d1e197d4fc55c61f2ce9aae4b',
+            url: 'https://t{0-7}.tianditu.gov.cn/DataServer?T=cva_w&X={x}&Y={y}&L={z}&tk=c26cf19d1e197d4fc55c61f2ce9aae4b',
             attributions: '&copy TileData-天地图-GS(2019)1719号',
             minZoom: 0,//默认0
             // projection: 'EPSG:4326'
@@ -117,14 +115,14 @@ const baseMapRasterSource = {
     ],
     '天地图影像': [
         new XYZ({
-            url:'https://t{0-7}.tianditu.gov.cn/DataServer?T=img_w&X={x}&Y={y}&L={z}&tk=c26cf19d1e197d4fc55c61f2ce9aae4b',
+            url: 'https://t{0-7}.tianditu.gov.cn/DataServer?T=img_w&X={x}&Y={y}&L={z}&tk=c26cf19d1e197d4fc55c61f2ce9aae4b',
             attributions: '&copy TileData-天地图-GS(2019)1719号',
             minZoom: 0,//默认0
             // projection: 'EPSG:4326'
             projection: "EPSG:3857"//坐标系
         }),
         new XYZ({
-            url:'http://t{0-7}.tianditu.gov.cn/DataServer?T=cia_w&X={x}&Y={y}&L={z}&tk=c26cf19d1e197d4fc55c61f2ce9aae4b',
+            url: 'http://t{0-7}.tianditu.gov.cn/DataServer?T=cia_w&X={x}&Y={y}&L={z}&tk=c26cf19d1e197d4fc55c61f2ce9aae4b',
             attributions: '&copy TileData-天地图-GS(2019)1719号',
             minZoom: 0,//默认0
             // projection: 'EPSG:4326'

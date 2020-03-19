@@ -8,5 +8,10 @@ module.exports = {
     },
 
     productionSourceMap: false,
-    publicPath: './'
+    publicPath: './',
+    configureWebpack: {
+        externals: {
+            BMap: 'BMap'
+        }
+    }
 };

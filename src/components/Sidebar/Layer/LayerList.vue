@@ -69,6 +69,8 @@
 ///TODO:代码要重新写  组件层级过深
 import CurrentLayerFilter from "@/assets/config/CurrentLayerFilter.js";
 import CurrentLayer from "@/store/module/layer.js";
+import gcoord from "gcoord";
+
 export default {
   data() {
     return {
@@ -130,10 +132,13 @@ export default {
         this.$parent.$parent.$parent.$parent.autoClose = false;
         const geometryInstance = await this.$store.dispatch("getGeometry", 'polygon');
         if (geometryInstance) {
-          const value = geometryInstance.geometry.coordinates[0].join(";")
-          item.value = value;
+          // const value = geometryInstance.geometry.coordinates[0].join(";")
+          // item.value = value;
           geometryInstance.on("update", (geometry) => {
-            const value = geometry.coordinates[0].join(";")
+            let value = geometryInstance.getFeature().getGeometry().getCoordinates();
+            value[0] = value[0].map(([x, y]) => {              return gcoord.transform([x, y], gcoord.EPSG3857, gcoord.BD09);
+            }).join(";");
+            // const value = geometry.coordinates[0].join(";")
             item.value = value;
           })
           // this.$parent.$parent.$parent.$parent.autoClose = autoClose;

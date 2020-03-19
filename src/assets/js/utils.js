@@ -89,6 +89,18 @@ function getCookie(name) {
 function delCookie(name) {
     setCookie(name, null, -1);
 };
+
+function downloadFileByATag(url, filename) {
+    const eleLink = document.createElement('a')
+    eleLink.download = filename
+    eleLink.style.display = 'none'
+    eleLink.href = url
+    // 触发点击
+    document.body.appendChild(eleLink)
+    eleLink.click()
+    // 然后移除
+    document.body.removeChild(eleLink)
+  }
 /**
  * 导出 
  **/
@@ -100,5 +112,6 @@ export {
     removeStore,
     setCookie,
     getCookie,
-    delCookie
+    delCookie,
+    downloadFileByATag
 }

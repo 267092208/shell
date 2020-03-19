@@ -1,27 +1,52 @@
 import Feature from 'ol/Feature';
 import { Vector as VectorSource } from 'ol/source';
+let changefeature
+let addfeature
+let noPlan
+
+
+
+
 /**
  * 编辑返回的对象
  */
 class GeometryInstance {
+
     /**
-     * 构造函数
-     * @param {VectorSource}  editGeomtrySource
-     * @param {*} disable 
+     *  构造函数
+     * @param {VectorSource} editGeomtrySource 
+     * @param {Function} disable  关闭事件
+     * @param {*} finishDrawing 
+     * @param {*} draw 绘制
      */
-    constructor(editGeomtrySource, disable) {
+    constructor(editGeomtrySource, disable, draw) {
+        this._eventobj = {}
         this.editGeomtrySource = editGeomtrySource;
         // 关闭编辑 
-        this.disable = disable;
+        this.disable = () => {
+            this.editGeomtrySource.un("changefeature", changefeature)
+            this.editGeomtrySource.un("addfeature", addfeature)
+            draw.un("noPlan", noPlan)
+            disable();
+            this.disable = () => { }
+        };
+        this._draw = draw;
+        this.removeLastPoint = () => {
+            draw.removeLastPoint()
+        }
         /**
          * @type {[key: string]: Array<LayerListener>} 
          */
-        this._eventobj = {}
-        this.editGeomtrySource.on("changefeature", () => {
-            this.emit("update")
+        this.disposeEvent();
+        this.editGeomtrySource.on("changefeature", changefeature = (e) => {
+            this.editGeomtrySource = e.target;
+            this.emit("update", e)
         })
-        this.editGeomtrySource.on("addfeature", () => {
-            this.emit("update")
+        this.editGeomtrySource.on("addfeature", addfeature = (e) => {
+            this.emit("update", e)
+        })
+        draw.on("noPlan", noPlan = (e) => {
+            this.emit("noPlan", e)
         })
     }
     /**
@@ -31,11 +56,31 @@ class GeometryInstance {
 
     }
     /**
+     * TODO:命名错误
      * 获取编辑的几何绘制结果
      * @returns {Feature}
      */
     getGeometry() {
+        this._draw.finishDrawing();
         return this.editGeomtrySource.getFeatures()[0]
+    }
+    /**
+    * 获取编辑的几何绘制结果图形
+    * @returns {Feature}
+    */
+    getFeature() {
+        this._draw.finishDrawing();
+        return this.editGeomtrySource.getFeatures()[0]
+    }
+    /**
+     * 设置要编辑的对象
+     * @param {Feature} feature 
+     */
+    setFeature(feature) {
+        this.editGeomtrySource.clear();
+        if (feature) {
+            this.editGeomtrySource.addFeature(feature);
+        }
     }
     /**
      * 定义事件
@@ -69,6 +114,20 @@ class GeometryInstance {
                 this._eventobj[type][i](evt);
             }
         }
+    }
+    /**
+   * 移除绑定到对象上的所有事件
+   */
+    disposeEvent() {
+        for (let p in this._eventobj) {
+            delete this._eventobj[p];
+        }
+    }
+    /**
+     *删除当前正在绘制的特征的最后一点
+     */
+    removeLastPoint() {
+
     }
 };
 export default GeometryInstance;

@@ -1,18 +1,8 @@
 import { mapState } from "vuex";
 import { getQualityByArea } from "@/data/yz.js";
 import { Loading } from "element-ui";
-import { transform } from "ol/proj";
+import gcoord from "gcoord";
 
-
-// import addLayer from "@/components/controlPanel/common/addLayer.vue";
-// import multiSiteCompare from "@/components/controlPanel/common/MultiSiteCompare.vue";
-// import historySalesChart from "@/components/controlPanel/common/historySalesChart.vue";
-// import exportLayer from "@/components/controlPanel/common/exportLayer.vue";
-// import importLayer from "@/components/controlPanel/common/importLayer.vue";
-// import tableViews from "@/components/controlPanel/common/tableViews.vue";
-// import importLayerCtrl from "@/components/controlPanel/common/importLayerCtrl.vue";
-// import importSaleDatas from "@/components/controlPanel/common/importSaleDatas.vue";
-// import areaStatistics from "@/components/controlPanel/common/AreaStatistics.vue"
 
 const xymixin = {
   props: ["title"],
@@ -28,6 +18,7 @@ const xymixin = {
       selectFeatureLayer: state => state.selectFeature.selectFeatureLayer,
       currentLayer: state => state.layer.currentLayer
     }),
+
     exportFields() {
       return this.fields.map(item => {
         return item;
@@ -46,10 +37,10 @@ const xymixin = {
       import("@/components/controlPanel/common/MultiSiteCompare.vue"),
     historySalesChart: () =>
       import("@/components/controlPanel/common/historySalesChart.vue"),
-    exportLayer: () =>
-      import("@/components/controlPanel/common/exportLayer.vue"),
-    importLayer: () =>
-      import("@/components/controlPanel/common/importLayer.vue"),
+    exportBatchLayer: () =>
+      import("@/components/controlPanel/common/exportBatchLayer.vue"),
+    importBatchLayer: () =>
+      import("@/components/controlPanel/common/importBatchLayer.vue"),
     tableViews: () => import("@/components/controlPanel/common/tableViews.vue"),
     importLayerCtrl: () =>
       import("@/components/controlPanel/common/importLayerCtrl.vue"),
@@ -57,15 +48,6 @@ const xymixin = {
       import("@/components/controlPanel/common/importSaleDatas.vue"),
     areaStatistics: () =>
       import("@/components/controlPanel/common/AreaStatistics.vue")
-    // addLayer,
-    // multiSiteCompare,
-    // historySalesChart,
-    // exportLayer,
-    // importLayer,
-    // tableViews,
-    // importLayerCtrl,
-    // importSaleDatas,
-    // areaStatistics,
   },
   data() {
     return {
@@ -89,8 +71,8 @@ const xymixin = {
       scaleList: [25, 50, 75, 100, 125, 150, 175, 200],
       mscompareVisible: false,
       historyChartVisible: false,
-      exportLayerVisible: false,
-      importLayerVisible: false,
+      exportBatchLayerVisible: false,
+      importBatchLayerVisible: false,
       importSaleDatasVisible: false,
       areaStatisticsVisible: false,
       isopenTable: false,
@@ -99,7 +81,7 @@ const xymixin = {
       fields: [],
       layerTable: [],
       areaData: [],
-      isDrawing: false
+      isDrawing: false,
     };
   },
   methods: {
@@ -181,32 +163,34 @@ const xymixin = {
         this.isDrawing = true;
         // go do this
         this.$store
-          .dispatch("getGeometry", {drawMode:'Polygon'})
+          .dispatch("getGeometry", { drawMode: 'Polygon' })
           .then(geometryInstance => {
-            geometryInstance.on("update",()=>{
+            geometryInstance.on("update", () => {
               this.isDrawing = false; // 绘制结束
               // // let b = res.coordinates[0].map(item => item.join()).join(';');
-              let res = geometryInstance.getGeometry().getGeometry().getCoordinates();  
-             res[0] =  res[0].map(([x,y]) => {return transform([x,y], "EPSG:3857","EPSG:4326");
+              let res = geometryInstance.getGeometry().getGeometry().getCoordinates();
+              res[0] = res[0].map(([x, y]) => {
+                let latlng = gcoord.transform([x, y], gcoord.EPSG3857, gcoord.BD09);
+                return latlng
               })
               let loadingInstance1 = Loading.service({ fullscreen: true });
-            getQualityByArea(this.currentLayer.id, res[0])
-              .then(res => {
-                this.areaData = res.splice(1);
-                loadingInstance1.close();
-                if (this.areaData.length === 0)
-                  this.$message.info({
-                    message: "该区域无当前图层数据",
-                    offset: 60
-                  });
-                else this.areaStatisticsVisible = true;
-                geometryInstance.disable();
-              })
-              .catch(err => loadingInstance1.close());
+              getQualityByArea(this.currentLayer.id, res[0])
+                .then(res => {
+                  this.areaData = res.splice(1);
+                  loadingInstance1.close();
+                  if (this.areaData.length === 0)
+                    this.$message.info({
+                      message: "该区域无当前图层数据",
+                      offset: 60
+                    });
+                  else this.areaStatisticsVisible = true;
+                  geometryInstance.disable();
+                })
+                .catch(err => loadingInstance1.close());
             })
-   
+
           })
-          .catch(err => {});
+          .catch(err => { });
       } else {
         this.$store.dispatch("drawDisable");
         this.isDrawing = false;

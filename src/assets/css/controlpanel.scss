@@ -1,5 +1,19 @@
 @import "@/assets/css/public.scss"; 
 
+.color-picker {
+  /deep/ .el-color-picker__trigger {
+    width: 100px;
+    box-sizing: border-box;
+    border-radius: 0px;
+    &:hover {
+      cursor: default;
+      box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1)
+    }
+  }
+  &:hover {
+    cursor: default;
+  }
+}
 /deep/ .el-scrollbar__wrap {
   // overflow-y: hidden;
   overflow-x: hidden;
@@ -83,6 +97,27 @@
                   // &:first-of-type:first-of-type {
                   //   border-left: 1px solid #d4d4d4;
                   // }
+                  .picker-btn {
+                    flex-direction: column;
+                    text-align: left;
+                    padding: 7px 5px;
+                    color: $panel-color;
+                    width: 110px;
+                    .icon-title {
+                      color: $panel-color;
+                      font-size: 12px;
+                      font-weight: lighter;
+                      padding-top: 5px;
+                      word-break:keep-all;       /* 不换行 */
+                      white-space:nowrap;        /* 不换行 */
+                      &:hover {
+                        cursor: default;
+                      }
+                    }
+                    .picker {
+                      padding-top: 8px;
+                    }
+                  }
                   .icon-btn {
                       flex-direction: column;
                       text-align: center;
@@ -171,6 +206,9 @@
                       left: 0;
                       right: 0;
                       color: $panel-color;
+                  }
+                  .pdlr10 {
+                    padding: 0 10px;
                   }
               }
 

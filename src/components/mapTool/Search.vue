@@ -69,68 +69,100 @@
         </li>
       </ul>
     </template>
+    <el-button-group class="ctr-btn-group" v-show="canExport">
+      <el-button type size="small" @click="handleExportData">下载</el-button>
+      <el-popover
+                    placement="top"
+                    width="200"
+                    v-model="poiTypeSelectShow"
+                >
+                        <div class="pop-content">
+                            <div>
+                                <strong>选择要导入的poi类型:</strong>
+                            </div>
+                            <el-select
+                                size="mini"
+                                placeholder="请选择"
+                                class="select"
+                                v-model="poiTypeSelect"
+                            >
+                                <el-option
+                                    v-for="item in poiTypeOptions"
+                                    :key="item"
+                                    :label="item"
+                                    :value="item"
+                                ></el-option>
+                            </el-select>
+                             <div style="text-align: right; margin-top: 10px">
+                            <el-button size="mini" type="text" @click="settingVisible = false">取消</el-button>
+                            <el-button
+                                :disabled="poiTypeSelect == ''"
+                                :loading="importing"
+                                type="primary"
+                                size="mini"
+                                @click="importInPoi"
+                                icon="el-icon-upload"
+                            >上传</el-button>
+                        </div>
+                    </div>
+                    <el-button
+                        size="small"
+                        slot="reference"
+                    >导入到poi</el-button>
+                </el-popover>
+    </el-button-group>
   </div>
 </template>
 
 <script>
-
-import layerData from '@/data/layer';
-import layerFields from '@/config/layer/fields';
-import baiduSearch from '@/data/baiduSearch';
-import { mapState } from 'vuex';
-
-const searchSources = [
-  {
-    source: {
-      type: 'layer',
-      layerids: ['xyyz', 'gsyz', 'shellyz']
-    },
-    name: '油站搜索',
-    placeholder: '油站编号或站名(Esc清除结果)',
-    format: feature => {
-      return {
-        "编号": feature.properties['油站编号'],
-        "站名": feature.properties['站名']
-      };
-    },
-    getPopupHtml: feature => {
-      return `
-        <div>
-            <b style="color:#cc5522;">${feature.properties['油站编号']} ${feature.properties['站名']}</b>
-        </div>`;
+import layerData from "@/data/layer";
+import layerFields from "@/config/layer/fields";
+import baiduSearch from "@/data/baiduSearch";
+import { mapState } from "vuex";
+import searchSources from "@/config/searchSources";
+import gcoord from 'gcoord';
+import { ImportFromBaiduSearch } from '@/data/layerExcelIO'
+// 导出excel
+import XLSX from "xlsx";
+function exportExcel(fileName, fields, datas) {
+  const header = fields.map(item => item.label),
+    aoa = [header];
+  if (datas && datas.length) {
+    for (let _data of datas) {
+      const row = [];
+      for (let i = 0, len = fields.length; i < len; i++) {
+        const propValue = _data[fields[i].prop] || null;
+        row.push(propValue);
+      }
+      aoa.push(row);
     }
-  },
-  {
-    source: {
-      type: 'baidu'
-    },
-    name: '百度搜索',
-    placeholder: '视野内搜索(Esc清除结果)',
-    format: feature => {
-      return {
-        "名称": feature.properties.title,
-        "地址": feature.properties.address
-      };
-    },
-    getPopupHtml: feature => {
-      return `
-        <div>
-            <div>
-                <span style="width:185px;color:#cc5522;white-space:nowrap;overflow:hidden;text-overflow: ellipsis;display: inline-block;">
-                    ${feature.properties.title} 
-                </span>
-                <a target="_blank" href="${feature.properties.url}" style="margin-left:5px;font-size:12px;color:#3d6dcc;font-weight:normal;text-decoration:none;position: relative;top: -7px;">详情</a>
-            </div>
-            <div><b>地址:</b>${feature.properties.address || ''}</div>
-            <div><b>电话:</b>${feature.properties.phoneNumber || ''}</div>
-        </div>`;
-    }
-  },
-];
+  }
+  const ws = XLSX.utils.aoa_to_sheet(aoa),
+    wb = XLSX.utils.book_new();
+  wb.SheetNames.push("sheet1");
+  wb.Sheets["sheet1"] = ws;
+  const wopts = {
+    bookType: "biff8",
+    bookSST: false,
+    type: "array"
+  };
+  XLSX.writeFile(wb, `${fileName}`, wopts);
+}
 
 export default {
-  data () {
+  data() {
     return {
+      /** search 导入中 */
+      importing: false,
+      poiTypeSelect: '物流园',
+      /**
+       * poiType Options
+       */
+      poiTypeOptions: ['物流园', '工业园', '客运站', '港口', '高速口', '其他', '机场', '火车站'],
+      /**
+       * poiType选择器是否显示
+       */
+      poiTypeSelectShow: true,
       /**
        * 搜索数据源集合
        * @type {Array<{source:{type,layerids},name,placeholder}>}
@@ -143,7 +175,7 @@ export default {
       /**
        * 关键字
        */
-      keyword: '',
+      keyword: "",
       emptyResult: false,
       /**
        * 搜索结果集(当前正在显示的)
@@ -175,46 +207,100 @@ export default {
        * 结果数量
        */
       resultNumber: null
-
     };
   },
   computed: {
-    selectSource () {
+    selectSource() {
       return this.searchSources[this.selectSourceIndex];
     },
     ...mapState({
-      bounds: state => state.mapState.bounds,
-    })
+      bounds: state => state.mapState.bounds
+    }),
+    canExport() {
+      return (this.resultSource && this.resultSource.name === '百度搜索' && this.resultFeatures.length > 0)
+    }
   },
   methods: {
-    async search () {
+    async search() {
       if (this.keyword) {
         this.resultAsyncIterator = null;
-        this.resultFeatures = []
+        this.resultFeatures = [];
         this.searching = true;
         this.emptyResult = false;
-        if (this.selectSource.source.type == 'layer') {
+        if (this.selectSource.source.type == "layer") {
           await this.searchFromLayer();
-        }
-        else if (this.selectSource.source.type == 'baidu') {
+        } else if (this.selectSource.source.type == "baidu") {
           await this.searchFromBaidu();
         }
         this.searching = false;
-      }
-      else {
+      } else {
         this.close();
       }
     },
-    async searchFromLayer () {
+    // 导出数据
+    handleExportData() {
+      console.log(this.searchSources, this.resultFeatures)
+      let filename = `${this.keyword}关键字_POI搜索结果_${new Date().getTime()}`;
+
+      exportExcel(
+        `${filename}.xls`,
+        [
+          { label: 'title', prop: 'title' },
+          { label: 'address', prop: 'address' },
+          { label: 'city', prop: 'city' },
+          { label: 'tags', prop: 'tags'},
+          { label: 'lng', prop: 'lng' },
+          { label: 'lat', prop: 'lat' }
+        ],
+        this.resultFeatures.map(item => {
+          const lnglat = gcoord.transform(item.geometry.coordinates, gcoord.EPSG3857, gcoord.WGS84)
+          return {
+          ...item.properties,
+          lng: lnglat[0],
+          lat: lnglat[1]
+        }})
+      );
+    },
+    async importInPoi() {
+      this.importing = true;
+      const res = await ImportFromBaiduSearch(this.poiTypeSelect, this.resultFeatures.map(item => {
+         const lnglat = gcoord.transform(item.geometry.coordinates, gcoord.EPSG3857, gcoord.WGS84)
+          return {
+          ...item.properties,
+          lng: lnglat[0],
+          lat: lnglat[1]
+        }
+      })).catch(err => {this.importing = false})
+      if (typeof res === 'object' && 'success' in res) {
+       let msg = `文件上传成功!${res.count}条数据导入，经过去重后，成功导入${res.success}条。`;
+          // dangerouslyUseHTMLString: true,msg += (res.errorString == '') ? '' : `<div style="color: #F56C6C; max-height: 100px;width: 300px; overflow: scroll;">错误信息: <br/>${res.errorString.replace(/\n/g, '。<br/>')}</div>` 
+          this.$message.success({ message: msg, offset: 60, showClose: true, duration: 0});
+      } else {
+        this.$message.error({message: `文件上传失败${res.Msg}!`})
+      }
+      this.importing = false;
+    },
+    async searchFromLayer() {
       /// TODO:图层关键字搜索，此处仅针对油站图层硬编码
       const selectSource = this.selectSource;
       const layerids = selectSource.source.layerids;
-      const results = await Promise.all(layerids.map(id => {
-        const querys = [{ "relation": "allbynamebh", "value": this.keyword, "field": "", "type": "" }];
-        return layerData.get(id, querys);
-      }));
+      const results = await Promise.all(
+        layerids.map(id => {
+          const querys = [
+            {
+              relation: "allbynamebh",
+              value: this.keyword,
+              field: "",
+              type: ""
+            }
+          ];
+          return layerData.get(id, querys);
+        })
+      );
       this.resultSource = selectSource;
-      const fs = results.reduce(function (a, b) { return a.concat(b) });
+      const fs = results.reduce(function(a, b) {
+        return a.concat(b);
+      });
       // 油站结果去重
       for (let i = fs.length - 1; i >= 0; i--) {
         for (let j = i - 1; j >= 0; j--) {
@@ -228,11 +314,10 @@ export default {
       console.log(fs.length);
       let i = 0;
       this.resultAsyncIterator = {
-        async next () {
+        async next() {
           if (i >= fs.length) {
             return { done: true };
-          }
-          else {
+          } else {
             const value = fs[i++];
             return {
               done: false,
@@ -240,49 +325,48 @@ export default {
             };
           }
         }
-      }
+      };
     },
-    async searchFromBaidu () {
+    async searchFromBaidu() {
       const selectSource = this.selectSource;
-      console.log(this.bounds);
-      const results = await baiduSearch(this.keyword, [this.bounds.minx, this.bounds.miny, this.bounds.maxx, this.bounds.maxy]);
+      const results = await baiduSearch(this.keyword, this.bounds);
       this.resultSource = selectSource;
-      this.resultNumber = results.count
+      this.resultNumber = results.count;
       this.resultAsyncIterator = results[Symbol.asyncIterator]();
     },
-    close () {
-      this.keyword = '';
+    close() {
+      this.keyword = "";
       this.emptyResult = false;
       this.resultAsyncIterator = null;
-      this.resultFeatures = []
-      this.resultNumber = null
+      this.resultFeatures = [];
+      this.resultNumber = null;
     },
     /**
      * 加载搜索结果
      * 懒加载，一次最多加载的数量有限制
      */
-    async loadResultFeatures () {
-      this.loading = true
-      this.noMore = false
+    async loadResultFeatures() {
+      this.loading = true;
+      this.noMore = false;
       let c = await this.resultAsyncIterator.next();
       // 如果结果集为空，则显示空结果提示
       if (this.resultFeatures.length == 0 && c.done) {
         this.resultAsyncIterator = null;
         this.emptyResult = true;
-      }
-      else {
+      } else {
         // 加载最多20个结果
         let k = 0;
         while (!c.done && k < 20) {
           const f = c.value;
           f.getPopupHtml = this.resultSource.getPopupHtml;
+          f.source = this.resultSource.source;
           this.resultFeatures.push(f);
           c = await this.resultAsyncIterator.next();
           k++;
         }
         if (c.done) {
           this.noMore = true;
-          this.loading = false
+          this.loading = false;
         }
       }
     },
@@ -290,32 +374,30 @@ export default {
      * 定位地图位置
      * TODO:
      */
-    locationFeature (item) {
+    locationFeature(item) {
       // console.log(item, this.resultAsyncIterator)
       this.$store.dispatch("locationFeatures", item);
     }
   },
   watch: {
-    selectSourceIndex (val) {
+    selectSourceIndex(val) {
       this.resultFeatures = [];
       this.searching = false;
       this.loading = false;
       this.noMore = false;
       this.resultAsyncIterator = null;
       this.emptyResult = false;
-      this.resultNumber = null
+      this.resultNumber = null;
       // console.log(val, this.searchSources)
     },
     /**
-     * 
+     *
      */
-    resultFeatures (resultFeatures) {
+    resultFeatures(resultFeatures) {
       this.$store.dispatch("setSearchFeature", resultFeatures);
-    },
-  },
-
-
-}
+    }
+  }
+};
 </script>
 <style lang="scss" scoped>
 @import "~@/assets/css/public.scss";
@@ -328,6 +410,12 @@ export default {
   left: 0;
   z-index: 999;
   color: $shallow-font-color;
+  .ctr-btn-group {
+    position: absolute;
+    width: 150px;
+    right: -150px;
+    top: 0;
+  }
 }
 .searching {
   height: 100px;

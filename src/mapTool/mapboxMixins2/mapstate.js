@@ -1,6 +1,6 @@
 import { mapState } from "vuex";
-import { map } from "./map";
 import { transform, transformExtent } from "ol/proj";
+import { map, BaiduView, GCJ02View } from './map';
 
 const mixin = {
   computed: {
@@ -12,54 +12,54 @@ const mixin = {
   },
   methods: {
     async initMapState() {
-      let view = map.getView();
-
-      view.on("change:center", () => {
+      BaiduView.on("propertychange", () => {
+        this.updateMapState();
+      });
+      GCJ02View.on("propertychange", () => {
         this.updateMapState();
       });
       this.updateMapState();
     },
-
     updateMapState() {
       let view = map.getView();
       this.$store.state.mapState.bounds = view.calculateExtent();
-
       const newcenter = view.getCenter();
       const center = this.$store.state.mapState.center;
-      if (!center || center.x != newcenter.x || center.y != newcenter.y) {
+      if (!center || center[0] != newcenter[0] || center[1] != newcenter[1]) {
         this.$store.state.mapState.center = newcenter;
       }
-
       const newzoom = view.getZoom();
       const zoom = this.$store.state.mapState.zoom;
       if (!zoom || zoom != newzoom) {
         this.$store.state.mapState.zoom = newzoom;
+      }
+      // 判断
+      if (Math.round(zoom) === view.getMaxZoom()) {
+        this.$store.state.mapState.isMaxZoom = true;
+      } else {
+        this.$store.state.mapState.isMaxZoom = false;
+      }
+      if (Math.round(zoom) === view.getMinZoom()) {
+        this.$store.state.mapState.isMinZoom = true;
+      } else {
+        this.$store.state.mapState.isMinZoom = false;
       }
     }
   },
   watch: {
     inputBounds(val) {
       let view = map.getView();
-      let newExtent = transformExtent(
-        [val.minx, val.miny, val.maxx, val.maxy],
-        "EPSG:4326",
-        "EPSG:3857"
-      );
-
-      view.fit(newExtent, map.getSize());
+      view.fit([val.minx, val.miny, val.maxx, val.maxy], map.getSize());
     },
 
     inputCenter(val) {
-      console.log("center", val);
       let view = map.getView();
-      let newCenter = transform([val.x, val.y], "EPSG:4326", "EPSG:3857");
-      val && view.setCenter(newCenter);
+      val && view.setCenter([val.x, val.y]);
     },
 
     inputZoom(val) {
       console.log("zoom", val);
       let view = map.getView();
-
       val && view.setZoom(parseInt(val));
     }
   }

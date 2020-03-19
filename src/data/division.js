@@ -42,3 +42,14 @@ export async function getMAByCity(cityid) {
     const pid = `allmacityid_${cityid}`;
     return treedata.filter(t => t.parentid == pid).map(t => ({ id: t.value.maId, name: t.text }));
 }
+
+/**
+ * 获取行政区划
+ * @param {*} divisionId 行政区划id
+ */
+export async function getDivision(divisionId) {
+    const url = `/dataPages/xzqh/Handler.ashx?action=GetDivisionIdNames&pid=${divisionId}&_=${Date().valueOf()}`;
+    const { data } = await axios.get(url);
+
+    return data;
+}
