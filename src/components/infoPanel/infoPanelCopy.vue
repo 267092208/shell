@@ -192,7 +192,7 @@ export default {
         this.$parent.autoClose = false;
 
         if (this.selectFeature) {
-            this.info = this.selectFeature.getProperties();
+            this.info = this.selectFeature.properties;
         }
 
         this.$parent.afterClose = function() {

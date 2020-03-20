@@ -331,5 +331,6 @@ export default {
   addForActionAdd,
   updateItemForRk,
   updateItemForJj,
-  updateItemOfLayer
+  updateItemOfLayer,
+  updateFeatureProperties
 };
