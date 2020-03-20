@@ -106,6 +106,8 @@
                     fit="fill"
                     class="iconfont icon-daoru-tianchong icon"
                     @click.native="exportLayer"
+                    v-loading="exportting"
+                  element-loading-text="导出中..."
                   ></el-avatar>
                 </el-row>
                 <el-row type="flex" justify="center" align="center" class="icon-btn">

@@ -34,6 +34,7 @@ const mixin = {
       fields: [],
       geometry: null,
       addBtnGroupVisible: false,
+      exportting: false
     }
   },
   methods: {
@@ -108,19 +109,21 @@ const mixin = {
           this.$message.info({ message: `请选择当前图层-${this.currentLayer.name}的要素，再进行删除操作` })
       }
     },
-    exportLayer() {
+    async exportLayer() {
       let filter;
       filter = [...this.globalFilters];
       if (this.filters[this.currentLayer.id] != null) {
         filter.push(this.filters[this.currentLayer.id])
       }
-      if (this.currentLayer.id === 'roadnetwork' || this.currentLayer.id === 'corridor') outputExcelData(this.currentLayer.id, filter)
+      this.exportting = true;
+      if (this.currentLayer.id === 'roadnetwork' || this.currentLayer.id === 'corridor') await outputExcelData(this.currentLayer.id, filter).catch(err => this.exportting=false)
       else {  // default
-        outputExcel(this.currentLayer.id, filter).then(res => {
+        await outputExcel(this.currentLayer.id, filter).then(res => {
           window.open(res);
           // this.downloadWithExportSuccess('.'+res, res.substr(res.lastIndexOf('/') + 1))
-        });
+        }).catch(_ => this.exportting = false);
       }
+      this.exportting = false;
 
     },
     downloadWithExportSuccess(url, fileName) {
