@@ -90,6 +90,43 @@ function selectStyle(feature, layer) {
     return selectPointStyle(feature, layer);
   }
 }
+
+/**
+ * 关联要素的选中
+ * @param {Feature} feature
+ * @param {VectorLayer} layer
+ */
+export function linkFeatureStyle(feature, layer) {
+  let styles = layer.getStyle(feature);
+  while (styles instanceof Function) {
+    styles = styles(feature);
+  }
+  let _styles = [];
+  if (styles instanceof Array) {
+    for (let i = 0; i < styles.length; i++) {
+      const style = styles[i];
+      _styles.push(style.clone());
+    }
+  } else {
+    _styles.push(styles);
+  }
+  let oldStyle = _styles[0];
+  const geometry = feature.getGeometry();
+  const [radius] = oldStyle.getImage() && oldStyle.getImage().getImageSize() || [32, 32];
+  _styles.push(
+    new Style({
+      geometry: geometry,
+      image: new RegularShape({
+        radius: (radius / 4) * 3,
+        points: 4,
+        angle: Math.PI / 4,
+        stroke: new Stroke({ color: "blue", width: 2 })
+      })
+    })
+  );
+  return _styles;
+}
+
 const { dispatch } = store;
 /**
  * 当前选择的模式
@@ -177,6 +214,12 @@ const clickFu = {
       isPopupcloser: true,
       move: [0, -30]
     });
+  },
+
+  linkFun:{
+    "shellyz":function(feature,layer){
+
+    }
   }
 };
 /**
@@ -200,4 +243,16 @@ import("@/store").then(m => {
     }
   );
 });
+// 监听关联元素
+import("@/store").then(m => {
+  const store = m.default;
+  store.watch(
+    () => store.state.linkFeature.linkFeature,
+    (newval, oldval) => {
+      
+    }
+  );
+});
+
+
 export default clickFu;
