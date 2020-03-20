@@ -70,15 +70,15 @@ export default {
     async searchBaidu() {
       if (this.keyword != '') {
         this.searching = true;
-        await this.map.search(this.keyword)
+        await map.search(this.keyword)
         this.searching = false;
       } else {
-        this.map.emptySearchResult();
+        map.emptySearchResult();
       }
     },
     async updateLocation() {
       this.updating = true;
-      const lnglat = gcoord.transform(this.map.getEditPoint(), gcoord.EPSG3857, gcoord.WGS84);
+      const lnglat = gcoord.transform(map.getEditPoint(), gcoord.EPSG3857, gcoord.WGS84);
       const res = await updateLocation(this.data.ID, lnglat[0], lnglat[1]).catch(err => err);;
       this.updating = false;
       res && this.$message.success({message: '更新坐标成功', offset: 60})
