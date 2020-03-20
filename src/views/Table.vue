@@ -675,7 +675,7 @@ export default {
         const [lng, lat] = gcoord.transform([this.saveRow.lng_baidu, this.saveRow.lat_baidu], gcoord.WGS84, gcoord.EPSG3857);
         const res = await this.$store.dispatch('getFeature', {layerId: this.getTableId(), ID:this.saveRow.ID});
         if(res != null) {
-          await this.$store.dispatch('setSelectMode', 'single');
+          // await this.$store.dispatch('setSelectMode', 'single');
           const layer = this.base.find(item => this.getTableId() === item.id)
           await this.$store.dispatch('selectFeatureAndLayer', {feature: res, layer: layer});
         }
