@@ -679,8 +679,8 @@ export default {
           const layer = this.base.find(item => this.getTableId() === item.id)
           await this.$store.dispatch('selectFeatureAndLayer', {feature: res, layer: layer});
         }
-        await this.$store.dispatch('setMapCenter', {x: lng, y: lat})
-        await this.$store.dispatch('setMapZoom', 22);
+        await this.$store.dispatch('setMapCenter', {x: lng, y: lat}); 
+        await this.$store.dispatch('setMapZoom',  Math.max(Math.min(15, this.$store.state.mapState.zoom), 5));
       }
       await this.$router.push("/");
     },
