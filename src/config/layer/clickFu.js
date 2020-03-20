@@ -215,12 +215,26 @@ const clickFu = {
       move: [0, -30]
     });
   },
-
-  linkFun:{
-    "shellyz":function(feature,layer){
-
-    }
+/**
+   * 关联油站
+   * @param {Feature} feature  当前点击到的图形
+   * @param {VectorLayer} layer  图形在的图层
+   */
+  linkFun: function(feature, layer){
+    let position = feature.getGeometry().getCoordinates();
+    const val = feature.getProperties();
+    feature.id = feature.get("ID");
+    feature.properties = feature.getProperties();
+    feature.geometry = feature.getGeometry();
+    const layersbase = store.state.layer.base;
+    let layerbase = layersbase.find(l => val.source && val.source.layerids && val.source.layerids.includes(l.id));
+    layerbase &&
+      dispatch("selectFeatureAndLayer", {
+        feature,
+        layer: layerbase
+      });
   }
+  
 };
 /**
  * 事件响应相同
