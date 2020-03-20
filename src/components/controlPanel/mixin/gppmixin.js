@@ -123,14 +123,15 @@ const mixin = {
             if (this.selectFeatureLayer.id === 'roadnetwork')
                 this.panelExtentValue = await this.getRoadNetWork();
             if (data) {
+                const values_ = data.values_ || data.properties
                 this.isEdit = true; // 编辑模式
                 this.editting = false; // 仍没确定编辑
-                this.form = data.values_ || data.properties
+                this.form = values_
                 this.loading = true;
                 this.loading = false;
                 if (this.selectFeatureLayer.id === 'xl') {
-                    if (data.values_.IsRoute) {
-                        this.form['保存类型'] = data.values_.Private ? '行程且只本人可见' : '行程'
+                    if (values_.IsRoute) {
+                        this.form['保存类型'] = values_.Private ? '行程且只本人可见' : '行程'
                     } else this.form['保存类型'] = '线路' 
                 }
             }
