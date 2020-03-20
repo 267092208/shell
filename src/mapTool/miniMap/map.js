@@ -248,6 +248,7 @@ export default function createdMap(param) {
      */
     setEditPoint(editPoint) {
       ol_editPoint.setCoordinates(editPoint);
+      BaiduView.setCenter(editPoint);
     },
     /**
      * 获取当前地图编辑的图标的位置
