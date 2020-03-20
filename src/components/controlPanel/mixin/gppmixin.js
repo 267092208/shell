@@ -55,7 +55,7 @@ const mixin = {
                 fields = this.currentLayer.fields
                 id = this.currentLayer.id;
             } else {
-                fields = this.selectFeatureLayer.fields.filter(({displayText}) => displayText != '经度' && displayText != '纬度')
+                fields = this.selectFeatureLayer.fields//.filter(({displayText}) => displayText != '经度' && displayText != '纬度')
                 id = this.selectFeatureLayer.id
             }
             if (id === 'nti' || id === 'gsnti') {

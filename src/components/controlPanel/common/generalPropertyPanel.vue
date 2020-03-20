@@ -23,7 +23,7 @@
               :key="index"
               :label="item.displayText"
               :prop="item.fieldName"
-              v-show="item.displayText"
+              v-show=" !hideLngLatWithisEdit(item.fieldName) && item.displayText"
               :rules="createRule(item)"
             >
               <component
@@ -130,6 +130,11 @@ export default {
   props: ["visible"],
   mixins: [gppmixin],
   methods: {
+    hideLngLatWithisEdit(fieldName) {
+      if (this.isEdit === true && this.editting === false && (fieldName === 'lng_baidu' || fieldName === 'lat_baidu')) { // 只在这情况隐藏
+        return true;
+      } else return false;
+    },
     /**
      * {ID, Csum, Ncsum, Qsum, Nqsum, CountSum }
      */
@@ -143,6 +148,8 @@ export default {
       }
     },
     closePanel() {
+      this.isEdit = false;
+      this.editting = false;
       this.$parent.close();
     },
     async resetForm(formName) {
