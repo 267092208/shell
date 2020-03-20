@@ -7,10 +7,10 @@
     center
     custom-class="dialog"
     :close-on-click-modal="false"
-    :append-to-body="true"
      @opened="initDialog"
      @close="closeDialog"
     v-dialogDrag
+    append-to-body
   >
     <div class="content">
       <el-input placeholder="视野内搜索(百度数据)" @keyup.enter.native="searchBaidu" class="input-with-select search" v-model="keyword">

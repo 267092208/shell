@@ -659,19 +659,24 @@ export default {
     },
     clickRow(row, column, event) {
       this.saveRow = row;
+      /**
+       * 如果当前行会无坐标行， 让用户先选择行
+       * 自动弹出修改位置组件
+       */
+      if (this.isBadRow(row, true)) {
+        this.posCrtVisble = true;
+      }
     },
     /**
      * 必须记住当tableId 不等于currentLayerId的时候，有跳转选中要通过row.ID获取图层和feature信息
      */
     async jumpToMap() {
       if (this.saveRow.lng_baidu && this.saveRow.lat_baidu) {
-        console.log(this.getTableId())
         const [lng, lat] = gcoord.transform([this.saveRow.lng_baidu, this.saveRow.lat_baidu], gcoord.WGS84, gcoord.EPSG3857);
         const res = await this.$store.dispatch('getFeature', {layerId: this.getTableId(), ID:this.saveRow.ID});
-        console.log(res);
         if(res != null) {
           await this.$store.dispatch('setSelectMode', 'single');
-          const layer = this.base.find(item => this.getTableId())
+          const layer = this.base.find(item => this.getTableId() === item.id)
           await this.$store.dispatch('selectFeatureAndLayer', {feature: res, layer: layer});
         }
         await this.$store.dispatch('setMapCenter', {x: lng, y: lat})
