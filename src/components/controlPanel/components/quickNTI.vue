@@ -105,19 +105,19 @@
                     :size="50"
                     fit="fill"
                     class="iconfont icon-daoru-tianchong icon"
-                    @click.native="exportLayer"
-                    v-loading="exportting"
-                  element-loading-text="导出中..."
                   ></el-avatar>
                 </el-row>
-                <el-row type="flex" justify="center" align="center" class="icon-btn">
-                  <div class="icon-title">导出</div>
-                  <el-avatar shape="square" :size="50" fit="fill" class="iconfont icon-daochu icon"></el-avatar>
+                <el-row type="flex" justify="center" align="center" class="icon-btn" 
+                  @click.native="exportLayer"
+                    v-loading="exportting"
+                   element-loading-text="导出中..."
+                   >
+                    <div class="icon-title">导出</div>
+                    <el-avatar shape="square" :size="50" fit="fill" class="iconfont icon-daochu icon"></el-avatar>
                 </el-row>
               </el-row>
               <el-footer height="20px" class="grounp-footer">数据导入</el-footer>
             </div>
-
             <div class="tab-panel-group">
               <el-row type="flex">
                 <el-row
