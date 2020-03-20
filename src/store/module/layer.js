@@ -384,6 +384,16 @@ const layer = {
         context.state.source[param.layerid].push(param.feature);
         context.state.source = Object.assign({}, context.state.source);
       }
+    },
+    /**
+     * 
+     * @param {{layerId: number, ID: number}} param 
+     */
+    async getFeature(context, param) {
+      if (context.state.source[param.layerId]) {
+        return context.state.source[param.layerId].find(item => item.id === param.ID);
+      }
+      return null;
     }
   }
 };
