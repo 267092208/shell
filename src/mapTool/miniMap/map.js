@@ -20,7 +20,9 @@ import { Point } from "ol/geom";
 import baiduSearch from "@/data/baiduSearch";
 import { toVectorFeature } from "@/mapTool/mapboxMixins2/utils.js";
 import searchSources from "@/config/searchSources";
+import getDom from "@/mapTool/miniMap/popupHtml.js";
 const selectSource = searchSources[1];
+const popupHtml = getDom();
 
 const extent = [
   -20037508.342789244,
@@ -64,8 +66,10 @@ const searchSource = new VectorSource();
 const searchFeatureLayer = new VectorLayer({
   source: searchSource,
   clickFu: function(feature, layer) {
-    console.log(popup);
-    console.log(feature, layer);
+    //console.log();
+    const val = feature.getProperties();
+    popupHtml.contentDom.innerHTML = val.getPopupHtml(val);
+    popup.setPosition(feature.getGeometry().getCoordinates());
   },
   zIndex: 3,
   style: new Style({
@@ -136,12 +140,15 @@ const modify = new Modify({ source: editGeomtrySource, pixelTolerance: 25 });
 
 let popup = new Overlay({
   positioning: "bottom-center",
-  element: document.createElement("div"),
+  element: popupHtml.div,
   autoPan: true,
   autoPanAnimation: {
     duration: 10
   },
-  offset: [0, 0]
+  offset: [0, -20]
+});
+popupHtml.closerDom.addEventListener("click", () => {
+  popup.setPosition(null);
 });
 /**
  * 返回的对象 有搜索方法。 定位功能
