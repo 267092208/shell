@@ -6,7 +6,6 @@
     :before-close="handleClose"
     center
     custom-class="dialog"
-    :close-on-click-modal="false"
      @opened="initDialog"
      @close="closeDialog"
     v-dialogDrag
@@ -56,11 +55,10 @@ export default {
     },
     closeDialog() {
       this.keyword = '';
-      map.emptySearchResult();
+      map && map.emptySearchResult();
     },
     async initDialog() {
       const lnglat = this.editPoint ? gcoord.transform(this.editPoint, gcoord.WGS84, gcoord.EPSG3857) :  [12609158.722154098, 2647747.527494556];
-      console.log(lnglat);
       if (map == null) {
         if (this.$refs.map) {
           map = createdMap({ target: this.$refs.map, editPoint: lnglat });
