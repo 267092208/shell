@@ -304,7 +304,7 @@
       :historyLoading="historyLoading"
       :historyVisible.sync="historyVisible"
     />
-    <pos-control v-if="loading=false" @updateLngLat="updateTableRowWithLnglat"  :dialogVisible.sync="posCrtVisble" :editPoint="getEditPoint" :data='saveRow' ></pos-control>
+    <pos-control v-if="loading===false" @updateLngLat="updateTableRowWithLnglat"  :dialogVisible.sync="posCrtVisble" :editPoint="getEditPoint" :data='saveRow' ></pos-control>
   </div>
 </template>
 <script>
