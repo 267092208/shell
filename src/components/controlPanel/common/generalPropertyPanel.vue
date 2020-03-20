@@ -186,7 +186,7 @@ export default {
           .catch(async err => {
             this.$message.error({ message: "添加失败!", offset: 60 });
           });
-        if (typeof res === "string" || "Msg" in res)
+        if (typeof res === "string" ||  (typeof res === 'object' &&"Msg" in res))
           this.$message.error({ message: `"添加失败!"${res.Msg}`, offset: 60 });
         else this.$message.success({ message: "添加成功", offset: 60 });
       } else {
@@ -201,7 +201,7 @@ export default {
           .catch(async err => {
             this.$message.error({ message: "更新失败!", offset: 60 });
           });
-        if (typeof res === "string" || "Msg" in res)
+        if (typeof res === "string" || (typeof res === 'object' &&"Msg" in res))
           this.$message.error({ message: `"添加失败!"${res.Msg}`, offset: 60 });
         else this.$message.success({ message: "添加成功", offset: 60 });
       }
