@@ -125,7 +125,7 @@ const mixin = {
             if (data) {
                 this.isEdit = true; // 编辑模式
                 this.editting = false; // 仍没确定编辑
-                this.form = data.values_
+                this.form = data.values_ || data.properties
                 this.loading = true;
                 this.loading = false;
                 if (this.selectFeatureLayer.id === 'xl') {
