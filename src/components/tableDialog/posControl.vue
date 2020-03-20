@@ -19,10 +19,15 @@
       <div class="map" ref="map" id="map">
       </div>
     </div>
-    <span slot="footer" class="dialog-footer">
-      <el-button size="small" icon="el-icon-remove-outline" @click="handleClose">取 消</el-button>
-      <el-button :loading="updating" size="small" icon="el-icon-refresh" type="primary" @click="updateLocation">确 认</el-button>
-    </span>
+    <div slot="footer" class="dialog-footer">
+      <el-row type="flex">
+       <el-col :span="24" class="el-upload__tip" style="color: #909399; text-align: left;" >
+         地图操作：<strong>可滚轮缩放地图，按住左键拖动地图。</strong>修改位置：<strong>请拖动红标签到目标位置并点击确认。</strong>
+       </el-col>
+      <el-button style="float:right;" size="small" icon="el-icon-remove-outline" @click="handleClose">取 消</el-button>
+      <el-button style="float:right;" :loading="updating" size="small" icon="el-icon-refresh" type="primary" @click="updateLocation">确 认</el-button>
+      </el-row>
+    </div>
   </el-dialog>
 </template>
 
@@ -70,7 +75,7 @@ export default {
     async searchBaidu() {
       if (this.keyword != '') {
         this.searching = true;
-        await map.search(this.keyword)
+        await map.search(this.keyword).catch(err => err);
         this.searching = false;
       } else {
         map.emptySearchResult();
