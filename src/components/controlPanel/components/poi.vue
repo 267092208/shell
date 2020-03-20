@@ -160,6 +160,8 @@
                   align="center"
                   class="icon-btn"
                   @click.native="exportLayer"
+                  v-loading="exportting"
+                  element-loading-text="导出中..."
                 >
                   <div class="icon-title">导出</div>
                   <el-avatar

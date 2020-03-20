@@ -9,6 +9,7 @@
     :close-on-click-modal="false"
     :append-to-body="true"
      @opened="initDialog"
+     @close="closeDialog"
     v-dialogDrag
   >
     <div class="content">
@@ -33,7 +34,7 @@ import mapboxMixins from "@/mapTool/mapboxMixins2";
 import createdMap from "@/mapTool/miniMap/map";
 import gcoord from 'gcoord'
 import { updateLocation } from '@/data/table'
-
+let map;
 export default {
   props: ["dialogVisible", "editPoint", 'data'],
   mixins: [...mapboxMixins],
@@ -45,22 +46,27 @@ export default {
       keyword: '',
       map: null,
       updating: false,
-      searching: false
+      searching: false,
+      dataId: null
     };
   },
   methods: {
     handleClose(done) {
       this.$emit("update:dialogVisible", false);
     },
+    closeDialog() {
+      this.keyword = '';
+      map.emptySearchResult();
+    },
     async initDialog() {
-      const lnglat = gcoord.transform(this.editPoint, gcoord.WGS84, gcoord.EPSG3857)
-      if (this.map == null) {
+      const lnglat = this.editPoint ? gcoord.transform(this.editPoint, gcoord.WGS84, gcoord.EPSG3857) :  [12609158.722154098, 2647747.527494556];
+      console.log(lnglat);
+      if (map == null) {
         if (this.$refs.map) {
-          this.map = createdMap({ target: this.$refs.map, editPoint: lnglat });
+          map = createdMap({ target: this.$refs.map, editPoint: lnglat });
         }
       } else { // reset data
-        this.map.emptySearchResult();
-        this.map.setEditPoint(lnglat)
+        map.setEditPoint(lnglat)
       }
     },
     async searchBaidu() {

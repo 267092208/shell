@@ -1,65 +1,68 @@
 <template>
-        <div class="left-item">
-            <base-info-item v-if="yzLinkVisible">
-                <div slot="header" class="header-content">关联油站</div>
-                <div slot="content">
-                    <div v-if="relateStationList.length === 0">暂无数据</div>
-                    <div v-else>
+    <div class="left-item">
+        <base-info-item v-if="yzLinkVisible">
+            <div slot="header" class="header-content">关联油站</div>
+            <div slot="content">
+                <div v-if="relateStationList.length === 0">暂无数据</div>
+                <div v-else>
+                    <el-checkbox
+                        :indeterminate="isIndeterminate"
+                        v-model="checkAll"
+                        @change="handleCheckAllChange"
+                    >全选</el-checkbox>
+                    <div style="margin: 15px 0;"></div>
+                    <el-checkbox-group
+                        v-model="checkedRelateStations"
+                        @change="handleCheckedCitiesChange"
+                    >
                         <el-checkbox
-                            :indeterminate="isIndeterminate"
-                            v-model="checkAll"
-                            @change="handleCheckAllChange"
-                        >全选</el-checkbox>
-                        <div style="margin: 15px 0;"></div>
-                        <el-checkbox-group
-                            v-model="checkedRelateStations"
-                            @change="handleCheckedCitiesChange"
+                            v-for="(station,index) in relateStationList"
+                            :label="station"
+                            :key="index"
+                            class="link-list"
                         >
-                            <el-checkbox
-                                v-for="station in relateStationList"
-                                :label="station"
-                                :key="station"
-                            >{{station}}</el-checkbox>
-                        </el-checkbox-group>
-                    </div>
+                        站名：{{station["站名"]}} &nbsp;&nbsp;&nbsp;编号：{{station["油站编号"]}}
+                          </el-checkbox>
+                    </el-checkbox-group>
                 </div>
-                <div slot="footer">
-                    <el-button-group>
-                        <el-button
-                            title="点击添加后在地图上点选关联油站"
-                            type="primary"
-                            icon="el-icon-plus"
-                            size="mini"
-                            @click="addLinkStation"
-                        ></el-button>
-                        <el-button
-                            title="取消添加"
-                            type="primary"
-                            icon="el-icon-close"
-                            size="mini"
-                            @click="cancelAdd"
-                            :disabled="!isAddLink"
-                        ></el-button>
+            </div>
+            <div slot="footer">
+                <el-button-group>
+                    <el-button
+                        title="点击添加后在地图上点选关联油站"
+                        type="primary"
+                        icon="el-icon-plus"
+                        size="mini"
+                        @click="addLinkStation"
+                    ></el-button>
+                    <el-button
+                        title="取消添加"
+                        type="primary"
+                        icon="el-icon-close"
+                        size="mini"
+                        @click="cancelAdd"
+                        :disabled="!isAddLink"
+                    ></el-button>
 
-                        <el-button
-                            title="删除关联油站"
-                            type="primary"
-                            icon="el-icon-delete"
-                            size="mini"
-                            @click="deleteLinkStation"
-                            disabled
-                        ></el-button>
-                        <el-button
-                            title="填写油站编号添加"
-                            type="primary"
-                            icon="el-icon-edit"
-                            size="mini"
-                            @click.native="addInfo"
-                        ></el-button>
-                    </el-button-group>
-                </div>
-            </base-info-item>
-        </div>
+                    <el-button
+                        title="删除关联油站"
+                        type="primary"
+                        icon="el-icon-delete"
+                        size="mini"
+                        @click="deleteLinkStation"
+                        disabled
+                    ></el-button>
+                    <el-button
+                        title="填写油站编号添加"
+                        type="primary"
+                        icon="el-icon-edit"
+                        size="mini"
+                        @click.native="addInfo"
+                    ></el-button>
+                </el-button-group>
+            </div>
+        </base-info-item>
+    </div>
 </template>
 
 <script>
@@ -71,7 +74,7 @@ const baseInfoItem = () => import("@/components/infoPanel/common/baseInfoItem");
 export default {
     name: "yzLink",
     props: {
-        yzLinkVisible:Boolean
+        yzLinkVisible: Boolean
     },
     data() {
         return {
@@ -79,23 +82,33 @@ export default {
             isIndeterminate: true,
             checkedRelateStations: [],
             checkAll: false,
-              isAddLink:false,
-            isCancelLink:false,
-
+            isAddLink: false,
+            isCancelLink: false
         };
     },
     computed: {
         ...mapState({
             selectFeature: state => state.selectFeature.selectFeature,
-            selectFeatureLayer: state => state.selectFeature.selectFeatureLayer
+            selectFeatureLayer: state => state.selectFeature.selectFeatureLayer,
+            relationFeatures: state => state.linkFeature.relationFeatures
         })
     },
     components: {
         baseInfoItem
     },
-    created() {
+    mounted() {
+        
+                this.$store
+                    .dispatch("initlinkFeatures", {
+                        featureId: this.selectFeature.get("id"),
+                        layerId: this.selectFeatureLayer.id
+                    })
+                    .then(res => {
+                        
+                        this.relateStationList = this.relationFeatures[this.selectFeature.get("id")]
+                        
+                    });
     },
-
     methods: {
         //全选
         handleCheckAllChange(val) {
@@ -173,27 +186,48 @@ export default {
         },
         //添加油站
         addStation() {},
-         //在地图上选点关联油站
-         async addLinkStation(){
-            this.isAddLink = true
-            // await 
-          
-            if(this.isAddLink){}
+        //在地图上选点关联油站
+        async addLinkStation() {
+            this.isAddLink = true;
+            // await
 
+            if (this.isAddLink) {
+            }
         },
         //取消添加关联油站
-        cancelAdd(){
-
-        },
+        cancelAdd() {},
         //取消添加关联油站
-        deleteLinkStation(){
-
-        },
+        deleteLinkStation() {}
     },
     watch: {
         selectFeature() {
             if (this.selectFeature) {
+                this.$store
+                    .dispatch("initlinkFeatures", {
+                        featureId: this.selectFeature.get("id"),
+                        layerId: this.selectFeatureLayer.id
+                    })
+                    .then(res => {
+                        
+                        this.relateStationList = this.relationFeatures[this.selectFeature.get("id")]
+                        
+                    });
             }
+        },
+        yzLinkVisible(b) {
+            // if (b) {
+            //   this.relateStationList= []  
+            //     this.$store
+            //         .dispatch("initlinkFeatures", {
+            //             featureId: this.selectFeature.get("id"),
+            //             layerId: this.selectFeatureLayer.id
+            //         })
+            //         .then(res => {
+                        
+            //             this.relateStationList = this.relationFeatures[this.selectFeature.get("id")]
+                        
+            //         });
+            // }
         }
     }
 };
@@ -218,62 +252,7 @@ export default {
         justify-content: space-between;
     }
 
-    .noimg {
-        // width: 100%;
-        // height: 200px;
-        // background:url("~@/assets/images/noimages.jpg");
-    }
-
-    .img-list {
-        height: 200px;
-        overflow-y: auto;
-        .img-wrap {
-            position: relative;
-            .select-icon {
-                font-size: 20px;
-                position: absolute;
-                z-index: 9;
-                background-color: #67c23a;
-                bottom: 12px;
-                right: 14px;
-                color: #fff;
-                border-radius: 50%;
-                text-align: c;
-                line-height: 20px;
-            }
-        }
-
-        .station-img {
-            margin-bottom: 5px;
-            border: 3px solid $infopanel-title-bgcolor;
-            margin-right: 10px;
-
-            &:hover {
-                border: 3px solid $theme-color;
-                cursor: pointer;
-            }
-
-            .el-image-viewer__close {
-                color: $theme-header;
-                &:hover {
-                    color: $theme-color;
-                }
-            }
-
-            .el-image-viewer__actions__inner i {
-                &:hover {
-                    cursor: pointer;
-                    color: $theme-color;
-                }
-            }
-        }
-        .select {
-            &:hover {
-                border: 3px solid #fff;
-            }
-        }
-    }
-
+  
     .item {
         i {
             font-size: 14px;

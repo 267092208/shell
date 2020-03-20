@@ -513,7 +513,8 @@ export default {
       currentLayer: state => state.layer.currentLayer,
       occupyTableId: state => state.table.occupyTableId,
       filters: state => state.layer.filters,
-      globalFilters: state => state.layer.globalFilters
+      globalFilters: state => state.layer.globalFilters,
+      base: state => state.layer.base
     }),
     getTableTitle() {
       if (this.currentLayer) {
@@ -544,10 +545,10 @@ export default {
     },
     getEditPoint() {
       if (this.saveRow) {
-        if (this.saveRow.lng_baidu === 0 &&  this.saveRow.lat_baidu === 0) return [];
+        if (this.saveRow.lng_baidu === 0 &&  this.saveRow.lat_baidu === 0) return undefined;
         else return [this.saveRow.lng_baidu , this.saveRow.lat_baidu] 
         }
-      else { return [] }
+      else { return undefined }
     },
     //修改位置, 删除, 跳转到地图, 历史记录, 导出
     showToolBtn() {
@@ -659,9 +660,20 @@ export default {
     clickRow(row, column, event) {
       this.saveRow = row;
     },
+    /**
+     * 必须记住当tableId 不等于currentLayerId的时候，有跳转选中要通过row.ID获取图层和feature信息
+     */
     async jumpToMap() {
       if (this.saveRow.lng_baidu && this.saveRow.lat_baidu) {
+        console.log(this.getTableId())
         const [lng, lat] = gcoord.transform([this.saveRow.lng_baidu, this.saveRow.lat_baidu], gcoord.WGS84, gcoord.EPSG3857);
+        const res = await this.$store.dispatch('getFeature', {layerId: this.getTableId(), ID:this.saveRow.ID});
+        console.log(res);
+        if(res != null) {
+          await this.$store.dispatch('setSelectMode', 'single');
+          const layer = this.base.find(item => this.getTableId())
+          await this.$store.dispatch('selectFeatureAndLayer', {feature: res, layer: layer});
+        }
         await this.$store.dispatch('setMapCenter', {x: lng, y: lat})
         await this.$store.dispatch('setMapZoom', 22);
       }
