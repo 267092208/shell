@@ -226,8 +226,12 @@ const mixin = {
                     发展潜力: this.form['发展潜力'].toString(),
                     组团评级: this.form['组团评级']
                 }
-                res = await this.$store.dispatch('addLayerFeature', { layerid: 'poigroups', feature: { id: this.form['ID'], model: modelToEntityKeyValue(model) } }).catch(err =>  err)
-                await geoInstance.disable(); // 关闭图形
+                const geometry = geoInstance.getGeometry().getGeometry();
+                res = await this.$store.dispatch('addLayerFeature', { layerid: 'poigroups', feature: { id: this.form['ID'], geometry: {
+                                                    type: geometry.getType(),
+                                                    coordinates: geometry.getType() === 'Circle' ? [geometry.getCenter(), geometry.getRadius()] : geometry.getCoordinates()
+                                                }, properties: model } }).catch(err =>  err)
+                geoInstance && await geoInstance.disable(); // 关闭图形
             } else {
                 let { ID, 名称, path_baidu, strokeColor, fillColor, strokeStyle, 备注, 柴油总日销量k, 汽油总日销量k, 油站个数, 发展潜力, 组团评级 } = this.form;
                 model = { ID, 名称, path_baidu, strokeColor, fillColor, strokeStyle, 备注, 柴油总日销量k, 汽油总日销量k, 油站个数, 发展潜力, 组团评级 }
@@ -250,7 +254,11 @@ const mixin = {
                     ID: this.form['ID'],
                     path_baidu: path_baidu,
                 }
-                res = await this.$store.dispatch('addLayerFeature', { layerid: 'sq', feature: { id: this.form['ID'], properties: model } }).catch(err => err);
+                const geometry = geoInstance.getGeometry().getGeometry();
+                res = await this.$store.dispatch('addLayerFeature', { layerid: 'sq', feature: { id: this.form['ID'],geometry: {
+                                                        type: geometry.getType(),
+                                                        coordinates: geometry.getType() === 'Circle' ? [geometry.getCenter(), geometry.getRadius()] : geometry.getCoordinates()
+                                                    }, properties: model } }).catch(err => err);
                 geoInstance && await geoInstance.disable(); // 关闭图形
             }
             else {

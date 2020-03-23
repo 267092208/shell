@@ -68,10 +68,8 @@
                 class="selectMultiple"
                 ref="district"
                 @change="hadleDistrictSelected"
-                 :disabled="isEdit===true && editting === false ? 'disabled' : ''"
+                :disabled="isEdit===true && editting === false ? 'disabled' : false"
               >
-              <!--                 :disabled="isEdit===true && editting === false ? 'disabled' : ''"
-                :class="isEdit===true && editting === false ? 'disabled' : ''"-->
                 <option
                   v-for="(item,index) in districtList"
                   :key="index"
@@ -206,19 +204,20 @@ export default {
                 this.saving = false;
                 this.$message.error({ message: err, offset: 60 });
               });
-            res &&
-              "newId" in res &&
-              res.newId &&
+            if (res && "newId" in res && res.newId) {
               this.$message.success({ message: "添加MA成功!", offset: 60 });
-            const list = await layerData
-              .getList("ma", res.newId)
-              .then(res => {
-                this.$store.dispatch("addLayerFeature", {
-                  layerid: "ma",
-                  feature: layerData.rectify(res.list[0], "ma")
-                });
-              })
-              .catch(err => this.$message.error({ message: err, offset: 60 }));
+              const list = await layerData
+                .getList("ma", res.newId)
+                .then(res => {
+                  this.$store.dispatch("addLayerFeature", {
+                    layerid: "ma",
+                    feature: layerData.rectify(res.list[0], "ma")
+                  });
+                })
+                .catch(err =>
+                  this.$message.error({ message: err, offset: 60 })
+                );
+            }
             this.saving = false;
             this.closePanel();
           } else {
@@ -232,16 +231,16 @@ export default {
                 this.saving = false;
                 this.$message.error({ message: err, offset: 60 });
               });
-            await layerData.getList("ma", this.form["ID"]).then(res => {
-              this.$store.dispatch("updateLayerFeature", {
-                layerid: "ma",
-                feature: layerData.rectify(res.list[0], "ma")
-              });
-            });
-            res &&
-              "update" in res &&
-              res.update &&
+
+            if (res && "update" in res && res.update) {
               this.$message.success({ message: "修改该MA成功!", offset: 60 });
+              await layerData.getList("ma", this.form["ID"]).then(res => {
+                this.$store.dispatch("updateLayerFeature", {
+                  layerid: "ma",
+                  feature: layerData.rectify(res.list[0], "ma")
+                }).catch(err => console.log(err));
+              });
+            }
           }
           this.saving = false;
           this.closePanel();
@@ -355,9 +354,12 @@ export default {
             city: +ma["所属城市"],
             district:
               "行政区划Ids" in ma
-                ? ma["行政区划Ids"].toString().split(",").map(i => {
-                    return +i;
-                  })
+                ? ma["行政区划Ids"]
+                    .toString()
+                    .split(",")
+                    .map(i => {
+                      return +i;
+                    })
                 : "ma",
             color: ma["颜色"],
             ...ma

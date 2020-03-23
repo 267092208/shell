@@ -693,12 +693,13 @@ export default {
     },
     /** val circle undefined true false */
     async editForSearchKey(row, col, cellValue, index) {
+      /** 获取当前值 */
       let val;
-      if (row === "headSearchKey") {
+      if (row === "headSearchKey") { // table head 布尔值column 处理
         // 与headSearchKey标记相同
         val = this.searchKey[col["property"]];
       } else {
-        if (col.label in this.searchKey) {
+        if (col.label in this.searchKey) {  // table body 布尔值column 处理
           let fields = this.fixColumn.concat(this.sortColumns);
           let field = fields.find(item => {
             return item instanceof Array && item[0] === col.label;
@@ -708,19 +709,22 @@ export default {
           else val = row[col.label];
         }
       }
-
+      
+      /** 获取应得的值 */
       let buff;
       if (val == null) buff = true;
       else if (val === true) buff = false;
       else if (val === false) buff = undefined;
-      if (row === "headSearchKey") {
+      /**table head and table body 对应处理 */
+      if (row === "headSearchKey") { // table head
         this.searchKey[col["property"]] = buff;
         this.$refs[`headIcon_${col["property"]}`].forEach(item => {
           item.className = this.checkboxClass(buff);
         });
         await this.refreshTableDataBySearchKey();
-      } else if (col.label in this.searchKey) {
+      } else if (col.label in this.searchKey) { // table body
         row[col.label] = buff;
+        await tableData.updateTableForRow(this.getTableId(), row);
       }
     },
     async changeSearchKeyForInput(e) {
@@ -775,12 +779,12 @@ export default {
       this.loading = false;
     },
     myFormatter(row, col, cellValue, index) {
-      if (typeof cellValue === 'string' && cellValue.search("/Date") >= 0) {
-        let date = FromMSJsonString(cellValue);
-        if (col.label === '开始时间') return DateFormat(date, 'hh-mm-ss')
-        if (col.label === '日期') return DateFormat(date, 'yyyy-MM-dd');
-        return DateFormat(date); // FIXME: 不知道为社么写了这句，时间格式就正确了
-      }
+      // if (typeof cellValue === 'string' && cellValue.search("/Date") >= 0) {
+      //   let date = FromMSJsonString(cellValue);
+      //   if (col.label === '开始时间') return DateFormat(date, 'hh-mm-ss')
+      //   if (col.label === '日期') return DateFormat(date, 'yyyy-MM-dd');
+      //   return DateFormat(date); // FIXME: 不知道为社么写了这句，时间格式就正确了
+      // }
       if (this.optionsSelected === "油品信息") {
         let v = Number.parseFloat(cellValue);
         if (isNaN(v)) return cellValue;
@@ -960,7 +964,7 @@ export default {
           filter.push(this.filters[layerid]);
         }
         result = await tableData.exportTable(layerid, { querys: filter });
-      }
+      } // end else 
       window.open(result.path);
       this.exportting = false;
     },

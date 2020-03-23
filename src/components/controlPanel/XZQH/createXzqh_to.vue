@@ -16,7 +16,6 @@
             size="mini"
             :status-icon="true"
             :inline-message="true"
-            :disabled="editting === false"
           >
             <el-form-item
               size="mini"

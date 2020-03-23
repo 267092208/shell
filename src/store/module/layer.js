@@ -353,14 +353,15 @@ const layer = {
     async addLayerFeature(context, param) {
       let res;
       if (param.layerid !== "ma") {
-        if (param.layerid === "xzqh" || param.layerid === "poigroups") {
+        if (param.layerid === "xzqh") {
           res = await layerData
-            .addForActionAdd(param.layerid, param.feature)
+            .addForXZQH(param.layerid, param.feature)
             .catch(err => err);
         } else {
           res = await layerData.add(param.layerid, param.feature);
         }
       }
+      console.log(param.feature, 'look');
       if (context.state.source[param.layerid]) {
         context.state.source[param.layerid].push(param.feature);
         context.state.source = Object.assign({}, context.state.source);

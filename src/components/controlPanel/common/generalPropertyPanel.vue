@@ -107,7 +107,7 @@
           @click="onSubmit('form')"
         >保 存</el-button>
         <el-button size="mini" @click="deleteFeature" type="danger" icon="el-icon-delete">删 除</el-button>
-        <!-- <el-button size="mini" @click="closePanel" icon="el-icon-remove-outline">取 消</el-button> -->
+        <el-button v-if="!hasGeo" size="mini" @click="closePanel" icon="el-icon-remove-outline">取 消</el-button>
       </el-footer>
       <!-- 属性面板 -->
       <el-footer class="form-footer" height="60px" v-else>
@@ -255,7 +255,6 @@ export default {
             }
           })
           .catch(async err => {
-            console.log(err);
             await this.endPoint();
             return err;
           });
@@ -270,37 +269,47 @@ export default {
           this.saving = true;
           if (false === this.isEdit) {
             // 添加模式
-            if (this.currentLayer.id === "poigroups") {
-              await this.poigroupsSubmitFn();
-            } else if (this.currentLayer.id === "sq") {
-              await this.sqSubmitFn();
-            } else if (this.currentLayer.id === "roadnetwork") {
-              await this.roadSubmitFn();
-            } else if (this.currentLayer.id === "xl") {
-              await this.xlSubmitFn();
-            } else if (this.currentLayer.id === "corridor") {
-              await this.corridorSubmitFn();
-            } else {
-              if (this.hasGeo) await this.defaultSubmitFnWithGeo();
-              else await this.defaultSubmitFn();
+            try {
+              if (this.currentLayer.id === "poigroups") {
+                await this.poigroupsSubmitFn();
+              } else if (this.currentLayer.id === "sq") {
+                await this.sqSubmitFn();
+              } else if (this.currentLayer.id === "roadnetwork") {
+                await this.roadSubmitFn();
+              } else if (this.currentLayer.id === "xl") {
+                await this.xlSubmitFn();
+              } else if (this.currentLayer.id === "corridor") {
+                await this.corridorSubmitFn();
+              } else {
+                if (this.hasGeo) await this.defaultSubmitFnWithGeo();
+                else await this.defaultSubmitFn();
+              }
+            } catch (err) {
+              this.saving = false;
+              console.log(err);
             }
             this.saving = false;
             this.closePanel();
           } else {
             // 编辑模式
-            if (this.currentLayer.id === "poigroups") {
-              await this.poigroupsSubmitFn();
-            } else if (this.currentLayer.id === "sq") {
-              await this.sqSubmitFn();
-            } else if (this.currentLayer.id === "roadnetwork") {
-              await this.roadSubmitFn();
-            } else if (this.currentLayer.id === "xl") {
-              await this.xlSubmitFn();
-            } else if (this.currentLayer.id === "corridor") {
-              await this.corridorSubmitFn();
-            } else {
-              if (this.hasGeo) await this.defaultSubmitFnWithGeo();
-              else await this.defaultSubmitFn();
+            try {
+              if (this.editFeatureLayer.id === "poigroups") {
+                await this.poigroupsSubmitFn();
+              } else if (this.editFeatureLayer.id === "sq") {
+                await this.sqSubmitFn();
+              } else if (this.editFeatureLayer.id === "roadnetwork") {
+                await this.roadSubmitFn();
+              } else if (this.editFeatureLayer.id === "xl") {
+                await this.xlSubmitFn();
+              } else if (this.editFeatureLayer.id === "corridor") {
+                await this.corridorSubmitFn();
+              } else {
+                if (this.hasGeo) await this.defaultSubmitFnWithGeo();
+                else await this.defaultSubmitFn();
+              }
+            } catch (err) {
+              this.saving = false;
+              console.log(err);
             }
             this.saving = false;
             this.closePanel();
@@ -313,8 +322,8 @@ export default {
     },
     async beginEdit() {
       this.editting = true;
-      this.$parent.closeButton = false;
       if (this.hasGeo) {
+        this.$parent.closeButton = false;
         await this.$store.commit('setPanelExtent', {editPanel: true})
         this.editFeature = this.selectFeature;
         this.editFeatureLayer = this.selectFeatureLayer;

@@ -79,6 +79,8 @@
                   class="icon-btn"
                   v-show="beginShape"
                   @click.native.stop="exitShape"
+                  v-loading="saving"
+                  element-loading-text="保存中..."
                 >
                   <div class="icon-title">退出调整</div>
                   <el-avatar
@@ -110,12 +112,13 @@ export default {
   computed: {
     ...mapState({editFeature: state =>state.editGeometry.feature})
   },
+
   methods: {
     openCommPanel() {
       this.$store.dispatch("replace", { path: "createXzqh" });
     },
     async exitShape() {
-      this.beginShape = false;
+      this.saving = true;
       let path_baidu_1 = this.geometryInstance.getFeature().getGeometry().getCoordinates()[0].map(item => gcoord.transform(item, gcoord.EPSG3857, gcoord.BD09).join(',')) // 记得转坐标
       console.log(path_baidu)
       path_baidu_1 = path_baidu_1.join(';')
@@ -134,9 +137,10 @@ export default {
                   coordinates: geometry.getCoordinates()
                 },
                 properties: model }})
-            .catch(err => console.log(err)) 
-
+            .catch(err => {this.saving = false; console.log(err)}) 
+      this.saving = false;
       this.geometryInstance.disable();
+      this.beginShape = false;
     }, 
     async shapeAdjust() {
       this.beginShape = true;
@@ -157,22 +161,7 @@ export default {
   data() {
     return {
       beginShape: false,
-
-      // radio: 0,
-      // rankingVisible: false,
-      // economicVisible: false,
-      // gasInfoVisible: false,
-      // importRankingVisible: false,
-      // importEconomicVisible: false,
-      // attachmentManagerVisible: false,
-      // bookmarkingVisible: false,
-      // // statusList: [{name: '显示十三五规划编号', visible: false}],
-      // statusList: [],
-      // scaleList: [25, 50, 75, 100, 125, 150, 175, 200],
-      // scale: 100,
-      // exportBatchLayerVisible: false,
-      // importBatchLayerVisible: false,
-      // importLayerCtrlVisible: false
+      saving: false
     };
   },
   mounted() {

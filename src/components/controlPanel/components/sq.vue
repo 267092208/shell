@@ -157,7 +157,7 @@ export default {
   methods: {
     openCommPanel() {
       this.openTools = true;
-      this.$store.dispatch("replace", { path: "commAddPanel" });
+     
     },
     async beginDraw(mode) {
       let geometry = await this.$store.dispatch("getGeometry", {
@@ -165,6 +165,9 @@ export default {
       });
 
       geometry.on("update", async (e) => {
+        if (e.type === 'addfeature' ) {
+          await this.$store.dispatch("replace", { path: "commAddPanel" });
+        }
       });
     },
     closeTools() {

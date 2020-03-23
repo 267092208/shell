@@ -108,7 +108,7 @@ export default {
       const lnglat = this.editPoint
         ? gcoord.transform(this.editPoint, gcoord.BD09, gcoord.EPSG3857)
         : [12609158.722154098, 2647747.527494556];
-        if (map == null || !this.$refs.map || this.$refs.map.childNodes.length <= 1) {
+        if (map == null || !this.$refs.map || this.$refs.map.childNodes.length <= 1) { // 防范dom未加载完成和错误map，进行防御创建新的map
           if (this.$refs.map) {
             map = createdMap({ target: this.$refs.map, editPoint: lnglat });
           } else {
