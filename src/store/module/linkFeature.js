@@ -7,44 +7,103 @@ const linkFeature = {
   state: {
     /**
      * 当前选中的要素的关联要素集合
-     * @type {[id:string]:Array<{id,geometry,properties}>}
+     * @type {Array<{id,geometry,properties}}
      */
-    relationFeatures: {},
+    relationFeatures: [],
     /**
-     * 当前选中的要素的竞争要素集合
-     * @type {[id:string]:Array<{id,geometry,properties}>}
+     * 当前选中的要素的关联要素集合
+     * @type {Array<{id,geometry,properties}}
      */
-    competitorFeatures: {},
+    competitorFeatures: [],
     /**
      * 添加关联要素的状态
      * @type {Boolean}
      */
-    addLinkStatus: false
+    addRelationStatus: false,
+    /**
+     * 添加竞争要素的状态
+     * @type {Boolean}
+     */
+    addCompStatus: false
   },
   mutations: {},
   actions: {
     async initlinkFeatures(context, param) {
-      const { featureId, layerId } = param;
+      const { featureId, layerId, type } = param;
       const state = context.state;
-      const linkFeatures = await linkData.getRelations(layerId, { id: featureId });
-      console.log("linkFeatures", linkFeatures);
+      if (type === "relation") {
+        const linkFeatures = await linkData.getRelations(layerId, { id: featureId, type });
+        state.relationFeatures = linkFeatures;
+      }
 
-      state.relationFeatures[featureId] = linkFeatures;
+      if (type === "competitor") {
+        const compFeatures = await linkData.getRelations(layerId, { id: featureId, type });
+        state.competitorFeatures = compFeatures;
+      }
+    },
+    /**
+     * 清空关联要素
+     * @param {*} context
+     */
+    async clearLinkFeatures(context, param) {
+      if (param === "relation") {
+        context.state.relationFeatures = null;
+      }
+
+      if (param === "competitor") {
+        context.state.competitorFeatures = null;
+      }
     },
 
-    async setlinkFeatures(context, param) {},
+    async setaddLinkStatus(context, param) {
+      const { status, type } = param;
+      if (type === "relation") {
+        context.state.addRelationStatus = status;
+      }
 
-    async setAddLinkStatus(context, param) {
-      context.state.addLinkStatus = param;
+      if (type === "competitor") {
+        context.state.addCompStatus = status;
+      }
     },
 
+    /**
+     * 添加关联要素
+     * @param {*} context
+     * @param {{layerId, feature, bh}} param
+     */
+    async addLinkFeature(context, param) {
+      const { layerId, feature, bh, type } = param;
+      if (type === "relation") {
+        await linkData.addRelation(layerId, feature, bh, type);
+
+        context.state.relationFeatures = await linkData.getRelations(layerId, { id: feature.id, type });
+
+        return context.state.relationFeatures;
+      }
+
+      if (type === "competitor") {
+        await linkData.addRelation(layerId, feature, bh, type);
+
+        context.state.relationFeatures = await linkData.getRelations(layerId, { id: feature.id, type });
+        // context.state.relationFeatures = Object.assign({},context.state.relationFeatures)
+
+        return context.state.relationFeatures;
+      }
+    },
+    /**
+     * 删除关联要素
+     * @param {*} context
+     * @param {{layerId, feature, delFeatures}} param
+     */
     async delLinkFeatures(context, param) {
-      const { layerId, feature, delFeatures } = param;
+      const { layerId, feature, delFeatures, type } = param;
 
-      await linkData.removeRelation(layerId, feature, delFeatures);
+      await linkData.removeRelation(layerId, feature, delFeatures, type);
 
-      context.state.relationFeatures[feature.id] = await linkData.getRelations(layerId, { id: feature.id });
-      return context.state.relationFeatures[feature.id]
+      context.state.relationFeatures = await linkData.getRelations(layerId, { id: feature.id, type });
+      // context.state.relationFeatures = Object.assign({},context.state.relationFeatures)
+
+      return context.state.relationFeatures;
     }
   }
 };

@@ -2,8 +2,8 @@
     <div class="left-item">
         <base-info-item v-if="yzLinkVisible">
             <div slot="header" class="header-content">关联油站</div>
-            <div slot="content">
-                <div v-if="relateStationList.length === 0">暂无数据</div>
+            <div slot="content" v-loading="relationLoading" element-loading-text="关联油站正在加载中,请稍后">
+                <div v-if="relationFeatures && relationFeatures.length === 0">暂无数据</div>
                 <div v-else>
                     <el-checkbox
                         :indeterminate="isIndeterminate"
@@ -11,12 +11,14 @@
                         @change="handleCheckAllChange"
                     >全选</el-checkbox>
                     <div style="margin: 15px 0;"></div>
+
                     <el-checkbox-group
                         v-model="checkedRelateStations"
                         @change="handleCheckedCitiesChange"
+                        class="check-group"
                     >
                         <el-checkbox
-                            v-for="(station,index) in relateStationList"
+                            v-for="(station,index) in relationFeatures"
                             :label="station"
                             :key="index"
                             class="link-list"
@@ -55,7 +57,7 @@
                         type="primary"
                         icon="el-icon-edit"
                         size="mini"
-                        @click.native="addInfo"
+                        @click.native="addRelationByBh"
                     ></el-button>
                 </el-button-group>
             </div>
@@ -66,7 +68,7 @@
 <script>
 import { mapState } from "vuex";
 import { getPhotos, getPhotoHis, deletePhoto } from "@/data/photo";
-import { linkFeatureStyle } from "@/config/layer/clickFu";
+import { linkFeatureStyle } from "@/config/layer/yzAttr";
 import { getLayerOL } from "@/mapTool/mapboxMixins2/utils";
 
 const baseInfoItem = () => import("@/components/infoPanel/common/baseInfoItem");
@@ -78,132 +80,67 @@ export default {
     },
     data() {
         return {
-            relateStationList: [],
+            // relateStationList: [],
             isIndeterminate: true,
             checkedRelateStations: [],
             checkAll: false,
             isAddLink: false,
-            isCancelLink: false
+            isCancelLink: false,
+            relationLoading: false
         };
     },
     computed: {
         ...mapState({
             selectFeature: state => state.selectFeature.selectFeature,
             selectFeatureLayer: state => state.selectFeature.selectFeatureLayer,
-            relationFeatures: state => state.linkFeature.relationFeatures
+            relationFeatures: state => state.linkFeature.relationFeatures,
+            addRelationStatus: state => state.linkFeature.addRelationStatus
         })
     },
     components: {
         baseInfoItem
     },
-    mounted() {
-        this.$store
-            .dispatch("initlinkFeatures", {
-                featureId: this.selectFeature.get("id"),
-                layerId: this.selectFeatureLayer.id
-            })
-            .then(res => {
-                this.relateStationList = this.relationFeatures[
-                    this.selectFeature.get("id")
-                ];
-                this.setLinkStyle();
-            });
-    },
+    mounted() {},
     methods: {
         //全选
         handleCheckAllChange(val) {
-            this.checkedRelateStations = val ? this.relateStationList : [];
+            this.checkedRelateStations = val ? this.relationFeatures : [];
             this.isIndeterminate = false;
         },
         handleCheckedCitiesChange(value) {
             let checkedCount = value.length;
-            this.checkAll = checkedCount === this.relateStationList.length;
+            this.checkAll = checkedCount === this.relationFeatures.length;
             this.isIndeterminate =
-                checkedCount > 0 &&
-                checkedCount < this.relateStationList.length;
-        },
-        // 删除信息
-        deleteInfo(title, text, data) {
-            if (data.length < 1) {
-                this.$confirm("请先选择需要删除的内容", title, {
-                    type: "warning"
-                })
-                    .then(() => {})
-                    .catch(() => {});
-                return;
-            }
-            this.$confirm(text, title, {
-                confirmButtonText: "确定",
-                cancelButtonText: "取消",
-                type: "warning"
-            })
-                .then(() => {
-                    this.selectList.forEach(item => {
-                        this.stationImgList.forEach((imgItem, imgIndex) => {
-                            if (imgItem === item) {
-                                this.childDeletePhoto({
-                                    index: imgIndex,
-                                    selectList: this.selectList
-                                });
-                            }
-                        });
-                    });
-
-                    // this.selectList = [];
-                    this.$emit("setSelectList", "clear");
-
-                    this.$message({
-                        type: "success",
-                        message: "删除成功!"
-                    });
-                })
-                .catch(() => {
-                    this.$message({
-                        type: "info",
-                        message: "已取消删除"
-                    });
-                });
-        },
-        //关联要素样式设置
-        setLinkStyle() {
-            const layer = getLayerOL(this.selectFeatureLayer.id);
-            const features = layer.getSource().getFeatures();
-            if (this.yzLinkVisible) {
-                features.forEach(f => {
-                    if (
-                        this.relateStationList.find(r => {
-                            return r.id === f.get("id");
-                        })
-                    ) {
-                        console.log(f);
-                        
-                        f.setStyle(linkFeatureStyle(f, layer));
-                    }
-                });
-            } else {
-                features.forEach(f => {
-                    if (
-                        this.relateStationList.find(r => {
-                            return r.id === f.get("id");
-                        })
-                    ) {
-                        f.setStyle(null);
-                    }
-                });
-            }
+                checkedCount > 0 && checkedCount < this.relationFeatures.length;
         },
 
-        //添加信息
-        addInfo() {
+        //通过编号添加关联油站
+        addRelationByBh() {
             this.$prompt("请输入添加的油站编号", "添加油站", {
                 confirmButtonText: "确定",
                 cancelButtonText: "取消"
             })
-                .then(() => {
-                    this.$message({
-                        type: "success",
-                        message: "添加成功 "
-                    });
+                .then(res => {
+                    const bh = res.value;
+                    this.$store
+                        .dispatch("addLinkFeature", {
+                            layerId: this.selectFeatureLayer.id,
+                            feature: this.selectFeature,
+                            bh,
+                            type: "relation"
+                        })
+                        .then(r => {
+                            this.$message({
+                                type: "success",
+                                message: "添加成功 "
+                            });
+                        })
+                        .catch(err => {
+                            this.$message({
+                                type: "error",
+                                message: "添加失败 " + err
+                            });
+                        });
                 })
                 .catch(() => {
                     this.$message({
@@ -217,14 +154,31 @@ export default {
         //在地图上选点关联油站
         async addLinkStation() {
             this.isAddLink = true;
-            // await
-
-            if (this.isAddLink) {
-            }
+            this.$store.dispatch("setaddLinkStatus", {
+                status: true,
+                type: "relation"
+            });
         },
         //取消添加关联油站
         cancelAdd() {
             this.isAddLink = false;
+            this.$store
+                .dispatch("setaddLinkStatus", {
+                    status: false,
+                    type: "relation"
+                })
+                .then(res => {
+                    this.$message({
+                        type: "success",
+                        message: "取消添加成功!"
+                    });
+                })
+                .catch(err => {
+                    this.$message({
+                        type: "error",
+                        message: "取消添加失败!"
+                    });
+                });
         },
         //删除关联油站
         deleteLinkStation() {
@@ -233,10 +187,12 @@ export default {
                 .dispatch("delLinkFeatures", {
                     layerId: this.selectFeatureLayer.id,
                     feature: this.selectFeature,
-                    delFeatures: this.checkedRelateStations
+                    delFeatures: this.checkedRelateStations,
+                    type: "relation"
                 })
                 .then(res => {
-                    this.relateStationList = res;
+                    // this.relateStationList = res;
+
                     this.$message({
                         type: "success",
                         message: "删除成功!"
@@ -244,32 +200,28 @@ export default {
                 })
                 .catch(err => {
                     this.$message({
-                        type: "info",
+                        type: "error",
                         message: "删除失败" + err
                     });
                 });
         }
     },
     watch: {
-        selectFeature() {
-            if (this.selectFeature) {
+        yzLinkVisible(visible) {
+            if (visible) {
+                this.relationLoading = true;
                 this.$store
                     .dispatch("initlinkFeatures", {
                         featureId: this.selectFeature.get("id"),
-                        layerId: this.selectFeatureLayer.id
+                        layerId: this.selectFeatureLayer.id,
+                        type: "relation"
                     })
                     .then(res => {
-                        this.relateStationList = this.relationFeatures[
-                            this.selectFeature && this.selectFeature.get("id")
-                        ];
+                        this.relationLoading = false;
                     });
+            } else {
+                this.$store.dispatch("clearLinkFeatures", "relation");
             }
-        },
-        yzLinkVisible(b) {
-            this.setLinkStyle();
-        },
-        relateStationList(r) {
-            this.setLinkStyle();
         }
     }
 };
@@ -292,6 +244,10 @@ export default {
         display: flex;
         flex-wrap: wrap;
         justify-content: space-between;
+    }
+    .check-group {
+        height: 100px;
+        overflow-y: auto;
     }
 
     .item {

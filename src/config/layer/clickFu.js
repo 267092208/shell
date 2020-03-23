@@ -28,7 +28,7 @@ export function selectPointStyle(feature, layer) {
   }
   let oldStyle = _styles[0];
   const geometry = feature.getGeometry();
-  const [radius] = oldStyle.getImage() && oldStyle.getImage().getImageSize() || [32, 32];
+  const [radius] = (oldStyle.getImage() && oldStyle.getImage().getImageSize()) || [32, 32];
   _styles.push(
     new Style({
       geometry: geometry,
@@ -91,41 +91,6 @@ function selectStyle(feature, layer) {
   }
 }
 
-/**
- * 关联要素的样式
- * @param {Feature} feature
- * @param {VectorLayer} layer
- */
-export function linkFeatureStyle(feature, layer) {
-  let styles = layer.getStyle(feature);
-  while (styles instanceof Function) {
-    styles = styles(feature);
-  }
-  let _styles = [];
-  if (styles instanceof Array) {
-    for (let i = 0; i < styles.length; i++) {
-      const style = styles[i];
-      _styles.push(style.clone());
-    }
-  } else {
-    _styles.push(styles);
-  }
-  let oldStyle = _styles[0];
-  const geometry = feature.getGeometry();
-  const [radius] = oldStyle.getImage() && oldStyle.getImage().getImageSize() || [32, 32];
-  _styles.push(
-    new Style({
-      geometry: geometry,
-      image: new RegularShape({
-        radius: (radius / 4) * 3,
-        points: 4,
-        angle: Math.PI / 4,
-        stroke: new Stroke({ color: "blue", width: 2 })
-      })
-    })
-  );
-  return _styles;
-}
 
 const { dispatch } = store;
 /**
@@ -214,28 +179,9 @@ const clickFu = {
       isPopupcloser: true,
       move: [0, -30]
     });
-  },
-/**
-   * 关联油站
-   * @param {Feature} feature  当前点击到的图形
-   * @param {VectorLayer} layer  图形在的图层
-   */
-  linkFun: function(feature, layer){
-    let position = feature.getGeometry().getCoordinates();
-    const val = feature.getProperties();
-    feature.id = feature.get("ID");
-    feature.properties = feature.getProperties();
-    feature.geometry = feature.getGeometry();
-    const layersbase = store.state.layer.base;
-    let layerbase = layersbase.find(l => val.source && val.source.layerids && val.source.layerids.includes(l.id));
-    layerbase &&
-      dispatch("selectFeatureAndLayer", {
-        feature,
-        layer: layerbase
-      });
   }
-  
 };
+
 /**
  * 事件响应相同
  */
@@ -243,6 +189,7 @@ const fus = ["shellyz", "gsyz", "nti", "gsnti", "target", "ma", "xzqh", "sq", "p
 fus.forEach(t => {
   clickFu[t] = clickFu["xyyz"];
 });
+
 
 // 监听选中元素的改变
 import("@/store").then(m => {
@@ -257,16 +204,6 @@ import("@/store").then(m => {
     }
   );
 });
-// 监听关联元素
-import("@/store").then(m => {
-  const store = m.default;
-  store.watch(
-    () => store.state.linkFeature.linkFeature,
-    (newval, oldval) => {
-      
-    }
-  );
-});
 
 
-export default clickFu;
+export  default  clickFu

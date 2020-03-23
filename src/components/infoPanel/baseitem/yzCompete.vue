@@ -1,63 +1,68 @@
 <template>
-        <div class="left-item">
-            <base-info-item v-if="yzCompeteVisible">
-                <div slot="header" class="header-content">竞争油站</div>
-                <div slot="content">
-                    <div v-if="compStationList.length === 0">暂无数据</div>
-                    <div v-else>
+    <div class="left-item">
+        <base-info-item v-if="yzCompeteVisible">
+            <div slot="header" class="header-content">竞争油站</div>
+            <div slot="content" v-loading="relationLoading" element-loading-text="竞争油站正在加载中,请稍后">
+                <div v-if="competitorFeatures && competitorFeatures.length === 0">暂无数据</div>
+                <div v-else>
+                    <el-checkbox
+                        :indeterminate="isIndeterminate"
+                        v-model="checkAll"
+                        @change="handleCheckAllChange"
+                    >全选</el-checkbox>
+                    <div style="margin: 15px 0;"></div>
+
+                    <el-checkbox-group
+                        v-model="checkedRelateStations"
+                        @change="handleCheckedCitiesChange"
+                        class="check-group"
+                    >
                         <el-checkbox
-                            :indeterminate="isIndeterminate"
-                            v-model="checkAll"
-                            @change="handleCheckAllChange"
-                        >全选</el-checkbox>
-                        <div style="margin: 15px 0;"></div>
-                        <el-checkbox-group
-                            v-model="checkedRelateStations"
-                            @change="handleCheckedCitiesChange"
-                        >
-                            <el-checkbox
-                                v-for="station in compStationList"
-                                :label="station"
-                                :key="station"
-                            >{{station}}</el-checkbox>
-                        </el-checkbox-group>
-                    </div>
+                            v-for="(station,index) in competitorFeatures"
+                            :label="station"
+                            :key="index"
+                            class="link-list"
+                        >站名：{{station["properties"]["站名"]}} &nbsp;&nbsp;&nbsp;编号：{{station["properties"]["油站编号"]}}</el-checkbox>
+                    </el-checkbox-group>
                 </div>
-                <div slot="footer">
-                    <el-button-group>
-                        <el-button
-                            title="点击添加后在地图上点选竞争油站"
-                            type="primary"
-                            icon="el-icon-plus"
-                            size="mini"
-                            disabled
-                        ></el-button>
-                        <el-button
-                            title="取消添加"
-                            type="primary"
-                            icon="el-icon-close"
-                            size="mini"
-                            disabled
-                        ></el-button>
-                        <el-button
-                            title="删除竞争油站"
-                            type="primary"
-                            icon="el-icon-delete"
-                            size="mini"
-                            disabled
-                        ></el-button>
-                        <el-button
-                            title="填写油站编号添加"
-                            type="primary"
-                            icon="el-icon-edit"
-                            size="mini"
-                            @click.native="addInfo"
-                            disabled
-                        ></el-button>
-                    </el-button-group>
-                </div>
-            </base-info-item>
-        </div>
+            </div>
+            <div slot="footer">
+                <el-button-group>
+                    <el-button
+                        title="点击添加后在地图上点选竞争油站"
+                        type="primary"
+                        icon="el-icon-plus"
+                        size="mini"
+                        @click="addLinkStation"
+                    ></el-button>
+                    <el-button
+                        title="取消添加"
+                        type="primary"
+                        icon="el-icon-close"
+                        size="mini"
+                        @click="cancelAdd"
+                        :disabled="!isAddLink"
+                    ></el-button>
+
+                    <el-button
+                        title="删除竞争油站"
+                        type="primary"
+                        icon="el-icon-delete"
+                        size="mini"
+                        @click="deleteLinkStation"
+                        :disabled="!checkedRelateStations.length"
+                    ></el-button>
+                    <el-button
+                        title="填写油站编号添加"
+                        type="primary"
+                        icon="el-icon-edit"
+                        size="mini"
+                        @click.native="addRelationByBh"
+                    ></el-button>
+                </el-button-group>
+            </div>
+        </base-info-item>
+    </div>
 </template>
 
 <script>
@@ -68,94 +73,71 @@ const baseInfoItem = () => import("@/components/infoPanel/common/baseInfoItem");
 export default {
     name: "yzCompete",
     props: {
-        yzCompeteVisible:Boolean
+        yzCompeteVisible: Boolean
     },
     data() {
         return {
-            compStationList: [],
+            // relateStationList: [],
             isIndeterminate: true,
             checkedRelateStations: [],
             checkAll: false,
+            isAddLink: false,
+            isCancelLink: false,
+            relationLoading: false
         };
     },
     computed: {
         ...mapState({
             selectFeature: state => state.selectFeature.selectFeature,
-            selectFeatureLayer: state => state.selectFeature.selectFeatureLayer
+            selectFeatureLayer: state => state.selectFeature.selectFeatureLayer,
+            competitorFeatures: state => state.linkFeature.competitorFeatures,
+            addRelationStatus: state => state.linkFeature.addRelationStatus
         })
     },
     components: {
         baseInfoItem
     },
-    created() {},
-
+    mounted() {},
     methods: {
         //全选
         handleCheckAllChange(val) {
-            this.checkedRelateStations = val ? this.relateStationList : [];
+            this.checkedRelateStations = val ? this.competitorFeatures : [];
             this.isIndeterminate = false;
         },
         handleCheckedCitiesChange(value) {
             let checkedCount = value.length;
-            this.checkAll = checkedCount === this.relateStationList.length;
+            this.checkAll = checkedCount === this.competitorFeatures.length;
             this.isIndeterminate =
-                checkedCount > 0 &&
-                checkedCount < this.relateStationList.length;
-        },
-        // 删除信息
-        deleteInfo(title, text, data) {
-            if (data.length < 1) {
-                this.$confirm("请先选择需要删除的内容", title, {
-                    type: "warning"
-                })
-                    .then(() => {})
-                    .catch(() => {});
-                return;
-            }
-            this.$confirm(text, title, {
-                confirmButtonText: "确定",
-                cancelButtonText: "取消",
-                type: "warning"
-            })
-                .then(() => {
-                    this.selectList.forEach(item => {
-                        this.stationImgList.forEach((imgItem, imgIndex) => {
-                            if (imgItem === item) {
-                                this.childDeletePhoto({
-                                    index: imgIndex,
-                                    selectList: this.selectList
-                                });
-                            }
-                        });
-                    });
-
-                    // this.selectList = [];
-                    this.$emit("setSelectList", "clear");
-
-                    this.$message({
-                        type: "success",
-                        message: "删除成功!"
-                    });
-                })
-                .catch(() => {
-                    this.$message({
-                        type: "info",
-                        message: "已取消删除"
-                    });
-                });
+                checkedCount > 0 && checkedCount < this.competitorFeatures.length;
         },
 
-        //添加信息
-        addInfo() {
+        //通过编号添加竞争油站
+        addRelationByBh() {
             this.$prompt("请输入添加的油站编号", "添加油站", {
                 confirmButtonText: "确定",
                 cancelButtonText: "取消"
             })
-                .then(() => {
-                    this.$message({
-                        type: "success",
-                        message: "添加成功 "
-                    });
+                .then(res => {
+                    const bh = res.value;
+                    this.$store
+                        .dispatch("addLinkFeature", {
+                            layerId: this.selectFeatureLayer.id,
+                            feature: this.selectFeature,
+                            bh,
+                            type: "competitor"
+                        })
+                        .then(r => {
+                            this.$message({
+                                type: "success",
+                                message: "添加成功 "
+                            });
+                        })
+                        .catch(err => {
+                            this.$message({
+                                type: "error",
+                                message: "添加失败 " + err
+                            });
+                        });
                 })
                 .catch(() => {
                     this.$message({
@@ -166,22 +148,76 @@ export default {
         },
         //添加油站
         addStation() {},
-        //在地图上选点关联油站
+        //在地图上选点竞争油站
         async addLinkStation() {
             this.isAddLink = true;
-            // await
-
-            if (this.isAddLink) {
-            }
+            this.$store.dispatch("setaddLinkStatus", {
+                status: true,
+                type: "competitor"
+            });
         },
-        //取消添加关联油站
-        cancelAdd() {},
-        //取消添加关联油站
-        deleteLinkStation() {}
+        //取消添加竞争油站
+        cancelAdd() {
+            this.isAddLink = false;
+            this.$store
+                .dispatch("setaddLinkStatus", {
+                    status: false,
+                    type: "competitor"
+                })
+                .then(res => {
+                    this.$message({
+                        type: "success",
+                        message: "取消添加成功!"
+                    });
+                })
+                .catch(err => {
+                    this.$message({
+                        type: "error",
+                        message: "取消添加失败!"
+                    });
+                });
+        },
+        //删除竞争油站
+        deleteLinkStation() {
+            //{layerId,feature,delFeatures}
+            this.$store
+                .dispatch("delLinkFeatures", {
+                    layerId: this.selectFeatureLayer.id,
+                    feature: this.selectFeature,
+                    delFeatures: this.checkedRelateStations,
+                    type: "competitor"
+                })
+                .then(res => {
+                    // this.relateStationList = res;
+
+                    this.$message({
+                        type: "success",
+                        message: "删除成功!"
+                    });
+                })
+                .catch(err => {
+                    this.$message({
+                        type: "error",
+                        message: "删除失败" + err
+                    });
+                });
+        }
     },
     watch: {
-        selectFeature() {
-            if (this.selectFeature) {
+        yzCompeteVisible(visible) {
+            if (visible) {
+                this.relationLoading = true;
+                this.$store
+                    .dispatch("initlinkFeatures", {
+                        featureId: this.selectFeature.get("id"),
+                        layerId: this.selectFeatureLayer.id,
+                        type: "competitor"
+                    })
+                    .then(res => {
+                        this.relationLoading = false;
+                    });
+            } else {
+                this.$store.dispatch("clearLinkFeatures", "competitor");
             }
         }
     }
@@ -206,61 +242,9 @@ export default {
         flex-wrap: wrap;
         justify-content: space-between;
     }
-
-    .noimg {
-        // width: 100%;
-        // height: 200px;
-        // background:url("~@/assets/images/noimages.jpg");
-    }
-
-    .img-list {
-        height: 200px;
+    .check-group {
+        height: 100px;
         overflow-y: auto;
-        .img-wrap {
-            position: relative;
-            .select-icon {
-                font-size: 20px;
-                position: absolute;
-                z-index: 9;
-                background-color: #67c23a;
-                bottom: 12px;
-                right: 14px;
-                color: #fff;
-                border-radius: 50%;
-                text-align: c;
-                line-height: 20px;
-            }
-        }
-
-        .station-img {
-            margin-bottom: 5px;
-            border: 3px solid $infopanel-title-bgcolor;
-            margin-right: 10px;
-
-            &:hover {
-                border: 3px solid $theme-color;
-                cursor: pointer;
-            }
-
-            .el-image-viewer__close {
-                color: $theme-header;
-                &:hover {
-                    color: $theme-color;
-                }
-            }
-
-            .el-image-viewer__actions__inner i {
-                &:hover {
-                    cursor: pointer;
-                    color: $theme-color;
-                }
-            }
-        }
-        .select {
-            &:hover {
-                border: 3px solid #fff;
-            }
-        }
     }
 
     .item {
@@ -279,5 +263,4 @@ export default {
         }
     }
 }
-
 </style>

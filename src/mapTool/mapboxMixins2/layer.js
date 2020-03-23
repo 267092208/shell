@@ -5,6 +5,7 @@ import VectorLayer from "ol/layer/Vector";
 import VectorSource from "ol/source/Vector";
 import { getLayerOL, toVectorFeature, toGeoJSON } from "./utils";
 import clickFu from "@/config/layer/clickFu";
+import { compFun, relationFun } from "@/config/layer/yzAttr";
 import zindex from "@/config/layer/zindex";
 const mapLayerLoaded = {};
 const mixin = {
@@ -39,7 +40,9 @@ const mixin = {
             style: createdRenderer(this.layersRenderer[layerId]),
             zIndex: zindex[layerId] || 1,
             visible: this.layersVisible[layerId],
-            clickFu: clickFu[layerId]
+            clickFu: clickFu[layerId],
+            relationFun: relationFun[layerId],
+            compFun: compFun[layerId]
           });
           vectorLayer.set("layerId", layerId);
 

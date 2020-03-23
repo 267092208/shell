@@ -8,6 +8,7 @@ import extLayers from './extLayers'
 import editGeometry from './editGeometry'
 import handleLayers from './handleLayers'
 import measure from './measure'
+import yzAttr from './yzAttr'
 
 export default [
     map,
@@ -19,5 +20,6 @@ export default [
     extLayers,
     handleLayers,
     editGeometry,
-    measure
+    measure,
+    yzAttr
 ]

@@ -19,6 +19,8 @@ const mixin = {
       symbolScaling: state => state.layer.symbolScaling,
       layerbase: state => state.layer.base,
       drawMode: state => state.editGeometry.drawMode,
+      addRelationStatus: state => state.linkFeature.addRelationStatus,
+      addCompStatus: state => state.linkFeature.addCompStatus
     })
   },
   methods: {
@@ -33,17 +35,30 @@ const mixin = {
       let _this = this;
       let selected = [];
       // 绑定事件
-      map.on("click",  (e) => {
+      map.on("click", e => {
         // 编辑中不会选中
-        if (this.drawMode) { return }
-        let featureLayer = map.forEachFeatureAtPixel(e.pixel, function (feature, layer) {
+        if (this.drawMode) {
+          return;
+        }
+        let featureLayer = map.forEachFeatureAtPixel(e.pixel, function(feature, layer) {
           return { selFeature: feature, selLayer: layer };
         });
-        // 
+        //
+
         //获取图层是否有 clickFu 事件 。触发
         if (featureLayer && featureLayer.selLayer && featureLayer.selFeature) {
           const clickFu = featureLayer.selLayer.get("clickFu");
-          clickFu && clickFu(featureLayer.selFeature, featureLayer.selLayer)
+          const relationFun = featureLayer.selLayer.get("relationFun");
+          const compFun = featureLayer.selLayer.get("compFun");
+
+          if (this.addRelationStatus && relationFun) {
+            relationFun(featureLayer.selFeature, featureLayer.selLayer);
+          } else if (this.addCompStatus && compFun) {
+            
+            compFun(featureLayer.selFeature, featureLayer.selLayer);
+          } else {
+            clickFu && clickFu(featureLayer.selFeature, featureLayer.selLayer);
+          }
         }
       });
     },
@@ -51,14 +66,14 @@ const mixin = {
      * 鼠标形状变化
      */
     pointerCursor() {
-      map.on("pointermove", function (e) {
+      map.on("pointermove", function(e) {
         if (e.dragging) {
           return;
         }
         let pixel = map.getEventPixel(e.originalEvent);
         let hit = map.hasFeatureAtPixel(pixel);
         map.getTarget().style.cursor = hit ? "pointer" : "";
-        let feature = map.forEachFeatureAtPixel(e.pixel, function (feature, layer) {
+        let feature = map.forEachFeatureAtPixel(e.pixel, function(feature, layer) {
           return feature;
         });
         if (feature && feature.getGeometry().getType() === "Point") {
@@ -73,7 +88,7 @@ const mixin = {
     createStyle(layer, feature) {
       let styleFunction = layer.getStyle();
       let oldStyle = styleFunction(feature);
-      oldStyle = Array.isArray(oldStyle) ? oldStyle : [oldStyle]
+      oldStyle = Array.isArray(oldStyle) ? oldStyle : [oldStyle];
 
       let styles = [];
       styles.push(...oldStyle);
@@ -117,7 +132,7 @@ const mixin = {
     // },
     selectAll(selectAll) {
       for (const layerid in selectAll) {
-        this.selecteAllFeatures = []
+        this.selecteAllFeatures = [];
         let layer = getLayerOL(layerid);
         //如果该图层设置为全选，则该图层所有要素的样式添加选中样式
         if (layer && selectAll[layerid]) {
@@ -127,13 +142,13 @@ const mixin = {
             .forEach(f => {
               f.setStyle(this.createStyle(layer, f));
               f.changed();
-              this.selecteAllFeatures.push(f)
+              this.selecteAllFeatures.push(f);
             });
         }
         //如果该图层设置为非全选，则该图层所有要素的样式取消选中样式
 
         if (layer && !selectAll[layerid]) {
-          this.selecteAllFeatures = []
+          this.selecteAllFeatures = [];
           layer
             .getSource()
             .getFeatures()
@@ -146,7 +161,7 @@ const mixin = {
         this.$store.dispatch("selectAllFeaturesAndLayer", {
           features: this.selecteAllFeatures,
           layer: layerid
-        })
+        });
       }
     }
   }
