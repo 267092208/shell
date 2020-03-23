@@ -94,7 +94,9 @@ export default {
       // console.log(document.body);
     },
     handleClose(done) {
+      console.log('123')
       this.$emit("update:dialogVisible", false);
+      this.$refs.dialog.$el.style.opacity = 0;
     },
     closeDialog() {
       this.keyword = "";
@@ -103,7 +105,7 @@ export default {
     async initDialog() {
       this.handleClick(1);
       const lnglat = this.editPoint
-        ? gcoord.transform(this.editPoint, gcoord.WGS84, gcoord.EPSG3857)
+        ? gcoord.transform(this.editPoint, gcoord.BD09, gcoord.EPSG3857)
         : [12609158.722154098, 2647747.527494556];
       if (map == null) {
         if (this.$refs.map) {

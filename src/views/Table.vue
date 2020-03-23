@@ -1698,6 +1698,7 @@ export default {
     }
   },
   async deactivated() {
+    this.posCrtVisble = false;
     this.saveRow = null;
     this.refreshMap();
     this.searchKey = {};
