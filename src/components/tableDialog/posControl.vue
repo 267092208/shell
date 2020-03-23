@@ -94,7 +94,6 @@ export default {
       // console.log(document.body);
     },
     handleClose(done) {
-      console.log('123')
       this.$emit("update:dialogVisible", false);
       this.$refs.dialog.$el.style.opacity = 0;
     },
@@ -107,9 +106,11 @@ export default {
       const lnglat = this.editPoint
         ? gcoord.transform(this.editPoint, gcoord.BD09, gcoord.EPSG3857)
         : [12609158.722154098, 2647747.527494556];
-      if (map == null) {
+      if (map == null  || !this.$refs.map) {
         if (this.$refs.map) {
           map = createdMap({ target: this.$refs.map, editPoint: lnglat });
+        } else {
+          setTimeout(()=>  map = createdMap({ target: this.$refs.map, editPoint: lnglat }), 33)
         }
       } else {
         // reset data
@@ -150,7 +151,7 @@ export default {
       this.resfresh = true;
       this.closeDialog();
       this.initDialog();
-      setTimeout(() => this.resfresh = false, 100)
+      setTimeout(() => this.resfresh = false, 50)
     }
   }
 };

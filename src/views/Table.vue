@@ -604,6 +604,7 @@ export default {
       }
     },
     tableDataShow() {
+      this.posCrtVisble = false;
       this.tableData = this.tableData || [];
       return this.tableData.slice(
         (this.page - 1) * this.tableSize,
@@ -1731,7 +1732,7 @@ export default {
       if (val) {
         this.checkdata();
       }
-    }
+    },
   },
 
   beforeRouteEnter(to, from, next) {
