@@ -6,7 +6,13 @@ import VectorLayer from "ol/layer/Vector";
 import Feature from "ol/Feature";
 import store from "@/store/index.js";
 import { hexToRgba, rgbaToHex } from "@/utils/hexRgba.js";
-import { Circle as CircleStyle, RegularShape, Stroke, Style, Fill } from "ol/style";
+import {
+  Circle as CircleStyle,
+  RegularShape,
+  Stroke,
+  Style,
+  Fill
+} from "ol/style";
 /**
  * 选中的样式
  * @param {Feature} feature
@@ -28,7 +34,8 @@ export function selectPointStyle(feature, layer) {
   }
   let oldStyle = _styles[0];
   const geometry = feature.getGeometry();
-  const [radius] = oldStyle.getImage() && oldStyle.getImage().getImageSize() || [32, 32];
+  const [radius] = (oldStyle.getImage() &&
+    oldStyle.getImage().getImageSize()) || [32, 32];
   _styles.push(
     new Style({
       geometry: geometry,
@@ -67,12 +74,16 @@ export function selectLineFillStyle(feature, layer) {
       });
       style = style[0];
     } else {
-      style.getText() && selectPointerMoveStyle.setText(style.getText().clone());
+      style.getText() &&
+        selectPointerMoveStyle.setText(style.getText().clone());
     }
     const width = style.getStroke().getWidth();
     const fillColor = style.getFill() && style.getFill().getColor();
     selectPointerMoveStyle.getStroke().setWidth(width + 1);
-    fillColor && selectPointerMoveStyle.getFill().setColor(hexToRgba("#4A5ED8", rgbaToHex(fillColor).opacity));
+    fillColor &&
+      selectPointerMoveStyle
+        .getFill()
+        .setColor(hexToRgba("#4A5ED8", rgbaToHex(fillColor).opacity));
   }
   return selectPointerMoveStyle;
 }
@@ -112,7 +123,8 @@ export function linkFeatureStyle(feature, layer) {
   }
   let oldStyle = _styles[0];
   const geometry = feature.getGeometry();
-  const [radius] = oldStyle.getImage() && oldStyle.getImage().getImageSize() || [32, 32];
+  const [radius] = (oldStyle.getImage() &&
+    oldStyle.getImage().getImageSize()) || [32, 32];
   _styles.push(
     new Style({
       geometry: geometry,
@@ -160,7 +172,6 @@ const clickFu = {
     feature.id = feature.get("ID");
     feature.properties = feature.getProperties();
     feature.geometry = feature.getGeometry();
-
     dispatch("selectFeatureAndLayer", {
       feature,
       layer: layerbase
@@ -202,7 +213,10 @@ const clickFu = {
     feature.properties = feature.getProperties();
     feature.geometry = feature.getGeometry();
     const layersbase = store.state.layer.base;
-    let layerbase = layersbase.find(l => val.source && val.source.layerids && val.source.layerids.includes(l.id));
+    let layerbase = layersbase.find(
+      l =>
+        val.source && val.source.layerids && val.source.layerids.includes(l.id)
+    );
     layerbase &&
       dispatch("selectFeatureAndLayer", {
         feature,
@@ -215,31 +229,50 @@ const clickFu = {
       move: [0, -30]
     });
   },
-/**
+  /**
    * 关联油站
    * @param {Feature} feature  当前点击到的图形
    * @param {VectorLayer} layer  图形在的图层
    */
-  linkFun: function(feature, layer){
+  linkFun: function(feature, layer) {
     let position = feature.getGeometry().getCoordinates();
     const val = feature.getProperties();
     feature.id = feature.get("ID");
     feature.properties = feature.getProperties();
     feature.geometry = feature.getGeometry();
     const layersbase = store.state.layer.base;
-    let layerbase = layersbase.find(l => val.source && val.source.layerids && val.source.layerids.includes(l.id));
+    let layerbase = layersbase.find(
+      l =>
+        val.source && val.source.layerids && val.source.layerids.includes(l.id)
+    );
     layerbase &&
       dispatch("selectFeatureAndLayer", {
         feature,
         layer: layerbase
       });
   }
-  
 };
 /**
  * 事件响应相同
  */
-const fus = ["shellyz", "gsyz", "nti", "gsnti", "target", "ma", "xzqh", "sq", "poi", "poigroups", "corridor", "roadnetwork", "lsd", "scyk", "lpglng", "xl"];
+const fus = [
+  "shellyz",
+  "gsyz",
+  "nti",
+  "gsnti",
+  "target",
+  "ma",
+  "xzqh",
+  "sq",
+  "poi",
+  "poigroups",
+  "corridor",
+  "roadnetwork",
+  "lsd",
+  "scyk",
+  "lpglng",
+  "xl"
+];
 fus.forEach(t => {
   clickFu[t] = clickFu["xyyz"];
 });
@@ -262,11 +295,8 @@ import("@/store").then(m => {
   const store = m.default;
   store.watch(
     () => store.state.linkFeature.linkFeature,
-    (newval, oldval) => {
-      
-    }
+    (newval, oldval) => {}
   );
 });
-
 
 export default clickFu;
