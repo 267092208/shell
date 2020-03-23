@@ -677,6 +677,7 @@ export default {
       if (this.isBadRow(row, true)) {
         this.posCrtVisble = true;
       }
+      // this.$nextTick()
     },
     /**
      * 必须记住当tableId 不等于currentLayerId的时候，有跳转选中要通过row.ID获取图层和feature信息
@@ -1708,6 +1709,7 @@ export default {
     }
   },
   async deactivated() {
+    this.posCrtVisble = false;
     this.saveRow = null;
     this.refreshMap();
     this.searchKey = {};
