@@ -16,6 +16,7 @@
             size="mini"
             :status-icon="true"
             :inline-message="true"
+            :disabled="isEdit===true && editting === false ? true : false"
           >
             <el-form-item
               size="mini"
@@ -67,6 +68,7 @@
                 class="selectMultiple"
                 ref="district"
                 @change="hadleDistrictSelected"
+                 :disabled="isEdit===true && editting === false ? 'disabled' : ''"
               >
               <!--                 :disabled="isEdit===true && editting === false ? 'disabled' : ''"
                 :class="isEdit===true && editting === false ? 'disabled' : ''"-->
@@ -76,6 +78,7 @@
                   :label="item.label"
                   :value="item.value"
                   class="option el-select-dropdown__item"
+                  :class="isEdit===true && editting === false ? 'disabled' : ''"
                 ></option>
               </select>
             </el-form-item>

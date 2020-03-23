@@ -42,7 +42,6 @@
                   style="font-size: 12px;"
                   v-for="(item,index) in item.enum"
                   :key="index"
-                  :label="item"
                   :value="item"
                 ></el-option>
               </el-select>

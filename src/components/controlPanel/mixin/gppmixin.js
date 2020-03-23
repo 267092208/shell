@@ -129,14 +129,16 @@ const mixin = {
                 const values_ = data.values_ || data.properties
                 this.isEdit = true; // 编辑模式
                 this.editting = false; // 仍没确定编辑
-                this.form = values_
                 this.loading = true;
                 this.loading = false;
+                let form = {};
                 if (this.selectFeatureLayer.id === 'xl') {
                     if (values_.IsRoute) {
-                        this.form['保存类型'] = values_.Private ? '行程且只本人可见' : '行程'
-                    } else this.form['保存类型'] = '线路' 
+                        form['保存类型'] = values_.Private ? '行程且只本人可见' : '行程'
+                    } else form['保存类型'] = '线路' 
                 }
+                form = {...form, ...values_}
+                this.form = form;
             }
         },
         routerResultMessage(res) {
@@ -224,13 +226,12 @@ const mixin = {
                     发展潜力: this.form['发展潜力'].toString(),
                     组团评级: this.form['组团评级']
                 }
-                res = await this.$store.dispatch('addLayerFeature', { layerid: 'poigroups', feature: { id: this.form['ID'], model: modelToEntityKeyValue(model) } }).catch(err => console.log(err))
+                res = await this.$store.dispatch('addLayerFeature', { layerid: 'poigroups', feature: { id: this.form['ID'], model: modelToEntityKeyValue(model) } }).catch(err =>  err)
                 await geoInstance.disable(); // 关闭图形
             } else {
                 let { ID, 名称, path_baidu, strokeColor, fillColor, strokeStyle, 备注, 柴油总日销量k, 汽油总日销量k, 油站个数, 发展潜力, 组团评级 } = this.form;
                 model = { ID, 名称, path_baidu, strokeColor, fillColor, strokeStyle, 备注, 柴油总日销量k, 汽油总日销量k, 油站个数, 发展潜力, 组团评级 }
-                console.log(model);
-                res = await this.$store.dispatch('updateLayerFeature', { layerid: 'poigroups', feature: { id: this.form['ID'], properties: model } }).catch(err => console.log(err))
+                res = await this.$store.dispatch('updateLayerFeature', { layerid: 'poigroups', feature: { id: this.form['ID'], properties: model } }).catch(err =>err)
             }
             this.routerResultMessage(res);
         },
@@ -249,7 +250,7 @@ const mixin = {
                     ID: this.form['ID'],
                     path_baidu: path_baidu,
                 }
-                res = await this.$store.dispatch('addLayerFeature', { layerid: 'sq', feature: { id: this.form['ID'], properties: model } }).catch(err => console.log(err));
+                res = await this.$store.dispatch('addLayerFeature', { layerid: 'sq', feature: { id: this.form['ID'], properties: model } }).catch(err => err);
                 geoInstance && await geoInstance.disable(); // 关闭图形
             }
             else {
@@ -261,7 +262,7 @@ const mixin = {
                     note_baidu: this.form['note_baidu'],
                     类型: this.form['类型']
                 }
-                res = await this.$store.dispatch('updateLayerFeature', { layerid: 'sq', feature: { id: this.form['ID'], properties: model } }).catch(err => console.log(err));
+                res = await this.$store.dispatch('updateLayerFeature', { layerid: 'sq', feature: { id: this.form['ID'], properties: model } }).catch(err => err);
             }
             this.routerResultMessage(res);
         },
@@ -277,12 +278,13 @@ const mixin = {
                 ...this.form,
                 InfoID: ''
             }
-            const res = await this.$store.dispatch('addLayerFeature', { layerid: 'roadnetwork', feature: { properties: model } }).catch(err => console.log(err));
+            const res = await this.$store.dispatch('addLayerFeature', { layerid: 'roadnetwork', feature: { properties: model } }).catch(err => err);
             this.routerResultMessage(res);
             if(this.isEdit === false) await geoInstance.disable();
         },
         async xlSubmitFn() {
             const geoInstance = this.$store.state.editGeometry.geometryInstance
+            let res;
             const path_baidu = this.isEdit ? this.form['path_baidu'] : this.createPathBaidu().replace(/polyline,/, '');
             // 获取model，提交数据，提示信息 分添加/编辑模式
             let model = {
@@ -300,9 +302,17 @@ const mixin = {
             if (this.form['保存类型'].includes('行程')) {
                 model['IsRoute'] = true;
             }
-            const res = await this.$store.dispatch('addLayerFeature', { layerid: 'xl', feature: { properties: model } }).catch(err => console.log(err));
+            if (this.isEdit === false) { 
+               const geometry = geoInstance.getFeature().getGeometry();
+                res = await this.$store.dispatch('addLayerFeature', { layerid: 'xl', feature: {geometry: {
+                    type: geometry.getType(),
+                    coordinates: geometry.getCoordinates()
+                }, properties: model } }).catch(err => err);
+                if (this.isEdit === false) await geoInstance.disable();
+            } else {
+                res = await this.$store.dispatch('addLayerFeature', { layerid: 'xl', feature: { properties: model } }).catch(err => err);
+            }
             this.routerResultMessage(res);
-            if (this.isEdit === false) await geoInstance.disable();
         },
         async corridorSubmitFn() {
             const geoInstance = this.$store.state.editGeometry.geometryInstance
@@ -310,7 +320,7 @@ const mixin = {
             let model;
             let res;
             // 获取model，提交数据，提示信息 分添加/编辑模式
-            const { ID, 编号, 道路名称, 道路类型, 道路重要性, 道路描述, 车流, 是否规划路, geoByEdit, Ranking, path_baidu } = this.form
+            const { ID, 编号, 道路名称, 道路类型, 道路重要性, 道路描述, 车流, 是否规划路, Geo, Ranking, path_baidu } = this.form
             if (this.isEdit === false) {
                 model = {
                     ID, 编号, 道路名称, 道路类型, 道路重要性, 道路描述, 车流, 是否规划路,
@@ -322,12 +332,12 @@ const mixin = {
             } else {
                 model = {
                     ID, 编号, 道路名称, 道路重要性, 道路描述, 车流, Ranking, 道路类型, 是否规划路,
-                    Geo: { WKT: geo },
+                    Geo: Geo,
                 }
             }
 
-            if (this.isEdit === false) res = await this.$store.dispatch('addLayerFeature', { layerid: 'corridor', feature: {id: this.form.ID, properties: model } }).catch(err => console.log(err.substring(err.indexOf('转换错误'))));
-            else res = await this.$store.dispatch('updateLayerFeature', { layerid: 'corridor', feature: {id: this.form.ID, properties: model } }).catch(err => console.log(err.substring(err.indexOf('转换错误'))));
+            if (this.isEdit === false) res = await this.$store.dispatch('addLayerFeature', { layerid: 'corridor', feature: {id: this.form.ID, properties: model } }).catch(err => err.substring(err.indexOf('转换错误')));
+            else res = await this.$store.dispatch('updateLayerFeature', { layerid: 'corridor', feature: {id: this.form.ID, properties: model } }).catch(err => err.substring(err.indexOf('转换错误')));
             this.routerResultMessage(res);
         },
         /** end 特例方法 */
