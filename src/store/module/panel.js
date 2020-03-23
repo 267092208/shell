@@ -216,13 +216,12 @@ import("@/store").then(m => {
           
           return ;
         }
-        console.log("clear rightPanel");
         const rightPanelName = store.state.panel.panelComponent.right
         const extent = store.state.panel.extent;
-        console.log(rightPanelName)
-        if (rightPanelName != 'commPropertyPanel' && typeof extent === 'object' && 'editPanel' in extent && extent['editPanel'] === true) { // 通过select取消的不包裹通用属性面板(编辑状态）
+        if (rightPanelName === 'commPropertyPanel' && extent && typeof extent === 'object' && 'editPanel' in extent && extent['editPanel'] === true) { // 通过select取消的不包裹通用属性面板(编辑状态）
          // don't not anything
         } else {
+        console.log("clear rightPanel");
           store.dispatch("clear", { position: "right" });
         }
         

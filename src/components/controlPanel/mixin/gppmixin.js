@@ -14,7 +14,8 @@ const mixin = {
             selectFeatureLayer: state => state.selectFeature.selectFeatureLayer,
             rightPanelName: state => state.panel.panelComponent.right,
             extent: state => state.panel.extent,
-            geometryInstance: state => state.editGeometry.geometryInstance
+            geometryInstance: state => state.editGeometry.geometryInstance,
+      drawMode: state => state.editGeometry.drawMode,
         }),
         hasExtentFields() {
             if (this.isEdit) {
@@ -45,6 +46,8 @@ const mixin = {
             saving: false,
             form: {},
             panelExtentValue: null,
+            editFeature: null,
+            editFeatureLayer: null
         };
     },
     methods: {

@@ -16,6 +16,7 @@
             size="mini"
             :status-icon="true"
             :inline-message="true"
+            :disabled="editting === false"
           >
             <el-form-item
               size="mini"
@@ -67,6 +68,8 @@
                 class="selectMultiple"
                 ref="district"
                 @change="hadleDistrictSelected"
+                :disabled="editting === false ? 'disabled' : ''"
+                :class="editting === false ? 'disabled' : ''"
               >
                 <option
                   v-for="(item,index) in districtList"
@@ -74,6 +77,8 @@
                   :label="item.label"
                   :value="item.value"
                   class="option el-select-dropdown__item"
+                :disabled="editting === false ? 'disabled' : ''"
+                :class="editting === false ? 'disabled' : ''"
                 ></option>
               </select>
             </el-form-item>
@@ -386,6 +391,7 @@ export default {
     background-color: rgba(144, 147, 153, 0.5);
   }
 }
+
 .selected {
   background: #f5f7fa;
   color: #409eff;
