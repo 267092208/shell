@@ -16,6 +16,7 @@
             size="mini"
             :status-icon="true"
             :inline-message="true"
+              :disabled="isEdit===true && editting === false"
           >
             <el-form-item
               size="mini"
@@ -25,7 +26,6 @@
               :prop="item.fieldName"
               v-show=" !hideLngLatWithisEdit(item.fieldName) && item.displayText"
               :rules="createRule(item)"
-              :disabled="isEdit===true && editting === false"
             >
               <component
                 v-if="item.enum == null"

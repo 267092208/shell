@@ -16,7 +16,6 @@
             size="mini"
             :status-icon="true"
             :inline-message="true"
-            :disabled="isEdit===true && editting === false"
           >
             <el-form-item
               size="mini"
@@ -68,16 +67,15 @@
                 class="selectMultiple"
                 ref="district"
                 @change="hadleDistrictSelected"
-                :disabled="isEdit===true && editting === false ? 'disabled' : ''"
-                :class="isEdit===true && editting === false ? 'disabled' : ''"
               >
+              <!--                 :disabled="isEdit===true && editting === false ? 'disabled' : ''"
+                :class="isEdit===true && editting === false ? 'disabled' : ''"-->
                 <option
                   v-for="(item,index) in districtList"
                   :key="index"
                   :label="item.label"
                   :value="item.value"
                   class="option el-select-dropdown__item"
-                  :class="isEdit===true && editting === false ? 'disabled' : ''"
                 ></option>
               </select>
             </el-form-item>
@@ -354,7 +352,7 @@ export default {
             city: +ma["所属城市"],
             district:
               "行政区划Ids" in ma
-                ? ma["行政区划Ids"].split(",").map(i => {
+                ? ma["行政区划Ids"].toString().split(",").map(i => {
                     return +i;
                   })
                 : "ma",
