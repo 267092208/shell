@@ -61,7 +61,6 @@ export default {
     popupcloser() {
       popup.setPosition(null);
       this.buttonGroup = [];
-      this.visible = false;
       return false;
     },
     popupIsVisible() {
@@ -124,18 +123,16 @@ export default {
 .ol-popup {
   position: absolute;
   background-color: white;
-  //   -webkit-filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.2));
-  //   filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.2));
   padding: 15px;
   border-radius: 10px;
   border: 1px solid #cccccc;
   bottom: 12px;
   left: -50px;
+  min-width: 80px;
   .ol-popup-content {
     white-space: nowrap;
     width: inherit;
     display: block;
-    // text-align: center;
     min-width: 66px;
     padding: 0 3px;
   }
