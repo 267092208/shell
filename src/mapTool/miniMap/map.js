@@ -48,7 +48,6 @@ const baseMapLayer = {};
     })
   });
 });
-
 /**
  * 地图视图
  * @type {View}
@@ -58,7 +57,6 @@ const BaiduView = new View({
   resolutions,
   maxZoom: 22,
   minZoom: 1,
-  //   zoom: 10,
   extent,
   center: [12609158.722154098, 2647747.527494556]
 });
