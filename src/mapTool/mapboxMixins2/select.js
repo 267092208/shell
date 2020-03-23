@@ -33,7 +33,7 @@ const mixin = {
       let _this = this;
       let selected = [];
       // 绑定事件
-      map.on("click", function (e) {
+      map.on("click",  (e) => {
         // 编辑中不会选中
         if (this.drawMode) { return }
         let featureLayer = map.forEachFeatureAtPixel(e.pixel, function (feature, layer) {

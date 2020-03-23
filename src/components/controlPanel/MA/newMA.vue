@@ -16,6 +16,7 @@
             size="mini"
             :status-icon="true"
             :inline-message="true"
+            :disabled="isEdit===true && editting === false ? true : false"
           >
             <el-form-item
               size="mini"
@@ -67,13 +68,17 @@
                 class="selectMultiple"
                 ref="district"
                 @change="hadleDistrictSelected"
+                 :disabled="isEdit===true && editting === false ? 'disabled' : ''"
               >
+              <!--                 :disabled="isEdit===true && editting === false ? 'disabled' : ''"
+                :class="isEdit===true && editting === false ? 'disabled' : ''"-->
                 <option
                   v-for="(item,index) in districtList"
                   :key="index"
                   :label="item.label"
                   :value="item.value"
                   class="option el-select-dropdown__item"
+                  :class="isEdit===true && editting === false ? 'disabled' : ''"
                 ></option>
               </select>
             </el-form-item>
@@ -112,13 +117,8 @@
         <el-button size="mini" @click="closePanel" icon="el-icon-remove-outline">取 消</el-button>
       </el-footer>
       <!-- 属性面板 -->
-       <el-footer class="form-footer" height="60px" v-else>
-        <el-button
-          size="mini"
-          type="primary"
-          icon="el-icon-edit"
-          @click="editting = true"
-        >修 改</el-button>
+      <el-footer class="form-footer" height="60px" v-else>
+        <el-button size="mini" type="primary" icon="el-icon-edit" @click="editting = true">修 改</el-button>
         <el-button size="mini" @click="closePanel" icon="el-icon-remove-outline">取 消</el-button>
       </el-footer>
     </el-container>
@@ -163,7 +163,7 @@ export default {
     consistenceForm(form) {
       if (this.isEdit) {
         return [
-          ["ID", form['ID']],
+          ["ID", form["ID"]],
           ["名称", form.name],
           ["省份", form.provice],
           ["所属城市", form.city.toString()],
@@ -183,7 +183,7 @@ export default {
         ];
       }
     },
-    closePanel(){
+    closePanel() {
       this.$parent.close();
     },
     resetForm(formName) {
@@ -198,36 +198,53 @@ export default {
         if (valid) {
           this.saving = true;
           let res;
-          if (false === this.isEdit) {  // 添加模式
-            res =  await layerData.addItemOfLayer(
-              'ma',
-              this.consistenceForm(this.form)
-            ).catch(err => {
-              this.saving = false;
-              this.$message.error({message: err, offset: 60})
-            }); 
-            res && 'newId' in res &&res.newId &&this.$message.success({ message: "添加MA成功!", offset: 60})
-            const list = await layerData.getList('ma', res.newId).then(res => {
-                              this.$store.dispatch("addLayerFeature", { layerid: 'ma', feature: layerData.rectify(res.list[0],'ma')});
-                          }).catch(err => this.$message.error({message: err, offset: 60}));
-              this.saving = false;
+          if (false === this.isEdit) {
+            // 添加模式
+            res = await layerData
+              .addItemOfLayer("ma", this.consistenceForm(this.form))
+              .catch(err => {
+                this.saving = false;
+                this.$message.error({ message: err, offset: 60 });
+              });
+            res &&
+              "newId" in res &&
+              res.newId &&
+              this.$message.success({ message: "添加MA成功!", offset: 60 });
+            const list = await layerData
+              .getList("ma", res.newId)
+              .then(res => {
+                this.$store.dispatch("addLayerFeature", {
+                  layerid: "ma",
+                  feature: layerData.rectify(res.list[0], "ma")
+                });
+              })
+              .catch(err => this.$message.error({ message: err, offset: 60 }));
+            this.saving = false;
             this.closePanel();
           } else {
-            res =   await layerData.updateItemOfLayer(
-              'ma',
-              this.form['ID'],
-              this.consistenceForm(this.form)
-            ).catch(err => {
-              this.saving = false;
-              this.$message.error({message: err, offset: 60})
-            }); 
-            await layerData.getList('ma', this.form['ID']).then(res => {
-               this.$store.dispatch("updateLayerFeature", { layerid: 'ma', feature: layerData.rectify(res.list[0],'ma')});
-              })
-            res && 'update' in res && res.update &&this.$message.success({ message: "修改该MA成功!", offset: 60 }) 
+            res = await layerData
+              .updateItemOfLayer(
+                "ma",
+                this.form["ID"],
+                this.consistenceForm(this.form)
+              )
+              .catch(err => {
+                this.saving = false;
+                this.$message.error({ message: err, offset: 60 });
+              });
+            await layerData.getList("ma", this.form["ID"]).then(res => {
+              this.$store.dispatch("updateLayerFeature", {
+                layerid: "ma",
+                feature: layerData.rectify(res.list[0], "ma")
+              });
+            });
+            res &&
+              "update" in res &&
+              res.update &&
+              this.$message.success({ message: "修改该MA成功!", offset: 60 });
           }
           this.saving = false;
-            this.closePanel();
+          this.closePanel();
         } else {
           this.$message.error({ message: "请正确填写表单!", offset: 60 });
           return false;
@@ -235,28 +252,36 @@ export default {
       });
     },
     deleteMA() {
-        this.$confirm( `是否删除该MA`,"警告",{
-            confirmButtonText: "确定",
-            cancelButtonText: "取消",
-            type: "warning"
-          }
-        ).then(() => {
-            this.$store
-              .dispatch("removeLayerFeature", {
-                layerid: 'ma',
-                features: [this.selectFeature]
-              })
-              .then(res => {
-                this.closePanel();
-                this.$message({type: "success",message: "删除成功!",offset: 60});
-              })
-              .catch(err => {
-                this.$message({type: "error",message: "删除失败!",offset: 60});
+      this.$confirm(`是否删除该MA`, "警告", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(() => {
+          this.$store
+            .dispatch("removeLayerFeature", {
+              layerid: "ma",
+              features: [this.selectFeature]
+            })
+            .then(res => {
+              this.closePanel();
+              this.$message({
+                type: "success",
+                message: "删除成功!",
+                offset: 60
               });
-          })
-          .catch(error => {
-            this.$message({type: "info",message: "已取消删除",offset: 60});
-          });
+            })
+            .catch(err => {
+              this.$message({
+                type: "error",
+                message: "删除失败!",
+                offset: 60
+              });
+            });
+        })
+        .catch(error => {
+          this.$message({ type: "info", message: "已取消删除", offset: 60 });
+        });
     },
     hadleDistrictSelected(e) {
       let districtSelect = this.$refs.district;
@@ -283,22 +308,31 @@ export default {
     async getDistrictList() {
       let districtList = [];
       if (this.form.district != null) {
-        districtList = await getDivision(this.form.city).then(res => {
-          if ('Error' in res) res = [];
-          return res.map(item => ({
-            label: item.Name.replace(/.*-/, ""),
-            value: item.ID
-          }));
-        }).catch(err => err);
+        districtList = await getDivision(this.form.city)
+          .then(res => {
+            if ("Error" in res) res = [];
+            return res.map(item => ({
+              label: item.Name.replace(/.*-/, ""),
+              value: item.ID
+            }));
+          })
+          .catch(err => err);
         this.districtList = districtList;
       }
       return districtList;
     },
-    async init() {  // 重新弹出都会调用
+    async init() {
+      // 重新弹出都会调用
       this.$parent.title = "MA";
       this.$parent.autoClose = false;
-      if (this.rightPanelName === 'MAinfo')  await this.getSelectInfo(this.selectFeature)// 如果艘次打开时选择的
-      else if (this.rightPanelName === 'addMA') {this.isEdit = false; this.editting = false; this.resetForm('form');}
+      if (this.rightPanelName === "MAinfo")
+        await this.getSelectInfo(this.selectFeature);
+      // 如果艘次打开时选择的
+      else if (this.rightPanelName === "addMA") {
+        this.isEdit = false;
+        this.editting = false;
+        this.resetForm("form");
+      }
       this.$parent.afterClose = function() {
         this.$store.dispatch("clearSelect");
       }.bind(this);
@@ -309,7 +343,7 @@ export default {
 
     async getSelectInfo(feature) {
       this.$parent.title = "MA";
-        this.resetForm('form');
+      this.resetForm("form");
       if (feature) {
         this.isEdit = true; // 编辑模式
         this.editting = false; // 仍没确定编辑
@@ -317,9 +351,14 @@ export default {
         if (ma) {
           this.form = {
             name: ma["名称"],
-            provice: ('省份' in ma) ? ma["省份"].toString() : '',
+            provice: "省份" in ma ? ma["省份"].toString() : "",
             city: +ma["所属城市"],
-            district: ('行政区划Ids' in ma) ? ma["行政区划Ids"].split(",").map(i => { return +i }) : 'ma',
+            district:
+              "行政区划Ids" in ma
+                ? ma["行政区划Ids"].toString().split(",").map(i => {
+                    return +i;
+                  })
+                : "ma",
             color: ma["颜色"],
             ...ma
           };
@@ -335,9 +374,9 @@ export default {
       }
     }
   },
-  async activated() {
-  },
-  deactivated() { // 初始化
+  async activated() {},
+  deactivated() {
+    // 初始化
     this.resetForm("form");
     this.isEdit = false;
     this.editting = false;
@@ -386,6 +425,7 @@ export default {
     background-color: rgba(144, 147, 153, 0.5);
   }
 }
+
 .selected {
   background: #f5f7fa;
   color: #409eff;

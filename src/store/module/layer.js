@@ -374,8 +374,9 @@ const layer = {
      * @param {{layerid:string,feature:{id,geometry,properties}}} param
      */
     async updateLayerFeature(context, param) {
+      let res;
       if (param.layerid !== "ma") {
-        await layerData.update(param.layerid, param.feature);
+        res = await layerData.update(param.layerid, param.feature);
       }
 
       const source = context.state.source[param.layerid];
@@ -384,6 +385,8 @@ const layer = {
         source.splice(i, 1, param.feature);
         context.state.source = Object.assign({}, context.state.source);
       }
+
+      return res;
     },
     /**
      * 删除一组要素

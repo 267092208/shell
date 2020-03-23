@@ -245,7 +245,14 @@ const mixin = {
                         if ('get' in editLayer && editLayer.get("isCluster")) {
                             this.editLayer.getSource().getSource().addFeature(this.editFeature);
                         } else {
-                            await this.$store.dispatch('addFeature', { layerid: editLayer.id, feature:  this.editFeature })
+                            const geometry = geometryInstance.getGeometry().getGeometry();
+                            // await this.$store.dispatch('addFeature', { layerid: editLayer.id, feature: {
+                            //     geometry: {
+                            //         type: geometry.getType(),
+                            //         coordinates: geometry.getCoordinates()
+                            //       },
+                            //     properties: this.form
+                            //   }})
                         }
                     }
                     await setTimeout(() => { this.$store.dispatch("addUpdateStyle") }, 1)

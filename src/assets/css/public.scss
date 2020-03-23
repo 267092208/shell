@@ -34,6 +34,13 @@ $item-hover: #d4d4d4;
         color: $hover-font-color;
     }
 }
+
+.disabled {
+  background-color: #F5F7FA;
+  border-color: #E4E7ED;
+  color: #C0C4CC;
+  cursor: not-allowed;
+}
 // 动画
 .table-btt-enter,
 .table-btt-leave-to {

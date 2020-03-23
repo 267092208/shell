@@ -175,6 +175,8 @@ export default {
                             return r.id === f.get("id");
                         })
                     ) {
+                        console.log(f);
+                        
                         f.setStyle(linkFeatureStyle(f, layer));
                     }
                 });
@@ -227,13 +229,25 @@ export default {
         //删除关联油站
         deleteLinkStation() {
             //{layerId,feature,delFeatures}
-            this.$store.dispatch("delLinkFeatures", {
-                layerId: this.selectFeatureLayer.id,
-                feature: this.selectFeature,
-                delFeatures: this.checkedRelateStations
-            }).then(res =>{
-                this.relateStationList = res
-            });
+            this.$store
+                .dispatch("delLinkFeatures", {
+                    layerId: this.selectFeatureLayer.id,
+                    feature: this.selectFeature,
+                    delFeatures: this.checkedRelateStations
+                })
+                .then(res => {
+                    this.relateStationList = res;
+                    this.$message({
+                        type: "success",
+                        message: "删除成功!"
+                    });
+                })
+                .catch(err => {
+                    this.$message({
+                        type: "info",
+                        message: "删除失败" + err
+                    });
+                });
         }
     },
     watch: {
@@ -254,8 +268,8 @@ export default {
         yzLinkVisible(b) {
             this.setLinkStyle();
         },
-        relationFeatures(b) {
-            console.log(1111111,b);
+        relateStationList(r) {
+            this.setLinkStyle();
         }
     }
 };

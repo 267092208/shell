@@ -58,7 +58,7 @@ async function add(layerid, feature) {
   updateFeatureProperties(feature.properties, layerid);
 
   if (layerid === 'xzqh' || layerid === 'roadnetwork') return result.data;
-  return feature.id || result.data.update;
+  return result.data || feature.id || result.data.update;
 }
 
 /**
@@ -88,7 +88,6 @@ async function addForActionAdd(layerid, model) {
  * @param {*} feature
  */
 export async function update(layerid, feature) {
-  console.log(feature)
   const model = modelToEntityKeyValue(feature.properties);
   const { data } = await axios.post(`/dataPages/${layerid}/Handler.ashx?action=update`, {
     model,

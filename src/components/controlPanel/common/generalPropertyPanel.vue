@@ -16,6 +16,7 @@
             size="mini"
             :status-icon="true"
             :inline-message="true"
+              :disabled="isEdit===true && editting === false"
           >
             <el-form-item
               size="mini"
@@ -28,7 +29,7 @@
             >
               <component
                 v-if="item.enum == null"
-                :disabled="item.fieldName === 'lng_baidu' || item.fieldName === 'lat_baidu'"
+                :disabled=" item.fieldName === 'lng_baidu' || item.fieldName === 'lat_baidu'"
                 :is="createFormCtrlWithType(item.type)"
                 v-model="form[item.fieldName]"
                 controls-position="right"
@@ -41,7 +42,6 @@
                   style="font-size: 12px;"
                   v-for="(item,index) in item.enum"
                   :key="index"
-                  :label="item"
                   :value="item"
                 ></el-option>
               </el-select>
@@ -107,7 +107,7 @@
           @click="onSubmit('form')"
         >保 存</el-button>
         <el-button size="mini" @click="deleteFeature" type="danger" icon="el-icon-delete">删 除</el-button>
-        <el-button size="mini" @click="closePanel" icon="el-icon-remove-outline">取 消</el-button>
+        <!-- <el-button size="mini" @click="closePanel" icon="el-icon-remove-outline">取 消</el-button> -->
       </el-footer>
       <!-- 属性面板 -->
       <el-footer class="form-footer" height="60px" v-else>
@@ -148,9 +148,13 @@ export default {
       }
     },
     closePanel() {
-      this.isEdit = false;
-      this.editting = false;
-      this.$parent.close();
+      // if (this.editting === true) { // 编辑中无法关闭
+      //   this.$message.error({message: '编辑中无法关闭，请先保存', offset: 60});
+      // } else {
+        this.isEdit = false;
+        this.editting = false;
+        this.$parent.close();
+      // }
     },
     async resetForm(formName) {
       this.$refs[formName].resetFields();
@@ -202,6 +206,7 @@ export default {
           .dispatch("updateLayerFeature", {
             layerid: this.selectFeatureLayer.id,
             feature: {
+              id: this.form['ID'],
               properties: this.form
             }
           })
@@ -216,37 +221,46 @@ export default {
     async defaultSubmitFnWithGeo() {
       if (false === this.isEdit) {
         //添加模式
+        const geometry = this.geometryInstance.getGeometry().getGeometry()
         const res = await this.$store
           .dispatch("addLayerFeature", {
             layerid: this.currentLayer.id,
             feature: {
-              // geometry: this.geometry.geometry,
+              geometry: {
+                type: geometry.getType(),
+                coordinates: geometry.getCoordinates()
+              },
               properties: this.form
             }
           })
           .catch(async err => {
-            this.$message.error({ message: "添加失败!", offset: 60 });
             await this.endPoint();
+            return err;
           });
-        if (typeof res === "string" || (typeof res === 'object' &&"Msg" in res))
-          this.$message.error({ message: `"添加失败!"${res.Msg}`, offset: 60 });
-        else this.$message.success({ message: "添加成功", offset: 60 });
+        this.routerResultMessage(res);
         await this.endPoint();
       } else {
         // 编辑模式
-        await this.$store
+        const geometry = this.geometryInstance.getGeometry().getGeometry()
+        const res = await this.$store
           .dispatch("updateLayerFeature", {
-            layerid: this.selectFeatureLayer.id,
+            layerid: this.editFeatureLayer.id,
             feature: {
-              // geometry: this.geometry.geometry,
+              id: this.form["ID"],
+              geometry: {
+                type: geometry.getType(),
+                coordinates: geometry.getCoordinates()
+              },
               properties: this.form
             }
           })
           .catch(async err => {
-            this.$message.error({ message: "更新失败!", offset: 60 });
+            console.log(err);
             await this.endPoint();
+            return err;
           });
-        this.$message.success({ message: "更新成功", offset: 60 });
+
+        this.routerResultMessage(res);
         await this.endPoint();
       }
     },
@@ -299,7 +313,11 @@ export default {
     },
     async beginEdit() {
       this.editting = true;
+      this.$parent.closeButton = false;
       if (this.hasGeo) {
+        await this.$store.commit('setPanelExtent', {editPanel: true})
+        this.editFeature = this.selectFeature;
+        this.editFeatureLayer = this.selectFeatureLayer;
         let res;
         res = await this.$store.dispatch("getGeometry", { drawMode: "Point", feature: this.selectFeature }).catch(err => {
             console.log("err-----", err);
@@ -366,7 +384,9 @@ export default {
       }
     },
     deleteFeature() {
-      this.$confirm(`是否删除该${this.selectFeatureLayer.name}`, "警告", {
+      const selectFeature = this.hasGeo ? this.editFeature : this.selectFeature;
+      const selectFeatureLayer = this.hasGeo ? this.editFeatureLayer : this.selectFeatureLayer;
+      this.$confirm(`是否删除该${selectFeatureLayer.name}`, "警告", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
@@ -374,8 +394,8 @@ export default {
         .then(() => {
           this.$store
             .dispatch("removeLayerFeature", {
-              layerid: this.selectFeatureLayer.id,
-              features: [this.selectFeature]
+              layerid: selectFeatureLayer.id,
+              features: [selectFeature]
             })
             .then(res => {
               this.closePanel();
@@ -435,7 +455,7 @@ export default {
     },
     close() {
       this.$refs["form"].resetFields();
-      this.endPoint();
+      if(this.hasGeo) this.endPoint();
     },
     async beginSetPoint(isEdit) {
       if (isEdit === false) {
@@ -452,6 +472,8 @@ export default {
       } 
     },
     endPoint() {
+      this.$parent.closeButton = true;
+      this.$store.commit('setPanelExtent', null); // 清空
       this.geometryInstance &&
         // this.geometryInstance.getGeometry() &&
         this.geometryInstance.disable();
@@ -468,11 +490,10 @@ export default {
     // this.hasGeo && this.beginSetPoint();
   },
   deactivated() {
-    console.log("deactivated");
     // 初始化
     this.hasGeo = false;
     this.$refs["form"].resetFields();
-    this.endPoint();
+    if(this.hasGeo) this.endPoint();
     this.isEdit = false;
     this.editting = false;
   },
