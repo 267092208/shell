@@ -16,7 +16,6 @@
             size="mini"
             :status-icon="true"
             :inline-message="true"
-            :disabled="editting === false"
           >
             <el-form-item
               size="mini"
@@ -26,6 +25,7 @@
               :prop="item.fieldName"
               v-show=" !hideLngLatWithisEdit(item.fieldName) && item.displayText"
               :rules="createRule(item)"
+              :disabled="isEdit===true && editting === false"
             >
               <component
                 v-if="item.enum == null"
@@ -207,6 +207,7 @@ export default {
           .dispatch("updateLayerFeature", {
             layerid: this.selectFeatureLayer.id,
             feature: {
+              id: this.form['ID'],
               properties: this.form
             }
           })
@@ -221,37 +222,46 @@ export default {
     async defaultSubmitFnWithGeo() {
       if (false === this.isEdit) {
         //添加模式
+        const geometry = this.geometryInstance.getGeometry().getGeometry()
         const res = await this.$store
           .dispatch("addLayerFeature", {
             layerid: this.currentLayer.id,
             feature: {
-              // geometry: this.geometry.geometry,
+              geometry: {
+                type: geometry.getType(),
+                coordinates: geometry.getCoordinates()
+              },
               properties: this.form
             }
           })
           .catch(async err => {
-            this.$message.error({ message: "添加失败!", offset: 60 });
             await this.endPoint();
+            return err;
           });
-        if (typeof res === "string" || (typeof res === 'object' &&"Msg" in res))
-          this.$message.error({ message: `"添加失败!"${res.Msg}`, offset: 60 });
-        else this.$message.success({ message: "添加成功", offset: 60 });
+        this.routerResultMessage(res);
         await this.endPoint();
       } else {
         // 编辑模式
-        await this.$store
+        const geometry = this.geometryInstance.getGeometry().getGeometry()
+        const res = await this.$store
           .dispatch("updateLayerFeature", {
             layerid: this.editFeatureLayer.id,
             feature: {
-              geometry: this.geometryInstance.getGeometry(),
+              id: this.form["ID"],
+              geometry: {
+                type: geometry.getType(),
+                coordinates: geometry.getCoordinates()
+              },
               properties: this.form
             }
           })
           .catch(async err => {
-            this.$message.error({ message: "更新失败!", offset: 60 });
+            console.log(err);
             await this.endPoint();
+            return err;
           });
-        this.$message.success({ message: "更新成功", offset: 60 });
+
+        this.routerResultMessage(res);
         await this.endPoint();
       }
     },
@@ -481,11 +491,10 @@ export default {
     // this.hasGeo && this.beginSetPoint();
   },
   deactivated() {
-    console.log("deactivated");
     // 初始化
     this.hasGeo = false;
     this.$refs["form"].resetFields();
-    this.endPoint();
+    if(this.hasGeo) this.endPoint();
     this.isEdit = false;
     this.editting = false;
   },

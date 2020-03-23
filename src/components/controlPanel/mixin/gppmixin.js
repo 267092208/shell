@@ -141,12 +141,13 @@ const mixin = {
         },
         routerResultMessage(res) {
             let action = this.isEdit ? '修改' : '添加'
+            console.log(res);
             if (!res) {
-                if (!res) this.$message.error({ message: `${action}失败!`, offset: 60 });
+                if (!res) this.$message.error({ message: `${action}失败!${res}`, offset: 60 });
                 else this.$message.success({ message: `${action}成功`, offset: 60 });
             } else {
                 if (typeof res === 'number' || res === true) this.$message.success({ message: `${action}成功`, offset: 60 });
-                else if (typeof res === 'string' || 'Msg' in res) this.$message.error({ message: `${action}失败!${res.Msg}`, offset: 60 });
+                else if (typeof res === 'string' || 'Msg' in res) this.$message.error({ message: `${action}失败!${typeof res === 'string' ? res : res.Msg}`, offset: 60 });
                 else this.$message.success({ message: `${action}成功`, offset: 60 });
             }
         },
