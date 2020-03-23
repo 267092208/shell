@@ -214,8 +214,8 @@ export default {
             this.$message.error({ message: "更新失败!", offset: 60 });
           });
         if (typeof res === "string" || (typeof res === 'object' &&"Msg" in res))
-          this.$message.error({ message: `"添加失败!"${res.Msg}`, offset: 60 });
-        else this.$message.success({ message: "添加成功", offset: 60 });
+          this.$message.error({ message: `"更新失败!"${res.Msg}`, offset: 60 });
+        else this.$message.success({ message: "更新成功", offset: 60 });
       }
     },
     async defaultSubmitFnWithGeo() {
@@ -291,7 +291,7 @@ export default {
             this.saving = false;
             this.closePanel();
           } else {
-            // 编辑模式
+            // 编辑模式 look beginEdit method
             try {
               if (this.editFeatureLayer.id === "poigroups") {
                 await this.poigroupsSubmitFn();
