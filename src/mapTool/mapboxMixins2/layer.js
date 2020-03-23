@@ -44,18 +44,14 @@ const mixin = {
           vectorLayer.set("layerId", layerId);
 
           map.addLayer(vectorLayer);
-        } else if (layersSource.hasOwnProperty(layerId) && mapLayerLoaded[layerId]) {
+        } else if (
+          layersSource.hasOwnProperty(layerId) &&
+          mapLayerLoaded[layerId]
+        ) {
           let currentLayer = getLayerOL(layerId);
           currentLayer.getSource().clear();
           let newFeatures = toVectorFeature(layersSource[layerId]);
-          // newFeatures.forEach(t => {
-
-          //   t.setStyle(createdRenderer(this.layersRenderer[layerId]));
-
-          // });
-
           currentLayer.getSource().addFeatures(newFeatures);
-
           currentLayer.setStyle(createdRenderer(this.layersRenderer[layerId]));
           currentLayer.changed();
           // console.log(currentLayer.getSource().getFeatures());
@@ -98,13 +94,12 @@ const mixin = {
       /// TODO:图标大小仅考虑油站层
       //操作面板设置图标缩放级别后实现图标缩放
       for (const layerId in symbolScaling) {
-        const scal = symbolScaling[layerId];
-
-        const mapboxLayerId = `${layerId}_layer_0`;
+        const scale = symbolScaling[layerId];
         let layer = getLayerOL(layerId);
-
-        layer && layer.setStyle(createdRenderer(this.layersRenderer[layerId], { scal }));
-
+        layer &&
+          layer.setStyle(
+            createdRenderer(this.layersRenderer[layerId], { scale })
+          );
         // if (layer) {
         // let styleFunction = layer.getStyleFunction();
 
@@ -116,12 +111,12 @@ const mixin = {
             .getFeatures()
             .forEach(feature => {
               // style = styleFunction(feature);
-              // style.getImage() && style.getImage().setScale(scal);
+              // style.getImage() && style.getImage().setScale(scale);
               // feature.changed();
               // console.log("style",feature.getStyle());
               feature.getStyle() &&
                 feature.getStyle().forEach(s => {
-                  s.getImage().setScale(scal);
+                  s.getImage().setScale(scale);
                 });
             });
 

@@ -15,7 +15,7 @@ const renders = {
         height: 24,
         anchor: "center"
       },
-      uniqueValueInfos: [
+      "unique-value": [
         // SP
         {
           value: "SP-false",
@@ -31,7 +31,8 @@ const renders = {
           value: "SP-true",
           symbol: {
             type: "picture-marker",
-            url: "/sysPages/styleHandlers/Icons/635165835936941250.png-gray.png",
+            url:
+              "/sysPages/styleHandlers/Icons/635165835936941250.png-gray.png",
             width: 24,
             height: 24,
             anchor: "center"
@@ -52,7 +53,8 @@ const renders = {
           value: "PC-true",
           symbol: {
             type: "picture-marker",
-            url: "/sysPages/styleHandlers/Icons/635165835991316250.png-gray.png",
+            url:
+              "/sysPages/styleHandlers/Icons/635165835991316250.png-gray.png",
             width: 24,
             height: 24,
             anchor: "center"
@@ -73,7 +75,8 @@ const renders = {
           value: "BPPC-true",
           symbol: {
             type: "picture-marker",
-            url: "/sysPages/styleHandlers/Icons/635165836054441250.png-gray.png",
+            url:
+              "/sysPages/styleHandlers/Icons/635165836054441250.png-gray.png",
             width: 24,
             height: 24,
             anchor: "center"
@@ -94,7 +97,8 @@ const renders = {
           value: "IND-true",
           symbol: {
             type: "picture-marker",
-            url: "/sysPages/styleHandlers/Icons/635165836104128750.png-gray.png",
+            url:
+              "/sysPages/styleHandlers/Icons/635165836104128750.png-gray.png",
             width: 24,
             height: 24,
             anchor: "center"
@@ -115,7 +119,8 @@ const renders = {
           value: "CNOOC-true",
           symbol: {
             type: "picture-marker",
-            url: "/sysPages/styleHandlers/Icons/635168276804919539.png-gray.png",
+            url:
+              "/sysPages/styleHandlers/Icons/635168276804919539.png-gray.png",
             width: 24,
             height: 24,
             anchor: "center"
@@ -136,7 +141,8 @@ const renders = {
           value: "SC-true",
           symbol: {
             type: "picture-marker",
-            url: "/sysPages/styleHandlers/Icons/635168276872418675.png-gray.png",
+            url:
+              "/sysPages/styleHandlers/Icons/635168276872418675.png-gray.png",
             width: 24,
             height: 24,
             anchor: "center"
@@ -157,7 +163,8 @@ const renders = {
           value: "Caltex-true",
           symbol: {
             type: "picture-marker",
-            url: "/sysPages/styleHandlers/Icons/635168276919605571.png-gray.png",
+            url:
+              "/sysPages/styleHandlers/Icons/635168276919605571.png-gray.png",
             width: 24,
             height: 24,
             anchor: "center"
@@ -178,7 +185,8 @@ const renders = {
           value: "YC Shell-true",
           symbol: {
             type: "picture-marker",
-            url: "/sysPages/styleHandlers/Icons/635165836217410000.png-gray.png",
+            url:
+              "/sysPages/styleHandlers/Icons/635165836217410000.png-gray.png",
             width: 24,
             height: 24,
             anchor: "center"
@@ -199,7 +207,8 @@ const renders = {
           value: "停车场-true",
           symbol: {
             type: "picture-marker",
-            url: "/sysPages/styleHandlers/Icons/636202504781415330.png-gray.png",
+            url:
+              "/sysPages/styleHandlers/Icons/636202504781415330.png-gray.png",
             width: 24,
             height: 24,
             anchor: "center"
@@ -258,7 +267,7 @@ const renders = {
         strokeStyle: "",
         strokeWeight: "1"
       },
-      uniqueValueInfos: [
+      "unique-value": [
         {
           value: "Primary",
           symbol: {
@@ -334,7 +343,7 @@ const renders = {
         height: 24,
         anchor: "center"
       },
-      uniqueValueInfos: [
+      "unique-value": [
         {
           value: "目标油站+CRT",
           symbol: {
@@ -408,7 +417,7 @@ const renders = {
         strokeStyle: "虚线",
         strokeWeight: "2"
       },
-      uniqueValueInfos: [
+      "unique-value": [
         {
           value: "商住区",
           symbol: {
@@ -508,7 +517,7 @@ const renders = {
         strokeStyle: "实线",
         strokeWeight: "3"
       },
-      uniqueValueInfos: [
+      "unique-value": [
         {
           value: "国道",
           symbol: {
@@ -582,7 +591,7 @@ const renders = {
         strokeStyle: "虚线",
         strokeWeight: "3"
       },
-      uniqueValueInfos: [
+      "unique-value": [
         {
           value: "一级",
           symbol: {
@@ -684,7 +693,7 @@ const renders = {
         height: 24,
         anchor: "center"
       },
-      uniqueValueInfos: [
+      "unique-value": [
         {
           value: "类型1",
           symbol: {
@@ -751,7 +760,7 @@ const renders = {
     //     height: 24,
     //     anchor: "center"
     //   },
-    //   uniqueValueInfos: [
+    //    "unique-value": [
     //     {
     //       value: "SP",
     //       symbol: {
@@ -860,7 +869,7 @@ const renders = {
         strokeStyle: "实线",
         strokeWeight: "6"
       },
-      uniqueValueInfos: [
+      "unique-value": [
         {
           value: "国道",
           symbol: {
@@ -961,7 +970,7 @@ const renders = {
           radius: 200,
           shape: "circle"
         },
-        uniqueValueInfos: [
+        "unique-value": [
           {
             value: "高",
             symbol: {
@@ -1017,7 +1026,7 @@ const renders = {
           height: 24,
           anchor: "center"
         },
-        uniqueValueInfos: [
+        "unique-value": [
           {
             value: "机场",
             symbol: {
@@ -1106,7 +1115,7 @@ const renders = {
         strokeStyle: "实线",
         strokeWeight: "1"
       },
-      uniqueValueInfos: [
+      "unique-value": [
         {
           value: "高",
           symbol: {
@@ -1165,10 +1174,10 @@ const renders = {
       }
     }
   ],
-  target: [
-    {
-      layerType: "Composite",
-      nti: {
+  target: {
+    layerType: "Composite",
+    nti: [
+      {
         name: "按crt显示",
         type: "unique-value",
         field: "是否目标+是否CRT",
@@ -1179,7 +1188,7 @@ const renders = {
           height: 24,
           anchor: "center"
         },
-        uniqueValueInfos: [
+        "unique-value": [
           {
             value: "目标油站+CRT",
             symbol: {
@@ -1222,227 +1231,227 @@ const renders = {
             }
           }
         ]
-      },
-      xyyz: [
-        {
-          name: "按品牌显示",
-          type: "unique-value",
-          field: "品牌",
-          defaultSymbol: {
-            type: "picture-marker",
-            url: "/sysPages/styleHandlers/Icons/yz.png",
-            width: 24,
-            height: 24,
-            anchor: "center"
-          },
-          uniqueValueInfos: [
-            {
-              value: "SP",
-              symbol: {
-                type: "picture-marker",
-                url: "/sysPages/styleHandlers/Icons/635165835936941250.png",
-                width: 24,
-                height: 24,
-                anchor: "center",
-                MinIcon: "#FA02FF",
-                TextColor: "#3D2727"
-              }
-            },
-            {
-              value: "PC",
-              symbol: {
-                type: "picture-marker",
-                url: "/sysPages/styleHandlers/Icons/635165835991316250.png",
-                width: 24,
-                height: 24,
-                anchor: "center",
-                MinIcon: "#FC7B19",
-                TextColor: "#AD4E05"
-              }
-            },
-            {
-              value: "BPPC",
-              symbol: {
-                type: "picture-marker",
-                url: "/sysPages/styleHandlers/Icons/635165836054441250.png",
-                width: 24,
-                height: 24,
-                anchor: "center",
-                MinIcon: "#16E000",
-                TextColor: "#045E13"
-              }
-            },
-
-            {
-              value: "IND",
-              symbol: {
-                type: "picture-marker",
-                url: "/sysPages/styleHandlers/Icons/635165836104128750.png",
-                width: 24,
-                height: 24,
-                anchor: "center",
-                MinIcon: "#2C25F7",
-                TextColor: "#A000A3"
-              }
-            },
-            {
-              value: "CNOOC",
-              symbol: {
-                type: "picture-marker",
-                url: "/sysPages/styleHandlers/Icons/635168276804919539.png",
-                width: 24,
-                height: 24,
-                anchor: "center",
-                MinIcon: "#0CC0D1",
-                TextColor: "#AF0F1F"
-              }
-            },
-
-            {
-              value: "SC",
-              symbol: {
-                type: "picture-marker",
-                url: "/sysPages/styleHandlers/Icons/635168276872418675.png",
-                width: 24,
-                height: 24,
-                anchor: "center",
-                MinIcon: "#02484F",
-                TextColor: "#200F6D"
-              }
-            },
-            {
-              value: "Caltex",
-              symbol: {
-                type: "picture-marker",
-                url: "/sysPages/styleHandlers/Icons/635168276919605571.png",
-                width: 24,
-                height: 24,
-                anchor: "center",
-                MinIcon: "#145607",
-                TextColor: "#072107"
-              }
-            },
-            {
-              value: "YC Shell",
-              symbol: {
-                type: "picture-marker",
-                url: "/sysPages/styleHandlers/Icons/635165836217410000.png",
-                width: 24,
-                height: 24,
-                anchor: "center",
-                MinIcon: "#FF0F0F",
-                TextColor: "#B59A07"
-              }
-            },
-
-            {
-              value: "停车场",
-              symbol: {
-                type: "picture-marker",
-                url: "/sysPages/styleHandlers/Icons/636202504781415330.png",
-                width: 24,
-                height: 24,
-                anchor: "center",
-                MinIcon: "#FF0F0F",
-                TextColor: "#DD5858"
-              }
-            },
-
-            {
-              value: "TOPE-false",
-              symbol: {
-                type: "picture-marker",
-                url: "/sysPages/styleHandlers/Icons/TOPE.png",
-                width: 24,
-                height: 24,
-                anchor: "center",
-                MinIcon: "#EF4F4F",
-                TextColor: "#593DF7"
-              }
-            }
-          ]
-        },
-        {
-          name: "按是否目标站",
-          type: "unique-value",
-          field: "target-是否目标站",
-          defaultSymbol: {
-            type: "picture-marker",
-            url: "/images/tgz.png", //url不能为空
-            width: 0,
-            height: 0,
-            anchor: "center"
-          },
-          uniqueValueInfos: [
-            {
-              value: "true",
-              symbol: {
-                type: "picture-marker",
-                url: "/images/tgz.png",
-                width: 20,
-                height: 20,
-                anchor: "center",
-                xoffset: 10,
-                yoffset: 10
-              }
-            },
-            {
-              value: "false",
-              symbol: {
-                type: "picture-marker",
-                url: "/images/tgz.png",
-                width: 0,
-                height: 0,
-                anchor: "center",
-                xoffset: 10,
-                yoffset: 10
-              }
-            }
-          ]
-        },
-        {
-          name: "按是否CRT",
-          type: "unique-value",
-          field: "是否CRT油站",
-          defaultSymbol: {
-            type: "picture-marker",
-            url: "/images/CRT.png",
-            width: 0,
-            height: 0,
-            anchor: "center"
-          },
-          uniqueValueInfos: [
-            {
-              value: "true",
-              symbol: {
-                type: "picture-marker",
-                url: "/images/CRT.png",
-                width: 24,
-                height: 24,
-                xoffset: 0,
-                yoffset: 16
-              }
-            },
-            {
-              value: "false",
-              symbol: {
-                type: "picture-marker",
-                url: "/images/CRT.png",
-                width: 0,
-                height: 0,
-                anchor: "center",
-                xoffset: 0,
-                yoffset: 16
-              }
-            }
-          ]
-        }
-      ],
-      render: function(id) {
-        return this[id];
       }
+    ],
+    xyyz: [
+      {
+        name: "按品牌显示",
+        type: "unique-value",
+        field: "品牌",
+        defaultSymbol: {
+          type: "picture-marker",
+          url: "/sysPages/styleHandlers/Icons/yz.png",
+          width: 24,
+          height: 24,
+          anchor: "center"
+        },
+        "unique-value": [
+          {
+            value: "SP",
+            symbol: {
+              type: "picture-marker",
+              url: "/sysPages/styleHandlers/Icons/635165835936941250.png",
+              width: 24,
+              height: 24,
+              anchor: "center",
+              MinIcon: "#FA02FF",
+              TextColor: "#3D2727"
+            }
+          },
+          {
+            value: "PC",
+            symbol: {
+              type: "picture-marker",
+              url: "/sysPages/styleHandlers/Icons/635165835991316250.png",
+              width: 24,
+              height: 24,
+              anchor: "center",
+              MinIcon: "#FC7B19",
+              TextColor: "#AD4E05"
+            }
+          },
+          {
+            value: "BPPC",
+            symbol: {
+              type: "picture-marker",
+              url: "/sysPages/styleHandlers/Icons/635165836054441250.png",
+              width: 24,
+              height: 24,
+              anchor: "center",
+              MinIcon: "#16E000",
+              TextColor: "#045E13"
+            }
+          },
+
+          {
+            value: "IND",
+            symbol: {
+              type: "picture-marker",
+              url: "/sysPages/styleHandlers/Icons/635165836104128750.png",
+              width: 24,
+              height: 24,
+              anchor: "center",
+              MinIcon: "#2C25F7",
+              TextColor: "#A000A3"
+            }
+          },
+          {
+            value: "CNOOC",
+            symbol: {
+              type: "picture-marker",
+              url: "/sysPages/styleHandlers/Icons/635168276804919539.png",
+              width: 24,
+              height: 24,
+              anchor: "center",
+              MinIcon: "#0CC0D1",
+              TextColor: "#AF0F1F"
+            }
+          },
+
+          {
+            value: "SC",
+            symbol: {
+              type: "picture-marker",
+              url: "/sysPages/styleHandlers/Icons/635168276872418675.png",
+              width: 24,
+              height: 24,
+              anchor: "center",
+              MinIcon: "#02484F",
+              TextColor: "#200F6D"
+            }
+          },
+          {
+            value: "Caltex",
+            symbol: {
+              type: "picture-marker",
+              url: "/sysPages/styleHandlers/Icons/635168276919605571.png",
+              width: 24,
+              height: 24,
+              anchor: "center",
+              MinIcon: "#145607",
+              TextColor: "#072107"
+            }
+          },
+          {
+            value: "YC Shell",
+            symbol: {
+              type: "picture-marker",
+              url: "/sysPages/styleHandlers/Icons/635165836217410000.png",
+              width: 24,
+              height: 24,
+              anchor: "center",
+              MinIcon: "#FF0F0F",
+              TextColor: "#B59A07"
+            }
+          },
+
+          {
+            value: "停车场",
+            symbol: {
+              type: "picture-marker",
+              url: "/sysPages/styleHandlers/Icons/636202504781415330.png",
+              width: 24,
+              height: 24,
+              anchor: "center",
+              MinIcon: "#FF0F0F",
+              TextColor: "#DD5858"
+            }
+          },
+
+          {
+            value: "TOPE-false",
+            symbol: {
+              type: "picture-marker",
+              url: "/sysPages/styleHandlers/Icons/TOPE.png",
+              width: 24,
+              height: 24,
+              anchor: "center",
+              MinIcon: "#EF4F4F",
+              TextColor: "#593DF7"
+            }
+          }
+        ]
+      },
+      {
+        name: "按是否目标站",
+        type: "unique-value",
+        field: "target-是否目标站",
+        defaultSymbol: {
+          type: "picture-marker",
+          url: "/images/tgz.png", //url不能为空
+          width: 0,
+          height: 0,
+          anchor: "center"
+        },
+        "unique-value": [
+          {
+            value: "true",
+            symbol: {
+              type: "picture-marker",
+              url: "/images/tgz.png",
+              width: 20,
+              height: 20,
+              anchor: "center",
+              xoffset: 10,
+              yoffset: 10
+            }
+          },
+          {
+            value: "false",
+            symbol: {
+              type: "picture-marker",
+              url: "/images/tgz.png",
+              width: 0,
+              height: 0,
+              anchor: "center",
+              xoffset: 10,
+              yoffset: 10
+            }
+          }
+        ]
+      },
+      {
+        name: "按是否CRT",
+        type: "unique-value",
+        field: "是否CRT油站",
+        defaultSymbol: {
+          type: "picture-marker",
+          url: "/images/CRT.png",
+          width: 0,
+          height: 0,
+          anchor: "center"
+        },
+        "unique-value": [
+          {
+            value: "true",
+            symbol: {
+              type: "picture-marker",
+              url: "/images/CRT.png",
+              width: 24,
+              height: 24,
+              xoffset: 0,
+              yoffset: 16
+            }
+          },
+          {
+            value: "false",
+            symbol: {
+              type: "picture-marker",
+              url: "/images/CRT.png",
+              width: 0,
+              height: 0,
+              anchor: "center",
+              xoffset: 0,
+              yoffset: 16
+            }
+          }
+        ]
+      }
+    ],
+    render: function(id) {
+      return this[id];
     }
-  ]
+  }
 };
 
 renders["shellyz"] = renders["gsyz"] = renders["xyyz"];
