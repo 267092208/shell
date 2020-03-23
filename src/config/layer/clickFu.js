@@ -170,10 +170,8 @@ const clickFu = {
     const selectMode = store.state.selectFeature.selectMode;
     let layerbase = layersbase.find(l => l.id === layerId);
     feature.id = feature.get("ID");
-    console.log(feature);
     feature.properties = feature.getProperties();
     feature.geometry = feature.getGeometry();
-
     dispatch("selectFeatureAndLayer", {
       feature,
       layer: layerbase
