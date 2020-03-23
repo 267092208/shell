@@ -49,11 +49,15 @@ const selectFeature = {
       const { feature, layer } = param;
       if (!feature || !layer) return;
       const state = context.state;
-
+      console.log(feature.getProperties());
       //  判断传入的要素已经被选择
-      const fs = state.selectFeature ? [state.selectFeature] : state.selectFeatures;
+      const fs = state.selectFeature
+        ? [state.selectFeature]
+        : state.selectFeatures;
 
-      const unSelect = state.selectFeatureLayer == layer && fs.findIndex(f => f.get("ID") == feature.id) != -1;
+      const unSelect =
+        state.selectFeatureLayer == layer &&
+        fs.findIndex(f => f.get("ID") == feature.id) != -1;
       if (state.selectMode == "single") {
         if (unSelect && state.selectFeatures.length <= 1) {
           state.selectFeatureLayer = null;
@@ -122,7 +126,6 @@ const selectFeature = {
       } else {
         state.selectAllFeaturesAndLayer[layer] = features;
       }
-
     },
 
     /**
@@ -146,7 +149,7 @@ const selectFeature = {
    * @param {*} context
    * @param {{Feature}} param
    */
-  unselectFeatureLayer(context, param) { }
+  unselectFeatureLayer(context, param) {}
 };
 
 // 按下Ctrl键时，进入多选模式
@@ -176,7 +179,10 @@ import("@/store").then(m => {
     () => store.state.layer.visible,
     newval => {
       const selectFeature = store.state.selectFeature;
-      if (selectFeature.selectFeatureLayer && !newval[selectFeature.selectFeatureLayer.id]) {
+      if (
+        selectFeature.selectFeatureLayer &&
+        !newval[selectFeature.selectFeatureLayer.id]
+      ) {
         selectFeature.selectFeatureLayer = null;
         selectFeature.selectFeatures = [];
         selectFeature.selectFeature = null;

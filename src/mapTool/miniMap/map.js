@@ -48,7 +48,6 @@ const baseMapLayer = {};
     })
   });
 });
-
 /**
  * 地图视图
  * @type {View}
@@ -58,7 +57,6 @@ const BaiduView = new View({
   resolutions,
   maxZoom: 22,
   minZoom: 1,
-  //   zoom: 10,
   extent,
   center: [12609158.722154098, 2647747.527494556]
 });
@@ -166,6 +164,7 @@ export default function createdMap(param) {
     throw "target 不很为空";
   }
   // if (!editPoint) { throw "editPoint 不很为空" }
+  target.innerHTML = '';
   searchSource.clear();
   ol_editPoint.setCoordinates(editPoint);
   let map = new Map({
@@ -248,7 +247,10 @@ export default function createdMap(param) {
      */
     setEditPoint(editPoint) {
       ol_editPoint.setCoordinates(editPoint);
-      BaiduView.setCenter(editPoint);
+      BaiduView.animate({
+        center: editPoint,
+        duration: 500,
+      })//.setCenter(editPoint);
     },
     /**
      * 获取当前地图编辑的图标的位置

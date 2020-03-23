@@ -10,6 +10,11 @@ const storageNames = {
   globalFilters: "globalFilters"
 };
 
+// /**
+//  * @type {}
+//  */
+// const Renderer
+
 const layer = {
   state: {
     /**
@@ -136,9 +141,10 @@ const layer = {
       if (globalFiltersKeys) {
         context.state.globalFiltersKeys = globalFiltersKeys;
       }
-
       // 获取用户可访问的图层列表
-      const layerResult = await axios.get("/userPages/RolesHandler.ashx?action=GetLayers");
+      const layerResult = await axios.get(
+        "/userPages/RolesHandler.ashx?action=GetLayers"
+      );
       // 补充渲染器、扩展图层等信息
 
       const base = layerResult.data.map(d => {
@@ -151,7 +157,11 @@ const layer = {
       }); //.filter(d => d.renderers);
       context.state.base = base;
 
-      context.state.handleLayers = Object.assign({}, context.state.extLayers, layerConfig.handleLayers);
+      context.state.handleLayers = Object.assign(
+        {},
+        context.state.extLayers,
+        layerConfig.handleLayers
+      );
       // 设置图层的默认渲染器
       const renderer = {};
       // 设置符号缩放比例
@@ -201,17 +211,23 @@ const layer = {
         if (param.layerid && context.state.visible[param.layerid]) {
           context.state.filters = param.layerFilters;
           const querys = [...param.layerFilters, ...param.global];
-          updatePromises.push(updateLayerSource(context, param.layerid, querys, true));
+          updatePromises.push(
+            updateLayerSource(context, param.layerid, querys, true)
+          );
         }
 
         // 处理通用筛选
-        if (JSON.stringify(context.state.globalFilters) !== JSON.stringify(param.global)) {
+        if (
+          JSON.stringify(context.state.globalFilters) !==
+          JSON.stringify(param.global)
+        ) {
           for (let layerid in context.state.visible) {
             if (layerid != param.layerid) {
               // 如果图层当前显示了，则立即请求数据
               if (context.state.visible[layerid]) {
                 const query = [...param.global];
-                context.state.filters[layerid] && query.push(...context.state.filters[layerid]);
+                context.state.filters[layerid] &&
+                  query.push(...context.state.filters[layerid]);
                 updatePromises.push(updateLayerSource(context, layerid, query));
               }
               // 如果当前图层没显示，则直接清空数据
@@ -250,7 +266,10 @@ const layer = {
      */
     async setCurrentLayer(context, param) {
       context.state.currentLayer = param.layer;
-      Vue.ls.set(storageNames.currentLayerId, param.layer ? param.layer.id : null);
+      Vue.ls.set(
+        storageNames.currentLayerId,
+        param.layer ? param.layer.id : null
+      );
     },
 
     /**
@@ -263,7 +282,8 @@ const layer = {
       if (!context.state.source || !context.state.source[param.layerid]) {
         const query = [];
         query.push(...context.state.globalFilters);
-        context.state.filters[param.layerid] && query.push(...context.state.filters[param.layerid]);
+        context.state.filters[param.layerid] &&
+          query.push(...context.state.filters[param.layerid]);
         await updateLayerSource(context, param.layerid, query);
         context.state.source = Object.assign({}, context.state.source);
       }
@@ -301,9 +321,13 @@ const layer = {
      * @param {{layerid:string,handleLayers:Array<{name:string,renderer:Renderer,visible:boolean}>}} param
      */
     setLayerHandleLayersVisible(context, param) {
-      context.state.handleLayers = Object.assign({}, context.state.handleLayers, {
-        [param.layerid]: param.handleLayers
-      });
+      context.state.handleLayers = Object.assign(
+        {},
+        context.state.handleLayers,
+        {
+          [param.layerid]: param.handleLayers
+        }
+      );
     },
 
     /**
@@ -312,9 +336,13 @@ const layer = {
      * @param {{layerid:string,symbolScaling:number}} param
      */
     setLayerSymbolScaling(context, param) {
-      context.state.symbolScaling = Object.assign({}, context.state.symbolScaling, {
-        [param.layerid]: param.symbolScaling
-      });
+      context.state.symbolScaling = Object.assign(
+        {},
+        context.state.symbolScaling,
+        {
+          [param.layerid]: param.symbolScaling
+        }
+      );
     },
 
     /**
@@ -325,12 +353,15 @@ const layer = {
     async addLayerFeature(context, param) {
       let res;
       if (param.layerid !== "ma") {
-        if (param.layerid === "xzqh" || param.layerid === "poigroups") {
-          res = await layerData.addForActionAdd(param.layerid, param.feature).catch(err => err);
+        if (param.layerid === "xzqh") {
+          res = await layerData
+            .addForXZQH(param.layerid, param.feature)
+            .catch(err => err);
         } else {
           res = await layerData.add(param.layerid, param.feature);
         }
       }
+      console.log(param.feature, 'look');
       if (context.state.source[param.layerid]) {
         context.state.source[param.layerid].push(param.feature);
         context.state.source = Object.assign({}, context.state.source);
@@ -344,8 +375,9 @@ const layer = {
      * @param {{layerid:string,feature:{id,geometry,properties}}} param
      */
     async updateLayerFeature(context, param) {
+      let res;
       if (param.layerid !== "ma") {
-        await layerData.update(param.layerid, param.feature);
+        res = await layerData.update(param.layerid, param.feature);
       }
 
       const source = context.state.source[param.layerid];
@@ -354,6 +386,8 @@ const layer = {
         source.splice(i, 1, param.feature);
         context.state.source = Object.assign({}, context.state.source);
       }
+
+      return res;
     },
     /**
      * 删除一组要素
@@ -386,19 +420,26 @@ const layer = {
       }
     },
     /**
-     * 
-     * @param {{layerId: number, ID: number}} param 
+     *
+     * @param {{layerId: number, ID: number}} param
      */
     async getFeature(context, param) {
       if (context.state.source[param.layerId]) {
-        return context.state.source[param.layerId].find(item => item.id === param.ID);
+        return context.state.source[param.layerId].find(
+          item => item.id === param.ID
+        );
       }
       return null;
     }
   }
 };
 
-async function updateLayerSource(context, layerid, querys, setmapbound = false) {
+async function updateLayerSource(
+  context,
+  layerid,
+  querys,
+  setmapbound = false
+) {
   context.state.layerLoading[layerid] = true;
   console.log(`loading layer ${layerid} data`);
   const features = await layerData.get(layerid, querys);

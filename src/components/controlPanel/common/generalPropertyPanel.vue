@@ -16,7 +16,7 @@
             size="mini"
             :status-icon="true"
             :inline-message="true"
-            :disabled="editting === false"
+              :disabled="isEdit===true && editting === false"
           >
             <el-form-item
               size="mini"
@@ -42,7 +42,6 @@
                   style="font-size: 12px;"
                   v-for="(item,index) in item.enum"
                   :key="index"
-                  :label="item"
                   :value="item"
                 ></el-option>
               </el-select>
@@ -108,7 +107,7 @@
           @click="onSubmit('form')"
         >保 存</el-button>
         <el-button size="mini" @click="deleteFeature" type="danger" icon="el-icon-delete">删 除</el-button>
-        <!-- <el-button size="mini" @click="closePanel" icon="el-icon-remove-outline">取 消</el-button> -->
+        <el-button v-if="!hasGeo" size="mini" @click="closePanel" icon="el-icon-remove-outline">取 消</el-button>
       </el-footer>
       <!-- 属性面板 -->
       <el-footer class="form-footer" height="60px" v-else>
@@ -207,6 +206,7 @@ export default {
           .dispatch("updateLayerFeature", {
             layerid: this.selectFeatureLayer.id,
             feature: {
+              id: this.form['ID'],
               properties: this.form
             }
           })
@@ -221,37 +221,45 @@ export default {
     async defaultSubmitFnWithGeo() {
       if (false === this.isEdit) {
         //添加模式
+        const geometry = this.geometryInstance.getGeometry().getGeometry()
         const res = await this.$store
           .dispatch("addLayerFeature", {
             layerid: this.currentLayer.id,
             feature: {
-              // geometry: this.geometry.geometry,
+              geometry: {
+                type: geometry.getType(),
+                coordinates: geometry.getCoordinates()
+              },
               properties: this.form
             }
           })
           .catch(async err => {
-            this.$message.error({ message: "添加失败!", offset: 60 });
             await this.endPoint();
+            return err;
           });
-        if (typeof res === "string" || (typeof res === 'object' &&"Msg" in res))
-          this.$message.error({ message: `"添加失败!"${res.Msg}`, offset: 60 });
-        else this.$message.success({ message: "添加成功", offset: 60 });
+        this.routerResultMessage(res);
         await this.endPoint();
       } else {
         // 编辑模式
-        await this.$store
+        const geometry = this.geometryInstance.getGeometry().getGeometry()
+        const res = await this.$store
           .dispatch("updateLayerFeature", {
             layerid: this.editFeatureLayer.id,
             feature: {
-              geometry: this.geometryInstance.getGeometry(),
+              id: this.form["ID"],
+              geometry: {
+                type: geometry.getType(),
+                coordinates: geometry.getCoordinates()
+              },
               properties: this.form
             }
           })
           .catch(async err => {
-            this.$message.error({ message: "更新失败!", offset: 60 });
             await this.endPoint();
+            return err;
           });
-        this.$message.success({ message: "更新成功", offset: 60 });
+
+        this.routerResultMessage(res);
         await this.endPoint();
       }
     },
@@ -261,37 +269,47 @@ export default {
           this.saving = true;
           if (false === this.isEdit) {
             // 添加模式
-            if (this.currentLayer.id === "poigroups") {
-              await this.poigroupsSubmitFn();
-            } else if (this.currentLayer.id === "sq") {
-              await this.sqSubmitFn();
-            } else if (this.currentLayer.id === "roadnetwork") {
-              await this.roadSubmitFn();
-            } else if (this.currentLayer.id === "xl") {
-              await this.xlSubmitFn();
-            } else if (this.currentLayer.id === "corridor") {
-              await this.corridorSubmitFn();
-            } else {
-              if (this.hasGeo) await this.defaultSubmitFnWithGeo();
-              else await this.defaultSubmitFn();
+            try {
+              if (this.currentLayer.id === "poigroups") {
+                await this.poigroupsSubmitFn();
+              } else if (this.currentLayer.id === "sq") {
+                await this.sqSubmitFn();
+              } else if (this.currentLayer.id === "roadnetwork") {
+                await this.roadSubmitFn();
+              } else if (this.currentLayer.id === "xl") {
+                await this.xlSubmitFn();
+              } else if (this.currentLayer.id === "corridor") {
+                await this.corridorSubmitFn();
+              } else {
+                if (this.hasGeo) await this.defaultSubmitFnWithGeo();
+                else await this.defaultSubmitFn();
+              }
+            } catch (err) {
+              this.saving = false;
+              console.log(err);
             }
             this.saving = false;
             this.closePanel();
           } else {
             // 编辑模式
-            if (this.currentLayer.id === "poigroups") {
-              await this.poigroupsSubmitFn();
-            } else if (this.currentLayer.id === "sq") {
-              await this.sqSubmitFn();
-            } else if (this.currentLayer.id === "roadnetwork") {
-              await this.roadSubmitFn();
-            } else if (this.currentLayer.id === "xl") {
-              await this.xlSubmitFn();
-            } else if (this.currentLayer.id === "corridor") {
-              await this.corridorSubmitFn();
-            } else {
-              if (this.hasGeo) await this.defaultSubmitFnWithGeo();
-              else await this.defaultSubmitFn();
+            try {
+              if (this.editFeatureLayer.id === "poigroups") {
+                await this.poigroupsSubmitFn();
+              } else if (this.editFeatureLayer.id === "sq") {
+                await this.sqSubmitFn();
+              } else if (this.editFeatureLayer.id === "roadnetwork") {
+                await this.roadSubmitFn();
+              } else if (this.editFeatureLayer.id === "xl") {
+                await this.xlSubmitFn();
+              } else if (this.editFeatureLayer.id === "corridor") {
+                await this.corridorSubmitFn();
+              } else {
+                if (this.hasGeo) await this.defaultSubmitFnWithGeo();
+                else await this.defaultSubmitFn();
+              }
+            } catch (err) {
+              this.saving = false;
+              console.log(err);
             }
             this.saving = false;
             this.closePanel();
@@ -304,8 +322,8 @@ export default {
     },
     async beginEdit() {
       this.editting = true;
-      this.$parent.closeButton = false;
       if (this.hasGeo) {
+        this.$parent.closeButton = false;
         await this.$store.commit('setPanelExtent', {editPanel: true})
         this.editFeature = this.selectFeature;
         this.editFeatureLayer = this.selectFeatureLayer;
@@ -481,11 +499,10 @@ export default {
     // this.hasGeo && this.beginSetPoint();
   },
   deactivated() {
-    console.log("deactivated");
     // 初始化
     this.hasGeo = false;
     this.$refs["form"].resetFields();
-    this.endPoint();
+    if(this.hasGeo) this.endPoint();
     this.isEdit = false;
     this.editting = false;
   },

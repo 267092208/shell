@@ -50,6 +50,8 @@ async function add(layerid, feature) {
   let result;
   if (layerid === 'sq' || layerid === 'roadnetwork' || layerid === 'corridor') { 
     result = await axios.post(`/dataPages/${layerid}/Handler.ashx`, qs.stringify({action:'update', id, model}), { headers: { "Content-Type": "application/x-www-form-urlencoded" }});
+  } else if (layerid === 'poigroups') {
+    result = await axios.post(`/dataPages/${layerid}/Handler.ashx`, qs.stringify({  action: "add", id, model}),  { headers: { "Content-Type": "application/x-www-form-urlencoded" }});
   } else { /**通例 */
     result = await axios.post(`/dataPages/${layerid}/Handler.ashx?action=update`, { model });
   }
@@ -58,15 +60,15 @@ async function add(layerid, feature) {
   updateFeatureProperties(feature.properties, layerid);
 
   if (layerid === 'xzqh' || layerid === 'roadnetwork') return result.data;
-  return feature.id || result.data.update;
+  return result.data// || feature.id || result.data.update;
 }
 
 /**
- * 添加要素为了动作是add的
+ * 添加要素为了行政区划
  * @param {number} layerid  图层id
  * @param {Object} model
  */
-async function addForActionAdd(layerid, model) {
+async function addForXZQH(layerid, model) {
   const url = `/dataPages/${layerid}/Handler.ashx`;
   const { data } = await axios.post(
     url,
@@ -88,7 +90,6 @@ async function addForActionAdd(layerid, model) {
  * @param {*} feature
  */
 export async function update(layerid, feature) {
-  console.log(feature)
   const model = modelToEntityKeyValue(feature.properties);
   const { data } = await axios.post(`/dataPages/${layerid}/Handler.ashx?action=update`, {
     model,
@@ -328,7 +329,7 @@ export default {
   FromMSJsonString,
   addItemOfLayer,
   getList,
-  addForActionAdd,
+  addForXZQH,
   updateItemForRk,
   updateItemForJj,
   updateItemOfLayer,

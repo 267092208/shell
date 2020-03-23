@@ -11,7 +11,7 @@
     <ZoomInOut />
     <Measure />
     <popup ref="popup" />
-    <div class="mapbox" ref="mapbox"></div>
+    <div class="mapbox" ref="mapWrap"></div>
   </div>
 </template>
 <script>

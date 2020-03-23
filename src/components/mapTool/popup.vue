@@ -1,6 +1,6 @@
 <template>
   <!-- 弹窗 -->
-  <div ref="popup" class="ol-popup">
+  <div v-show="visible" ref="popup" class="ol-popup">
     <a v-if="isPopupcloser" @click="popupcloser" class="ol-popup-closer"></a>
     <div class="ol-popup-content" v-html="popupContent"></div>
     <div class="buttonGroup" v-if="buttonGroup.length != 0">
@@ -35,7 +35,8 @@ export default {
       /**
        * 是否有关闭按钮
        */
-      isPopupcloser: false
+      isPopupcloser: false,
+      visible: false
     }
   },
   computed: {
@@ -79,6 +80,7 @@ export default {
     * }} options 
     */
     openPopup(options) {
+      this.visible = true;
       console.log("openPopup", options);
       let { position, popupContent, isPopupcloser, move, buttonGroup = [] } = options;
       popupContent = popupContent ? popupContent : '';
@@ -121,18 +123,16 @@ export default {
 .ol-popup {
   position: absolute;
   background-color: white;
-  -webkit-filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.2));
-  filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.2));
   padding: 15px;
   border-radius: 10px;
   border: 1px solid #cccccc;
   bottom: 12px;
   left: -50px;
+  min-width: 80px;
   .ol-popup-content {
     white-space: nowrap;
     width: inherit;
     display: block;
-    // text-align: center;
     min-width: 66px;
     padding: 0 3px;
   }

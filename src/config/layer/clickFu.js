@@ -6,7 +6,13 @@ import VectorLayer from "ol/layer/Vector";
 import Feature from "ol/Feature";
 import store from "@/store/index.js";
 import { hexToRgba, rgbaToHex } from "@/utils/hexRgba.js";
-import { Circle as CircleStyle, RegularShape, Stroke, Style, Fill } from "ol/style";
+import {
+  Circle as CircleStyle,
+  RegularShape,
+  Stroke,
+  Style,
+  Fill
+} from "ol/style";
 /**
  * 选中的样式
  * @param {Feature} feature
@@ -67,12 +73,16 @@ export function selectLineFillStyle(feature, layer) {
       });
       style = style[0];
     } else {
-      style.getText() && selectPointerMoveStyle.setText(style.getText().clone());
+      style.getText() &&
+        selectPointerMoveStyle.setText(style.getText().clone());
     }
     const width = style.getStroke().getWidth();
     const fillColor = style.getFill() && style.getFill().getColor();
     selectPointerMoveStyle.getStroke().setWidth(width + 1);
-    fillColor && selectPointerMoveStyle.getFill().setColor(hexToRgba("#4A5ED8", rgbaToHex(fillColor).opacity));
+    fillColor &&
+      selectPointerMoveStyle
+        .getFill()
+        .setColor(hexToRgba("#4A5ED8", rgbaToHex(fillColor).opacity));
   }
   return selectPointerMoveStyle;
 }
@@ -125,7 +135,6 @@ const clickFu = {
     feature.id = feature.get("ID");
     feature.properties = feature.getProperties();
     feature.geometry = feature.getGeometry();
-
     dispatch("selectFeatureAndLayer", {
       feature,
       layer: layerbase
@@ -167,7 +176,10 @@ const clickFu = {
     feature.properties = feature.getProperties();
     feature.geometry = feature.getGeometry();
     const layersbase = store.state.layer.base;
-    let layerbase = layersbase.find(l => val.source && val.source.layerids && val.source.layerids.includes(l.id));
+    let layerbase = layersbase.find(
+      l =>
+        val.source && val.source.layerids && val.source.layerids.includes(l.id)
+    );
     layerbase &&
       dispatch("selectFeatureAndLayer", {
         feature,
@@ -185,7 +197,24 @@ const clickFu = {
 /**
  * 事件响应相同
  */
-const fus = ["shellyz", "gsyz", "nti", "gsnti", "target", "ma", "xzqh", "sq", "poi", "poigroups", "corridor", "roadnetwork", "lsd", "scyk", "lpglng", "xl"];
+const fus = [
+  "shellyz",
+  "gsyz",
+  "nti",
+  "gsnti",
+  "target",
+  "ma",
+  "xzqh",
+  "sq",
+  "poi",
+  "poigroups",
+  "corridor",
+  "roadnetwork",
+  "lsd",
+  "scyk",
+  "lpglng",
+  "xl"
+];
 fus.forEach(t => {
   clickFu[t] = clickFu["xyyz"];
 });
