@@ -4,8 +4,13 @@ import "ol/ol.css";
 import View from "ol/View";
 import { defaults as defaultControls, Attribution } from "ol/control";
 import ScaleLine from "ol/control/ScaleLine";
-import { resolutions } from "@/mapTool/DB09TileSource.js"
-const extent = [-20037508.342789244, -20037508.342789244, 20037508.342789244, 20037508.342789244]
+import { resolutions } from "@/mapTool/DB09TileSource.js";
+const extent = [
+  -20037508.342789244,
+  -20037508.342789244,
+  20037508.342789244,
+  20037508.342789244
+];
 
 // 位置请使用类名修改位置
 const attribution = new Attribution({
@@ -18,23 +23,25 @@ const scaleLine = new ScaleLine();
  * @type {Map}
  */
 export var map;
-/** 
+/**
  * @type {View}
  */
 export const BaiduView = new View({
   constrainResolution: true,
   resolutions,
   maxZoom: 22,
-  minZoom: 1,
+  minZoom: 3,
+  enableRotation: false,
   extent
-})
+});
 /**
  * @type {View}
  */
 export const GCJ02View = new View({
   maxZoom: 22,
-  minZoom: 1,
+  minZoom: 3,
   constrainResolution: true,
+  enableRotation: false,
   extent
 });
 
@@ -45,20 +52,24 @@ const mixin = {
      */
     async initMap() {
       return new Promise(r => {
-        this.$refs.mapbox.innerHTML = "";
+        this.$refs.mapWrap.innerHTML = "";
         GCJ02View.animate({ ...this.getMapState(), duration: 600 });
         map = new Map({
           layers: [],
-          controls: defaultControls({ attribution: false, zoom: false, rotate: false, }).extend([attribution, scaleLine]),
-          target: this.$refs.mapbox,
+          controls: defaultControls({
+            attribution: false,
+            zoom: false,
+            rotate: false
+          }).extend([attribution, scaleLine]),
+          target: this.$refs.mapWrap,
           view: GCJ02View
         });
         map.once("rendercomplete", y => {
           console.log("%c map", "color:red", map);
-          r()
-        })
-        this.initMapStateSave()
-      })
+          r();
+        });
+        this.initMapStateSave();
+      });
     },
     /**
      * 保存地图的状态

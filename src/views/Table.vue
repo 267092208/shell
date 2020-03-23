@@ -1,5 +1,5 @@
 <template>
-  <div class="layertable" >
+  <div class="layertable">
     <div class="title">
       {{ getTableTitle }}
       <i
@@ -244,7 +244,7 @@
             class="iconbtn"
             :disabled="isChoiceRow"
             @click="delRow"
-            :loading='delling'
+            :loading="delling"
           ></el-button>
         </el-tooltip>
         <el-tooltip
@@ -254,7 +254,12 @@
           placement="top"
           v-if="showToolBtn.indexOf('跳转到地图') >= 0"
         >
-          <el-button icon="iconfont icon-earth" class="iconbtn" :disabled="saveRow == null" @click="jumpToMap"></el-button>
+          <el-button
+            icon="iconfont icon-earth"
+            class="iconbtn"
+            :disabled="saveRow == null"
+            @click="jumpToMap"
+          ></el-button>
         </el-tooltip>
         <el-tooltip
           class="item"
@@ -304,7 +309,13 @@
       :historyLoading="historyLoading"
       :historyVisible.sync="historyVisible"
     />
-    <pos-control v-if="loading===false" @updateLngLat="updateTableRowWithLnglat"  :dialogVisible.sync="posCrtVisble" :editPoint="getEditPoint" :data='saveRow' ></pos-control>
+    <pos-control
+      v-if="loading===false"
+      @updateLngLat="updateTableRowWithLnglat"
+      :dialogVisible.sync="posCrtVisble"
+      :editPoint="getEditPoint"
+      :data="saveRow"
+    ></pos-control>
   </div>
 </template>
 <script>
@@ -324,9 +335,9 @@ import { propertys, dateFields } from "@/config/layer/fields";
 export default {
   filters: {
     fomatter: function (val, label, layerId) {
-      if (!val)  return ''
+      if (!val) return ''
       if (typeof val === 'string' && val.includes("/Date")) {
-        let date =  FromMSJsonString(val); 
+        let date = FromMSJsonString(val);
         if (label === '开始时间') return DateFormat(date, 'hh:mm:ss')
         else if (label === '日期') return DateFormat(date, 'yyyy-MM-dd')
         else {
@@ -335,9 +346,9 @@ export default {
           const date = FromMSJsonString(val);
           if (date) {
             if (dfs[label] == "date") {
-              return  DateFormat(date, "yyyy-MM-dd");
+              return DateFormat(date, "yyyy-MM-dd");
             } else if (dfs[label] == "time") {
-              return  DateFormat(date, "hh:mm:ss");
+              return DateFormat(date, "hh:mm:ss");
             }
           }
         } // end else
@@ -530,9 +541,9 @@ export default {
       }
       else return null;
     },
-    getTableName () {
+    getTableName() {
       const id = this.getTableId() || this.computOccupyTableId
-      switch(id) {
+      switch (id) {
         case 'traffic': return 'corridor车流表';
         case 'xyyz': return '现有油站';
         case 'nti': return 'NTI';
@@ -545,9 +556,9 @@ export default {
     },
     getEditPoint() {
       if (this.saveRow) {
-        if (this.saveRow.lng_baidu === 0 &&  this.saveRow.lat_baidu === 0) return undefined;
-        else return [this.saveRow.lng_baidu , this.saveRow.lat_baidu] 
-        }
+        if (this.saveRow.lng_baidu === 0 && this.saveRow.lat_baidu === 0) return undefined;
+        else return [this.saveRow.lng_baidu, this.saveRow.lat_baidu]
+      }
       else { return undefined }
     },
     //修改位置, 删除, 跳转到地图, 历史记录, 导出
@@ -636,10 +647,10 @@ export default {
             .catch(err => err);
           if (typeof res === "boolean") {
             if ('ID' in this.saveRow) {
-              let index =this.tableData.findIndex(({ID}) => this.saveRow.ID === ID)
+              let index = this.tableData.findIndex(({ ID }) => this.saveRow.ID === ID)
               index != -1 && this.tableData.splice(index, 1);
             } else {
-               let index = this.tableData.indexOf(this.saveRow)
+              let index = this.tableData.indexOf(this.saveRow)
               index != -1 && this.tableData.splice(index, 1);
             }
             this.$message.success({ message: "删除成功!", offset: 60 });
@@ -673,14 +684,14 @@ export default {
     async jumpToMap() {
       if (this.saveRow.lng_baidu && this.saveRow.lat_baidu) {
         const [lng, lat] = gcoord.transform([this.saveRow.lng_baidu, this.saveRow.lat_baidu], gcoord.WGS84, gcoord.EPSG3857);
-        const res = await this.$store.dispatch('getFeature', {layerId: this.getTableId(), ID:this.saveRow.ID});
-        if(res != null) {
+        const res = await this.$store.dispatch('getFeature', { layerId: this.getTableId(), ID: this.saveRow.ID });
+        if (res != null) {
           // await this.$store.dispatch('setSelectMode', 'single');
           const layer = this.base.find(item => this.getTableId() === item.id)
-          await this.$store.dispatch('selectFeatureAndLayer', {feature: res, layer: layer});
+          await this.$store.dispatch('selectFeatureAndLayer', { feature: res, layer: layer });
         }
-        await this.$store.dispatch('setMapCenter', {x: lng, y: lat}); 
-        await this.$store.dispatch('setMapZoom',  Math.max(Math.min(15, this.$store.state.mapState.zoom), 5));
+        await this.$store.dispatch('setMapCenter', { x: lng, y: lat });
+        await this.$store.dispatch('setMapZoom', Math.max(Math.min(15, this.$store.state.mapState.zoom), 5));
       }
       await this.$router.push("/");
     },
@@ -769,7 +780,7 @@ export default {
     },
     myFormatter(row, col, cellValue, index) {
       if (typeof cellValue === 'string' && cellValue.search("/Date") >= 0) {
-       let date =  FromMSJsonString(cellValue);
+        let date = FromMSJsonString(cellValue);
         if (col.label === '开始时间') return DateFormat(date, 'hh-mm-ss')
         if (col.label === '日期') return DateFormat(date, 'yyyy-MM-dd');
         return DateFormat(date); // FIXME: 不知道为社么写了这句，时间格式就正确了
@@ -1466,7 +1477,7 @@ export default {
                 this.originalFileds = originalFileds;
                 this.sortColumns = sortColumns;
                 this.fixColumn = fixColumn;
-              this.loading = false;
+                this.loading = false;
               }
             } else {
               // 首次加载数据通过接口
@@ -1503,10 +1514,10 @@ export default {
       this.saveLayer = this.currentLayer;
       this.tableData = [];
       this.loading = false;
-      await this.getDatasById(this.currentLayer.id).catch(err =>{
+      await this.getDatasById(this.currentLayer.id).catch(err => {
         this.loading = false;
       });
-        this.loading = false;
+      this.loading = false;
     },
     //设置固定列的样式
     fixedStyle({ row, column, rowIndex, columnIndex }) {
@@ -1595,7 +1606,7 @@ export default {
      * 包含：'MA的油品信息'
      */
     editrow(row, column, cell, event) {
-       this.selectTd && this.selectTd.classList.remove('EditCell')
+      this.selectTd && this.selectTd.classList.remove('EditCell')
       if (this.optionsSelected != "油品信息") {
         this.showEdit = true;
         this.isEditEnd = false;
@@ -1631,8 +1642,8 @@ export default {
       let id = row["ID"];
       tableData
         .updateTableForRow(layerId, id, model)
-        .then(res => {})
-        .catch(e => {});
+        .then(res => { })
+        .catch(e => { });
     },
     showHistroy() {
       this.historyVisible = true;

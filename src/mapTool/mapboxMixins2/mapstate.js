@@ -1,6 +1,6 @@
 import { mapState } from "vuex";
 import { transform, transformExtent } from "ol/proj";
-import { map, BaiduView, GCJ02View } from './map';
+import { map, BaiduView, GCJ02View } from "./map";
 
 const mixin = {
   computed: {
@@ -48,19 +48,18 @@ const mixin = {
   },
   watch: {
     inputBounds(val) {
-      let view = map.getView();
-      view.fit([val.minx, val.miny, val.maxx, val.maxy], map.getSize());
+      val &&
+        map
+          .getView()
+          .fit([val.minx, val.miny, val.maxx, val.maxy], { duration: 600 });
     },
-
     inputCenter(val) {
-      let view = map.getView();
-      val && view.setCenter([val.x, val.y]);
+      val && map.getView().animate({ center: [val.x, val.y], duration: 600 });
     },
 
     inputZoom(val) {
       console.log("zoom", val);
-      let view = map.getView();
-      val && view.setZoom(parseInt(val));
+      val && map.getView().animate({ zoom: val, duration: 600 });
     }
   }
 };

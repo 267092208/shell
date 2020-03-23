@@ -48,7 +48,6 @@ const baseMapLayer = {};
     })
   });
 });
-
 /**
  * 地图视图
  * @type {View}
