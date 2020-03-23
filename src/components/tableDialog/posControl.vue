@@ -112,10 +112,11 @@ export default {
           if (this.$refs.map) {
             map = createdMap({ target: this.$refs.map, editPoint: lnglat });
           } else {
-            setTimeout(
-              () => { 
+            await setTimeout(
+               () => { 
                 try {
-                map =createdMap({  target: this.$refs.map, editPoint: lnglat});
+                  console.log(this.$refs.map)
+                map = createdMap({  target: this.$refs.map, editPoint: lnglat});
                   } catch(err) {
                     console.log(err);
                     this.$el.style.opacity = 0;
