@@ -92,7 +92,7 @@ function selectStyle(feature, layer) {
 }
 
 /**
- * 关联要素的选中
+ * 关联要素的样式
  * @param {Feature} feature
  * @param {VectorLayer} layer
  */
