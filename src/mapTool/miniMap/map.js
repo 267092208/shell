@@ -164,6 +164,7 @@ export default function createdMap(param) {
     throw "target 不很为空";
   }
   // if (!editPoint) { throw "editPoint 不很为空" }
+  target.innerHTML = '';
   searchSource.clear();
   ol_editPoint.setCoordinates(editPoint);
   let map = new Map({
