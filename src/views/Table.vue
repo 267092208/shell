@@ -304,7 +304,7 @@
       :historyLoading="historyLoading"
       :historyVisible.sync="historyVisible"
     />
-    <pos-control v-if="loading===false" @updateLngLat="updateTableRowWithLnglat"  :dialogVisible.sync="posCrtVisble" :editPoint="getEditPoint" :data='saveRow' ></pos-control>
+    <pos-control  v-if="loading===false" @updateLngLat="updateTableRowWithLnglat"  :dialogVisible.sync="posCrtVisble" :editPoint="getEditPoint" :data='saveRow' ></pos-control>
   </div>
 </template>
 <script>
@@ -664,8 +664,9 @@ export default {
        * 自动弹出修改位置组件
        */
       if (this.isBadRow(row, true)) {
-        this.posCrtVisble = true;
-      }
+         this.posCrtVisble = true;
+        } 
+        // this.$nextTick()
     },
     /**
      * 必须记住当tableId 不等于currentLayerId的时候，有跳转选中要通过row.ID获取图层和feature信息
