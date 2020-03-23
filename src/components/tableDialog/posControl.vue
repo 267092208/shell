@@ -29,7 +29,7 @@
         ></el-button>
       </el-input>
 
-      <div class="map" ref="map" id="map"  v-loading="resfresh"></div>
+      <div class="map" ref="map" id="map" v-loading="resfresh"></div>
     </div>
     <div slot="footer" class="dialog-footer">
       <el-row type="flex">
@@ -83,13 +83,15 @@ export default {
   },
   methods: {
     handleClick(e) {
-      const dialog = this.$refs.dialog
+      const dialog = this.$refs.dialog;
       const children = dialog.$el.children;
       // dialog.$el.outerHTML = '';
-      dialog.$el.className = ''
-      dialog.$el.style.cssText = 'width: 100%; height: 0; margin: 0; padding: 0; position: static; top: 0; left: 0; zindex: 4000'
+      dialog.$el.className = "";
+      dialog.$el.style.cssText =
+        "width: 100%; height: 0; margin: 0; padding: 0; position: static; top: 0; left: 0; zindex: 4000";
       // console.log(dialog)
-      children[0].style.cssText = "position: absolute; left: calc(50% - 400px); top: 15vh; z-index: 4000; width: 800px;"
+      children[0].style.cssText =
+        "position: absolute; left: calc(50% - 400px); top: 15vh; z-index: 4000; width: 800px;";
       // document.body.appendChild(children[0]);
       // console.log(document.body);
     },
@@ -106,16 +108,25 @@ export default {
       const lnglat = this.editPoint
         ? gcoord.transform(this.editPoint, gcoord.BD09, gcoord.EPSG3857)
         : [12609158.722154098, 2647747.527494556];
-      if (map == null  || !this.$refs.map) {
-        if (this.$refs.map) {
-          map = createdMap({ target: this.$refs.map, editPoint: lnglat });
+        if (map == null || !this.$refs.map || this.$refs.map.childNodes.length <= 1) {
+          if (this.$refs.map) {
+            map = createdMap({ target: this.$refs.map, editPoint: lnglat });
+          } else {
+            setTimeout(
+              () => { 
+                try {
+                map =createdMap({  target: this.$refs.map, editPoint: lnglat});
+                  } catch(err) {
+                    console.log(err);
+                    this.$el.style.opacity = 0;
+                    this.$emit("update:dialogVisible", false);
+                  }
+              }, 33);
+          }
         } else {
-          setTimeout(()=>  map = createdMap({ target: this.$refs.map, editPoint: lnglat }), 33)
+          // reset data
+          map.setEditPoint(lnglat);
         }
-      } else {
-        // reset data
-        map.setEditPoint(lnglat);
-      }
     },
     async searchBaidu() {
       if (this.keyword != "") {
@@ -148,11 +159,13 @@ export default {
   components: {},
   watch: {
     data(val) {
-      this.resfresh = true;
-      this.closeDialog();
-      this.initDialog();
-      setTimeout(() => this.resfresh = false, 50)
-    }
+      if (this.dialogVisible) {
+        this.resfresh = true;
+        this.closeDialog();
+        this.initDialog();
+        setTimeout(() => (this.resfresh = false), 50);
+      }
+    },
   }
 };
 </script>
@@ -161,18 +174,18 @@ export default {
 /deep/ .el-message__content {
   width: 80%;
 }
-  /deep/ .el-dialog {
-    z-index: 4000;
-    position: absolute;
-    top: 10vh;
-    left: calc(50% - 400px);
-  }
-  /deep/ .el-dialog__body {
-    padding: 3px;
-  }
-    /deep/ .el-dialog__footer {
-    padding: 10px 20px 15px;
-  }
+/deep/ .el-dialog {
+  z-index: 4000;
+  position: absolute;
+  top: 10vh;
+  left: calc(50% - 400px);
+}
+/deep/ .el-dialog__body {
+  padding: 3px;
+}
+/deep/ .el-dialog__footer {
+  padding: 10px 20px 15px;
+}
 .content {
   display: flex;
   justify-content: flex-start;

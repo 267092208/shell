@@ -304,7 +304,7 @@
       :historyLoading="historyLoading"
       :historyVisible.sync="historyVisible"
     />
-    <pos-control  v-if="loading===false" @updateLngLat="updateTableRowWithLnglat"  :dialogVisible.sync="posCrtVisble" :editPoint="getEditPoint" :data='saveRow' ></pos-control>
+    <pos-control v-if="loading===false" @updateLngLat="updateTableRowWithLnglat"  :dialogVisible.sync="posCrtVisble" :editPoint="getEditPoint" :data='saveRow' ></pos-control>
   </div>
 </template>
 <script>
@@ -1719,6 +1719,7 @@ export default {
     },
     currentLayer(val) {
       if (val) {
+        this.loading = true;
         this.checkdata();
       }
     },
@@ -1727,6 +1728,7 @@ export default {
   beforeRouteEnter(to, from, next) {
     next(vm => {
       if (vm.currentLayer) {
+        vm.loading = true;
         vm.fixColumn = [];
         vm.checkdata();
       }
