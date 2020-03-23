@@ -99,6 +99,14 @@ let geometryInstance = null;
  * 默认值
  */
 const defaultFormDatas = {};
+
+/**
+ * 获取指定图层筛选配置
+ */
+function getFiltersByLayerId(layerid){
+  return filterData[layerid] || filterData.defaultFilters;
+}
+
 export default {
   data() {
     return {
@@ -131,7 +139,7 @@ export default {
     filterDatas() {
       if (this.currentLayer) {
         this.setFormDatas();
-        return filterData[this.currentLayer.id];
+        return getFiltersByLayerId(this.currentLayer.id);
       }
       return [];
     },
@@ -302,7 +310,7 @@ export default {
       const val = this.currentLayer;
       if (val && !this.formDatas[val.id]) {
         let data = {};
-        filterData[val.id].forEach(t => {
+        getFiltersByLayerId(val.id).forEach(t => {
           const input = t.input;
           if (input.type === "input") {
             data[t.label] = "";
@@ -318,7 +326,7 @@ export default {
     },
     init() {
       this.$parent.title = "筛选面板(Alt+1)";
-      if (this.currentLayer && filterData[this.currentLayer.id]["自定义区域"]) {
+      if (this.currentLayer && getFiltersByLayerId(this.currentLayer.id)["自定义区域"]) {
         this.formDatas[this.currentLayer.id]["自定义区域"] = "";
       }
     }

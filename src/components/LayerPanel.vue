@@ -70,6 +70,14 @@ export default {
         // this.initLayerPanel();
         // this.initLayerGroup();
     },
+    activated(){
+        this.$store.dispatch("setLayerListVisible",true)
+        
+    },
+    deactivated(){
+            this.$store.dispatch("setLayerListVisible",false)
+
+    },
 
     methods: {
         init() {
@@ -97,6 +105,7 @@ export default {
                     }
                 }
             this.$store.dispatch("setLayerListVisible",false)
+            
 
             }.bind(this);
         },
