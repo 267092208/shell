@@ -14,7 +14,12 @@ const linkFeature = {
      * 当前选中的要素的竞争要素集合
      * @type {[id:string]:Array<{id,geometry,properties}>}
      */
-    competitorFeatures: {}
+    competitorFeatures: {},
+    /**
+     * 添加关联要素的状态
+     * @type {Boolean}
+     */
+    addLinkStatus: false
   },
   mutations: {},
   actions: {
@@ -25,8 +30,21 @@ const linkFeature = {
       console.log("linkFeatures", linkFeatures);
 
       state.relationFeatures[featureId] = linkFeatures;
+    },
 
-      
+    async setlinkFeatures(context, param) {},
+
+    async setAddLinkStatus(context, param) {
+      context.state.addLinkStatus = param;
+    },
+
+    async delLinkFeatures(context, param) {
+      const { layerId, feature, delFeatures } = param;
+
+      await linkData.removeRelation(layerId, feature, delFeatures);
+
+      context.state.relationFeatures[feature.id] = await linkData.getRelations(layerId, { id: feature.id });
+      return context.state.relationFeatures[feature.id]
     }
   }
 };

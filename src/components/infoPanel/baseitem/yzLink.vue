@@ -20,9 +20,7 @@
                             :label="station"
                             :key="index"
                             class="link-list"
-                        >
-                        站名：{{station["站名"]}} &nbsp;&nbsp;&nbsp;编号：{{station["油站编号"]}}
-                          </el-checkbox>
+                        >站名：{{station["properties"]["站名"]}} &nbsp;&nbsp;&nbsp;编号：{{station["properties"]["油站编号"]}}</el-checkbox>
                     </el-checkbox-group>
                 </div>
             </div>
@@ -50,7 +48,7 @@
                         icon="el-icon-delete"
                         size="mini"
                         @click="deleteLinkStation"
-                        disabled
+                        :disabled="!checkedRelateStations.length"
                     ></el-button>
                     <el-button
                         title="填写油站编号添加"
@@ -68,6 +66,8 @@
 <script>
 import { mapState } from "vuex";
 import { getPhotos, getPhotoHis, deletePhoto } from "@/data/photo";
+import { linkFeatureStyle } from "@/config/layer/clickFu";
+import { getLayerOL } from "@/mapTool/mapboxMixins2/utils";
 
 const baseInfoItem = () => import("@/components/infoPanel/common/baseInfoItem");
 
@@ -97,17 +97,17 @@ export default {
         baseInfoItem
     },
     mounted() {
-        
-                this.$store
-                    .dispatch("initlinkFeatures", {
-                        featureId: this.selectFeature.get("id"),
-                        layerId: this.selectFeatureLayer.id
-                    })
-                    .then(res => {
-                        
-                        this.relateStationList = this.relationFeatures[this.selectFeature.get("id")]
-                        
-                    });
+        this.$store
+            .dispatch("initlinkFeatures", {
+                featureId: this.selectFeature.get("id"),
+                layerId: this.selectFeatureLayer.id
+            })
+            .then(res => {
+                this.relateStationList = this.relationFeatures[
+                    this.selectFeature.get("id")
+                ];
+                this.setLinkStyle();
+            });
     },
     methods: {
         //全选
@@ -164,6 +164,32 @@ export default {
                     });
                 });
         },
+        //关联要素样式设置
+        setLinkStyle() {
+            const layer = getLayerOL(this.selectFeatureLayer.id);
+            const features = layer.getSource().getFeatures();
+            if (this.yzLinkVisible) {
+                features.forEach(f => {
+                    if (
+                        this.relateStationList.find(r => {
+                            return r.id === f.get("id");
+                        })
+                    ) {
+                        f.setStyle(linkFeatureStyle(f, layer));
+                    }
+                });
+            } else {
+                features.forEach(f => {
+                    if (
+                        this.relateStationList.find(r => {
+                            return r.id === f.get("id");
+                        })
+                    ) {
+                        f.setStyle(null);
+                    }
+                });
+            }
+        },
 
         //添加信息
         addInfo() {
@@ -195,9 +221,20 @@ export default {
             }
         },
         //取消添加关联油站
-        cancelAdd() {},
-        //取消添加关联油站
-        deleteLinkStation() {}
+        cancelAdd() {
+            this.isAddLink = false;
+        },
+        //删除关联油站
+        deleteLinkStation() {
+            //{layerId,feature,delFeatures}
+            this.$store.dispatch("delLinkFeatures", {
+                layerId: this.selectFeatureLayer.id,
+                feature: this.selectFeature,
+                delFeatures: this.checkedRelateStations
+            }).then(res =>{
+                this.relateStationList = res
+            });
+        }
     },
     watch: {
         selectFeature() {
@@ -208,26 +245,17 @@ export default {
                         layerId: this.selectFeatureLayer.id
                     })
                     .then(res => {
-                        
-                        this.relateStationList = this.relationFeatures[this.selectFeature.get("id")]
-                        
+                        this.relateStationList = this.relationFeatures[
+                            this.selectFeature && this.selectFeature.get("id")
+                        ];
                     });
             }
         },
         yzLinkVisible(b) {
-            // if (b) {
-            //   this.relateStationList= []  
-            //     this.$store
-            //         .dispatch("initlinkFeatures", {
-            //             featureId: this.selectFeature.get("id"),
-            //             layerId: this.selectFeatureLayer.id
-            //         })
-            //         .then(res => {
-                        
-            //             this.relateStationList = this.relationFeatures[this.selectFeature.get("id")]
-                        
-            //         });
-            // }
+            this.setLinkStyle();
+        },
+        relationFeatures(b) {
+            console.log(1111111,b);
         }
     }
 };
@@ -252,7 +280,6 @@ export default {
         justify-content: space-between;
     }
 
-  
     .item {
         i {
             font-size: 14px;
