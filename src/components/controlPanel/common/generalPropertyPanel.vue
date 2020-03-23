@@ -298,6 +298,7 @@ export default {
       });
     },
     async beginEdit() {
+      await this.$store.commit('setPanelExtent', {editPanel: true})
       this.editting = true;
       if (this.hasGeo) {
         let res;

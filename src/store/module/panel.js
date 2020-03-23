@@ -122,7 +122,11 @@ const user = {
     /** panel 扩展数据 */
     extent: null
   },
-  mutations: {},
+  mutations: {
+    setPanelExtent(state, param) {
+      state.extent = param;
+    },
+  },
   actions: {
     replace({ state }, { path, extent }) {
       state.extent = extent;
@@ -172,7 +176,8 @@ const user = {
 
     setLayerListVisible({ state }, b){
       state.routMap.layerlist.visible = b
-    }
+    },
+
   },
   getters: {
     /*FIXME: vue.runtime.esm.js?2b0e:619 [Vue warn]: Error in callback for watcher "function () { return getter(this$1.state, this$1.getters); }": "
@@ -210,8 +215,14 @@ import("@/store").then(m => {
           return ;
         }
         console.log("clear rightPanel");
-        
-        store.dispatch("clear", { position: "right" });
+        const rightPanelName = store.state.panel.panelComponent.right
+        const extent = store.state.panel.extent;
+        console.log(rightPanelName)
+        if (rightPanelName != 'commPropertyPanel' && typeof extent === 'object' && 'editPanel' in extent && extent['editPanel'] === true) { // 通过select取消的不包裹通用属性面板(编辑状态）
+         // don't not anything
+        } else {
+          store.dispatch("clear", { position: "right" });
+        }
         
       }
     }
