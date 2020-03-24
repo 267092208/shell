@@ -49,7 +49,6 @@ const selectFeature = {
       const { feature, layer } = param;
       if (!feature || !layer) return;
       const state = context.state;
-      console.log(feature.getProperties());
       //  判断传入的要素已经被选择
       const fs = state.selectFeature
         ? [state.selectFeature]

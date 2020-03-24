@@ -48,7 +48,6 @@
         :pagination-show="false"
         border
         use-virtual
-        @current-change="selectRow"
         cell-class-name="setfont"
         :row-height="25"
         @cell-dblclick="editrow"
@@ -309,7 +308,13 @@
       :historyLoading="historyLoading"
       :historyVisible.sync="historyVisible"
     />
-    <pos-control v-if="loading===false" @updateLngLat="updateTableRowWithLnglat"  :dialogVisible.sync="posCrtVisble" :editPoint="getEditPoint" :data='saveRow' ></pos-control>
+    <pos-control
+      v-if="loading===false"
+      @updateLngLat="updateTableRowWithLnglat"
+      :dialogVisible.sync="posCrtVisble"
+      :editPoint="getEditPoint"
+      :data="saveRow"
+    ></pos-control>
   </div>
 </template>
 <script>
@@ -323,19 +328,19 @@ import History from "@/components/tableDialog/history.vue";
 import posControl from "@/components/tableDialog/posControl";
 import tableData from "@/data/table";
 import { FromMSJsonString, DateFormat } from "@/utils/date";
-import gcoord from 'gcoord'
+import gcoord from "gcoord";
 import { propertys, dateFields } from "@/config/layer/fields";
 
 export default {
   filters: {
-    fomatter: function (val, label, layerId) {
-      if (!val) return ''
-      if (typeof val === 'string' && val.includes("/Date")) {
+    fomatter: function(val, label, layerId) {
+      if (!val) return "";
+      if (typeof val === "string" && val.includes("/Date")) {
         let date = FromMSJsonString(val);
-        if (label === '开始时间') return DateFormat(date, 'hh:mm:ss')
-        else if (label === '日期') return DateFormat(date, 'yyyy-MM-dd')
+        if (label === "开始时间") return DateFormat(date, "hh:mm:ss");
+        else if (label === "日期") return DateFormat(date, "yyyy-MM-dd");
         else {
-          const dfs = dateFields[layerId]
+          const dfs = dateFields[layerId];
           // 日期类型转换
           const date = FromMSJsonString(val);
           if (date) {
@@ -499,7 +504,7 @@ export default {
       MAlist: [],
       citySelect: "",
       MaSelect: "",
-      currentRow: null,
+      saveRow: null,
       saveLayer: null,
       showEdit: false,
       isEditEnd: false,
@@ -523,37 +528,41 @@ export default {
     }),
     getTableTitle() {
       if (this.currentLayer) {
-        return this.getTableName
+        return this.getTableName;
       } else {
-        return 'undefined'
+        return "undefined";
       }
     },
     computOccupyTableId() {
-      if (this.occupyTableId) return this.occupyTableId
-      else if (this.getTableId() == null) { // 需要缓存， in now
-        return this.$ls.get('occupyTableId')
-      }
-      else return null;
+      if (this.occupyTableId) return this.occupyTableId;
+      else if (this.getTableId() == null) {
+        // 需要缓存， in now
+        return this.$ls.get("occupyTableId");
+      } else return null;
     },
     getTableName() {
-      const id = this.getTableId() || this.computOccupyTableId
+      const id = this.getTableId() || this.computOccupyTableId;
       switch (id) {
-        case 'traffic': return 'corridor车流表';
-        case 'xyyz': return '现有油站';
-        case 'nti': return 'NTI';
+        case "traffic":
+          return "corridor车流表";
+        case "xyyz":
+          return "现有油站";
+        case "nti":
+          return "NTI";
         default: {
           if (this.currentLayer) return this.currentLayer.name;
-          else return id
+          else return id;
         }
       }
-
     },
     getEditPoint() {
       if (this.saveRow) {
-        if (this.saveRow.lng_baidu === 0 && this.saveRow.lat_baidu === 0) return undefined;
-        else return [this.saveRow.lng_baidu, this.saveRow.lat_baidu]
+        if (this.saveRow.lng_baidu === 0 && this.saveRow.lat_baidu === 0)
+          return undefined;
+        else return [this.saveRow.lng_baidu, this.saveRow.lat_baidu];
+      } else {
+        return undefined;
       }
-      else { return undefined }
     },
     //修改位置, 删除, 跳转到地图, 历史记录, 导出
     showToolBtn() {
@@ -617,7 +626,8 @@ export default {
   },
   methods: {
     isBadRow(row, isFirstField) {
-      if ("lng_baidu" in row) { // 在拥有位置的row 启用该提示
+      if ("lng_baidu" in row) {
+        // 在拥有位置的row 启用该提示
         if (isFirstField) {
           return (
             (row.lng_baidu == 0 ||
@@ -641,11 +651,13 @@ export default {
             .delTableForRow(this.getTableId(), [this.saveRow])
             .catch(err => err);
           if (typeof res === "boolean") {
-            if ('ID' in this.saveRow) {
-              let index = this.tableData.findIndex(({ ID }) => this.saveRow.ID === ID)
+            if ("ID" in this.saveRow) {
+              let index = this.tableData.findIndex(
+                ({ ID }) => this.saveRow.ID === ID
+              );
               index != -1 && this.tableData.splice(index, 1);
             } else {
-              let index = this.tableData.indexOf(this.saveRow)
+              let index = this.tableData.indexOf(this.saveRow);
               index != -1 && this.tableData.splice(index, 1);
             }
             this.$message.success({ message: "删除成功!", offset: 60 });
@@ -664,6 +676,13 @@ export default {
         });
     },
     clickRow(row, column, event) {
+      if (this.saveRow) {  // 查看是否是取消选中
+        if (this.saveRow.ID === row.ID) {
+          // this.$refs.plTable.clearSelection();//FIXME: 暂时没多选
+          this.saveRow = null;
+          return;
+        }
+      }
       this.saveRow = row;
       /**
        * 如果当前行会无坐标行， 让用户先选择行
@@ -672,22 +691,34 @@ export default {
       if (this.isBadRow(row, true)) {
         this.posCrtVisble = true;
       }
-      // this.$nextTick()
     },
     /**
      * 必须记住当tableId 不等于currentLayerId的时候，有跳转选中要通过row.ID获取图层和feature信息
      */
     async jumpToMap() {
       if (this.saveRow.lng_baidu && this.saveRow.lat_baidu) {
-        const [lng, lat] = gcoord.transform([this.saveRow.lng_baidu, this.saveRow.lat_baidu], gcoord.WGS84, gcoord.EPSG3857);
-        const res = await this.$store.dispatch('getFeature', { layerId: this.getTableId(), ID: this.saveRow.ID });
+        const [lng, lat] = gcoord.transform(
+          [this.saveRow.lng_baidu, this.saveRow.lat_baidu],
+          gcoord.BD09,
+          gcoord.EPSG3857
+        );
+        const res = await this.$store.dispatch("getFeature", {
+          layerId: this.getTableId(),
+          ID: this.saveRow.ID
+        });
         if (res != null) {
           // await this.$store.dispatch('setSelectMode', 'single');
-          const layer = this.base.find(item => this.getTableId() === item.id)
-          await this.$store.dispatch('selectFeatureAndLayer', { feature: res, layer: layer });
+          const layer = this.base.find(item => this.getTableId() === item.id);
+          await this.$store.dispatch("selectFeatureAndLayer", {
+            feature: res,
+            layer: layer
+          });
         }
-        await this.$store.dispatch('setMapCenter', { x: lng, y: lat });
-        await this.$store.dispatch('setMapZoom', Math.max(Math.min(15, this.$store.state.mapState.zoom), 5));
+        await this.$store.dispatch("setMapCenter", { x: lng, y: lat });
+        await this.$store.dispatch(
+          "setMapZoom",
+          Math.max(Math.min(15, this.$store.state.mapState.zoom), 5)
+        );
       }
       await this.$router.push("/");
     },
@@ -695,11 +726,13 @@ export default {
     async editForSearchKey(row, col, cellValue, index) {
       /** 获取当前值 */
       let val;
-      if (row === "headSearchKey") { // table head 布尔值column 处理
+      if (row === "headSearchKey") {
+        // table head 布尔值column 处理
         // 与headSearchKey标记相同
         val = this.searchKey[col["property"]];
       } else {
-        if (col.label in this.searchKey) {  // table body 布尔值column 处理
+        if (col.label in this.searchKey) {
+          // table body 布尔值column 处理
           let fields = this.fixColumn.concat(this.sortColumns);
           let field = fields.find(item => {
             return item instanceof Array && item[0] === col.label;
@@ -709,20 +742,22 @@ export default {
           else val = row[col.label];
         }
       }
-      
+
       /** 获取应得的值 */
       let buff;
       if (val == null) buff = true;
       else if (val === true) buff = false;
       else if (val === false) buff = undefined;
       /**table head and table body 对应处理 */
-      if (row === "headSearchKey") { // table head
+      if (row === "headSearchKey") {
+        // table head
         this.searchKey[col["property"]] = buff;
         this.$refs[`headIcon_${col["property"]}`].forEach(item => {
           item.className = this.checkboxClass(buff);
         });
         await this.refreshTableDataBySearchKey();
-      } else if (col.label in this.searchKey) { // table body
+      } else if (col.label in this.searchKey) {
+        // table body
         row[col.label] = buff;
         await tableData.updateTableForRow(this.getTableId(), row);
       }
@@ -801,7 +836,7 @@ export default {
      * @param {number} rowId
      */
     updateTableRowWithLnglat(lnglat, rowId) {
-      const row = this.tableData.find(item => item.ID === rowId)
+      const row = this.tableData.find(item => item.ID === rowId);
       if (row) {
         row.lng_baidu = lnglat[0];
         row.lat_baidu = lnglat[1];
@@ -964,7 +999,7 @@ export default {
           filter.push(this.filters[layerid]);
         }
         result = await tableData.exportTable(layerid, { querys: filter });
-      } // end else 
+      } // end else
       window.open(result.path);
       this.exportting = false;
     },
@@ -1266,7 +1301,9 @@ export default {
             this.loading = true;
             this.optionsSelected = undefined;
             let useId =
-              this.computOccupyTableId != null ? `${this.computOccupyTableId}` : `${id}`;
+              this.computOccupyTableId != null
+                ? `${this.computOccupyTableId}`
+                : `${id}`;
             if (this.optionTableCollections.has(useId)) {
               const {
                 resultDate,
@@ -1377,7 +1414,7 @@ export default {
           break;
         case "target":
           {
-            console.log(this.computOccupyTableId)
+            console.log(this.computOccupyTableId);
             this.loading = true;
             this.optionsSelected = undefined;
             if (this.optionTableCollections.has(this.computOccupyTableId)) {
@@ -1451,7 +1488,9 @@ export default {
                   originalFileds,
                   sortColumns,
                   fixColumn
-                } = this.optionTableCollections.get(`${this.computOccupyTableId}`);
+                } = this.optionTableCollections.get(
+                  `${this.computOccupyTableId}`
+                );
                 this.resultDate = resultDate;
                 this.tableData = tableData;
                 this.tablelength = tablelength;
@@ -1569,9 +1608,6 @@ export default {
     tableSizeChange(val) {
       this.tableSize = val;
     },
-    selectRow(row, oldRow) {
-      this.currentRow = row;
-    },
     getTableId() {
       let layerId, id;
       if (this.currentLayer) {
@@ -1590,9 +1626,9 @@ export default {
     },
     positionInMap() {
       // this.$store.dispatch("setMapCenter", { x, y });
-      if (this.currentRow) {
+      if (this.saveRow) {
         this.resultDate.forEach(data => {
-          if (data.id == this.currentRow.ID) {
+          if (data.id == this.saveRow.ID) {
             let x = data.geometry.coordinates[0];
             let y = data.geometry.coordinates[1];
             this.$store.dispatch("setMapCenter", { x, y });
@@ -1606,7 +1642,7 @@ export default {
      * 包含：'MA的油品信息'
      */
     editrow(row, column, cell, event) {
-      this.selectTd && this.selectTd.classList.remove('EditCell')
+      this.selectTd && this.selectTd.classList.remove("EditCell");
       if (this.optionsSelected != "油品信息") {
         this.showEdit = true;
         this.isEditEnd = false;
@@ -1642,14 +1678,14 @@ export default {
       let id = row["ID"];
       tableData
         .updateTableForRow(layerId, id, model)
-        .then(res => { })
-        .catch(e => { });
+        .then(res => {})
+        .catch(e => {});
     },
     showHistroy() {
       this.historyVisible = true;
       this.historyLoading = true;
       this.historyData = [];
-      getHistory(this.currentRow.ID)
+      getHistory(this.saveRow.ID)
         .then(res => {
           this.historyLoading = false;
           res.forEach(item => {
@@ -1667,10 +1703,11 @@ export default {
         "el-table__body-wrapper"
       )[0];
       //绑定事件
-      DIVscroll && DIVscroll.addEventListener("scroll", () => {
-        this.testData = DIVscroll.scrollLeft / 116.5;
-        tabelscroll.scrollLeft = DIVscroll.scrollLeft % 116.5;
-      });
+      DIVscroll &&
+        DIVscroll.addEventListener("scroll", () => {
+          this.testData = DIVscroll.scrollLeft / 116.5;
+          tabelscroll.scrollLeft = DIVscroll.scrollLeft % 116.5;
+        });
     },
     // 队列: '' ascending descending
     testsort(column, prop, lastOrder) {
@@ -1728,16 +1765,14 @@ export default {
     },
     currentLayer(val) {
       if (val) {
-        this.loading = true;
         this.checkdata();
       }
-    },
+    }
   },
 
   beforeRouteEnter(to, from, next) {
     next(vm => {
       if (vm.currentLayer) {
-        vm.loading = true;
         vm.fixColumn = [];
         vm.checkdata();
       }
