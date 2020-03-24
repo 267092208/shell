@@ -57,7 +57,6 @@ const mixin = {
         getTrueFields(isadd) {
             let buff = [];
             let fields, id;
-            console.log(this.selectFeatureLayer.fields)
             if (isadd) {
                 fields = this.currentLayer.fields
                 id = this.currentLayer.id;
