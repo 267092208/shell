@@ -32,12 +32,11 @@ const symbolConverter = {
       anchor: symbol.anchor || [0.5, 0.5],
       ...extRender
     };
-    console.log(symbol, symbol.width, symbol.height);
     return new Style({
       image: new Icon({
         src: symbol.url,
-        imgSize: [symbol.width, symbol.height],
-        size: [symbol.width, symbol.height],
+        // imgSize: [symbol.width, symbol.height],
+        // size: [symbol.width, symbol.height],
         ...extRender,
         opacity: symbol.opacity || 1
       })
@@ -137,6 +136,7 @@ const symbolConverter = {
  */
 const converterStyle = {
   "class-break": function(render, extRender) {
+    //TODO:无考虑
     const styles = [];
     const renderType = render.type;
     const defaultStyle = symbolConverter[render.defaultSymbol.type](

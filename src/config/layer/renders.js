@@ -1375,80 +1375,76 @@ const renders = {
           ]
         },
         {
-          name: "按是否目标站",
+          //目标
+          name: "按是否目标站(是否目标+是否CRT)",
           type: "unique-value",
-          field: "target-是否目标站",
+          field: "是否目标+是否CRT",
           defaultSymbol: {
             type: "picture-marker",
-            url: "/images/tgz.png", //url不能为空
-            width: 20,
-            height: 20,
-            xoffset: 10,
-            yoffset: 10,
-            anchor: "center"
+            url: "11111", //url不能为空
+            width: 0,
+            height: 0,
+            anchor: [0.8, 0.5]
           },
           "unique-value": [
             {
-              value: true,
+              //做偏移
+              value: "目标油站+CRT",
               symbol: {
                 type: "picture-marker",
                 url: "/images/tgz.png",
                 width: 20,
                 height: 20,
-                xoffset: 10,
-                yoffset: 10,
                 scale: 0.7,
-                anchor: [1, -1]
+                anchor: [0.8, 0.5]
               }
             },
             {
-              value: false,
+              //不偏移
+              value: "目标油站",
               symbol: {
                 type: "picture-marker",
                 url: "/images/tgz.png",
-                width: 0,
-                height: 0,
-                anchor: [0.5, 0.5]
+                width: 20,
+                height: 20,
+                anchor: [0.5, 0.5],
+                scale: 0.7
               }
             }
           ]
         },
         {
-          name: "按是否CRT",
+          name: "按是否CRT(是否目标+是否CRT)",
           type: "unique-value",
-          field: "是否CRT油站",
+          field: "是否目标+是否CRT",
           defaultSymbol: {
             type: "picture-marker",
-            url: "/images/CRT.png",
-            width: 20,
-            height: 20,
-            anchor: [-1, 0.5]
+            url: "11111",
+            width: 0,
+            height: 0,
+            anchor: [0.5, 0.5],
+            scale: 0.7
           },
           "unique-value": [
             {
-              value: "true",
+              value: "目标油站+CRT",
               symbol: {
                 type: "picture-marker",
                 url: "/images/CRT.png",
-                width: 24,
-                height: 24,
-                xoffset: 16,
-                yoffset: 16,
-                anchor: [-1, -1],
+                width: 20,
+                height: 20,
+                anchor: [0.1, 0.5],
                 scale: 0.7
               }
             },
             {
-              value: "false",
+              value: "非目标油站+CRT",
               symbol: {
                 type: "picture-marker",
                 url: "/images/CRT.png",
-                width: 0,
-                height: 0,
-                anchor: "center",
-                xoffset: 0,
-                yoffset: 16,
-                anchor: [-1, -1],
+                width: 20,
+                height: 20,
+                anchor: [0.5, 0.5],
                 scale: 0.7
               }
             }

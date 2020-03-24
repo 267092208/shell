@@ -15,7 +15,7 @@ const nti = [
     displayText: "",
     type: "string"
   },
-  
+
   {
     fieldName: "十三五规划编号",
     displayText: "十三五规划编号",
@@ -88,7 +88,6 @@ const nti = [
     displayText: "目标站状态",
     type: "string",
     enum: ["优先", "跟进", "暂不跟进", "待定", "无"]
-
   },
   {
     fieldName: "情况简述",
@@ -115,17 +114,14 @@ const nti = [
     displayText: "网络策略",
     type: "string",
     enum: ["填补空白", "网络加密"]
-
   },
-  
-  
+
   {
     fieldName: "CRT备注",
     displayText: "CRT备注",
     type: "string"
   },
- 
-  
+
   {
     fieldName: "lat_baidu",
     displayText: "纬度",
@@ -138,21 +134,6 @@ const nti = [
     type: "geometryY",
     required: true
   },
-  
-
-  
-  
- 
-  
-  
-  
- 
-  
-
- 
- 
-  
-  
   /* 扩展属性 */
   {
     fieldName: "是否目标+是否CRT",

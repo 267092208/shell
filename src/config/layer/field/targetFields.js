@@ -926,11 +926,23 @@ const target = {
       }
     },
     {
-      fieldName: "target-是否目标站",
+      fieldName: "是否目标站",
       displayText: "",
       type: "boolean",
       get() {
         return this["目标"];
+      }
+    },
+    {
+      fieldName: "是否目标+是否CRT",
+      displayText: "",
+      type: "string",
+      get() {
+        if (this["是否目标站"]) {
+          return this["是否CRT油站"] ? "目标油站+CRT" : "目标油站";
+        } else {
+          return this["是否CRT油站"] ? "非目标油站+CRT" : "非目标油站";
+        }
       }
     }
   ],
@@ -1103,14 +1115,6 @@ const target = {
       type: "string",
       get() {
         return "nti";
-      }
-    },
-    {
-      fieldName: "target-是否目标站",
-      displayText: "",
-      type: "boolean",
-      get() {
-        return this["是否目标站"];
       }
     },
     {
