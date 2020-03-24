@@ -129,8 +129,7 @@ const extLayerStyle = {
               width: 24,
               height: 24,
               xoffset: 0,
-              yoffset: 16,
-              scale: 0.7
+              yoffset: 16
             }
           }
         ]
@@ -255,8 +254,7 @@ const extLayerStyle = {
               width: 24,
               height: 24,
               xoffset: 0,
-              yoffset: 16,
-              scale: 0.7
+              yoffset: 16
             }
           }
         ]
@@ -381,8 +379,7 @@ const extLayerStyle = {
               width: 24,
               height: 24,
               xoffset: 0,
-              yoffset: 16,
-              scale: 0.7
+              yoffset: 16
             }
           }
         ]

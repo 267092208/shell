@@ -235,15 +235,22 @@ export default {
       selectFeatures: state => state.selectFeature.selectFeatures,
       selectFeatureLayer: state => state.selectFeature.selectFeatureLayer,
     }),
+    isChoice() {
+      return (
+        this.selectFeatures.length >
+        0 && this.selectFeatureLayer.id === this.currentLayer.id
+      );
+    },
+    choiceOnce() {
+      return (
+        this.selectFeatures.length === 1 && this.selectFeatureLayer.id === this.currentLayer.id
+      );
+    },
     isChoiceMA() { 
-      if (this.currentLayer  && this.currentLayer.id === 'ma' && this.selectFeatureLayer)
-        return this.selectFeatureLayer.id === 'ma' && this.selectFeatures.length > 0;
-      else return false;
+        return this.selectFeatures.length > 0 && this.selectFeatureLayer.id === 'ma' 
     },
     choiceOnceMA() {
-      if (this.currentLayer && this.currentLayer.id === 'ma' && this.selectFeatureLayer)
-        return this.selectFeatureLayer.id === 'ma' && this.selectFeatures.length === 1;
-      else return false
+        return  this.selectFeatures.length === 1 && this.selectFeatureLayer.id === 'ma'
     },
   },
   methods: {
@@ -251,7 +258,7 @@ export default {
       this.$store.dispatch("replace", { path: "addMA" });
     },
      delChoiceLayer() {
-      if (this.isChoiceMA > 0) {
+      if (this.isChoiceMA) {
         this.$confirm(
           `是否删除选中的${this.selectFeatures.length}个MA`,
           "警告",

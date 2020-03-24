@@ -2,12 +2,13 @@ import { map } from "./map";
 import GeoJSON from "ol/format/GeoJSON";
 import Feature from "ol/Feature";
 import Circle from "ol/geom/Circle";
+import VectorLayer from "ol/layer/Vector";
+
 /**
  * 后台获取到的源数据转换成openlayers适用的矢量图层元素
  * @param {*} layerSource
  */
 function toVectorFeature(layerSource) {
-
   const { geojsonObject, features } = toGeoJSON(layerSource);
   let vectorFeature = new GeoJSON().readFeatures(
     geojsonObject
@@ -18,7 +19,7 @@ function toVectorFeature(layerSource) {
   );
   features.forEach(f => {
     vectorFeature.push(f);
-  })
+  });
 
   return vectorFeature;
 }
@@ -26,6 +27,7 @@ function toVectorFeature(layerSource) {
 /**
  * 通过id获取到openlayers的指定图层
  * @param {*} id
+ * @returns {VectorLayer}
  */
 function getLayerOL(id) {
   let layerList = map.getLayers().getArray();
@@ -89,10 +91,10 @@ function toGeoJSON(sources) {
     //   id: t.id,
     //   properties
     // });
-    let feature = new Feature()
+    let feature = new Feature();
     feature.setGeometry(new Circle(geometry[0], geometry[1]));
-    feature.setProperties(properties)
-    return feature
+    feature.setProperties(properties);
+    return feature;
   });
 
   return {
