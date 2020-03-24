@@ -4,6 +4,7 @@ import { propertys, dateFields } from "@/config/layer/fields";
 import { FromMSJsonString, DateFormat } from "@/utils/date";
 import qs from "qs";
 import gcoord from "gcoord"
+import roadnetwork from "@/config/layer/field/roadnetworkFields";
 /**
  * 查询指定图层的数据
  * 并转为geofeature格式
@@ -55,8 +56,15 @@ async function add(layerid, feature) {
   } else { /**通例 */
     result = await axios.post(`/dataPages/${layerid}/Handler.ashx?action=update`, { model });
   }
-  feature.id = result.data.newId;
-  feature.properties.ID = result.data.newId;
+  if (layerid === 'roadnetwork') {
+    feature.id = result.data.geoID;
+    feature.properties.ID = result.data.geoID;
+    feature.properties.InfoID = result.data.infoID
+  }
+  else {
+    feature.id = result.data.newId;
+    feature.properties.ID = result.data.newId;
+  }
   updateFeatureProperties(feature.properties, layerid);
 
   if (layerid === 'xzqh' || layerid === 'roadnetwork') return result.data;

@@ -90,6 +90,19 @@
                     class="iconfont icon-exit-door icon"
                   ></el-avatar>
                 </el-row>
+                <el-row
+                  type="flex"
+                  justify="center"
+                  align="center"
+                  class="text-btn"
+                  v-show="beginShape"
+                >
+                <div>
+                  要删除节点,<br/>>
+                  按住alt键,<br/>
+                  点击节点,<br/>
+                </div>
+                </el-row>
               </el-row>
               <el-footer height="20px" class="grounp-footer">调整形状</el-footer>
             </div>
@@ -129,7 +142,6 @@ export default {
         path_baidu, ID, Name, ParentId, 人口, GDP, GDP增速, 汽车保有量, 汽车保有量增速, 第一产业比重, 第二产业比重, 第三产业比重, 人均收入, GDP排名, F_20, F_19, F_18, F_17, F_16, F_15, F_14, F_13, F_12, F_11, F_10, F_9, F_8, F_7, F_6, F_5, F_4, F_3, F_2, F_1, F_
       }
       const geometry = this.geometryInstance.getFeature().getGeometry()
-      console.log(geometry);
       await this.$store.dispatch('updateLayerFeature', { layerid: 'xzqh', feature:  {
                 id: model.ID, 
                 geometry: {

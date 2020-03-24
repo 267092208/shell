@@ -77,11 +77,7 @@
               <el-row type="flex">
                 <el-col :span="8" class="picker-btn">
                   <div class="icon-title">边框颜色:</div>
-                  <el-color-picker
-                    v-model="strokeColor"
-                    size="small"
-                    class="color-picker picker"
-                  ></el-color-picker>
+                  <el-color-picker v-model="strokeColor" size="small" class="color-picker picker"></el-color-picker>
                 </el-col>
                 <el-col :span="8" class="picker-btn">
                   <div class="icon-title">填充颜色:</div>
@@ -213,7 +209,7 @@
 <script>
 import { mapState } from "vuex";
 import mixin from "@/components/controlPanel/mixin/commLayerMixin";
-import { rgbToHex } from '@/utils/hexRgba'
+import { rgbToHex } from "@/utils/hexRgba";
 
 export default {
   mixins: [mixin],
@@ -248,8 +244,12 @@ export default {
         path: "commAddPanel",
         extent: {
           strokeColor: this.strokeColor,
-          fillColor: this.fillColor,
-          strokeStyle: this.strokeStyle
+          fillColor: this.fillColor.includes("rgb")
+                ? rgbToHex(this.fillColor).hex
+                : this.fillColor,
+          strokeStyle: this.strokeStyle,
+          geometry: this.geometry,
+          mode: this.mode
         }
       });
       // let geometry = await this.$store.dispatch("getGeometry", {
@@ -263,6 +263,7 @@ export default {
         drawMode: mode
       });
       geometry.on("update", async e => {
+        // console.log(e);
         if (e.type === "addfeature") {
           const style = await this.$store.dispatch("getFeatureStyle", {
             strokeColor: this.strokeColor,
@@ -271,16 +272,20 @@ export default {
             fillOpacity: 0.5
           });
           geometry.getFeature().setStyle(style);
-        this.geometry = geometry;
+          this.geometry = geometry;
           await this.$store.dispatch("replace", {
             path: "commAddPanel",
             extent: {
               strokeColor: this.strokeColor,
-              fillColor: this.fillColor.includes('rgb') ? rgbToHex(this.fillColor).hex : this.fillColor,
-              strokeStyle: this.strokeStyle
+              fillColor: this.fillColor.includes("rgb")
+                ? rgbToHex(this.fillColor).hex
+                : this.fillColor,
+              strokeStyle: this.strokeStyle,
+              geometry,
+              mode
             }
           });
-        }
+        } // end if addfeature
       }); // end on
     },
     init() {
@@ -313,10 +318,11 @@ export default {
       // statusList: [{name: '显示十三五规划编号', visible: false}],
       exportBatchLayerVisible: false,
       importLayerCtrlVisible: false,
-      importBatchLayerVisible: false,
+      importBatchLayerVisible: false
     };
   },
   deactivated() {
+    this.geometry && this.geometry.diable();
     this.geometry = null;
   },
   mounted() {
