@@ -24,15 +24,20 @@ import Feature from "ol/Feature";
  */
 const symbolConverter = {
   "picture-marker": function(symbol, extRender) {
+    if (symbol.anchor == "center") {
+      symbol.anchor = [0.5, 0.5];
+    }
     extRender = {
-      anchor: [0.5, 0.5],
       scale: symbol.scale || 1,
+      anchor: symbol.anchor || [0.5, 0.5],
       ...extRender
     };
+    console.log(symbol, symbol.width, symbol.height);
     return new Style({
       image: new Icon({
         src: symbol.url,
         imgSize: [symbol.width, symbol.height],
+        size: [symbol.width, symbol.height],
         ...extRender,
         opacity: symbol.opacity || 1
       })
@@ -132,7 +137,7 @@ const symbolConverter = {
  */
 const converterStyle = {
   "class-break": function(render, extRender) {
-    const styles = {};
+    const styles = [];
     const renderType = render.type;
     const defaultStyle = symbolConverter[render.defaultSymbol.type](
       render.defaultSymbol,
@@ -186,8 +191,9 @@ const converterStyle = {
         return styles[kong];
       } else if (styles[value]) {
         return styles[value];
+      } else {
+        return defaultStyle;
       }
-      return defaultStyle;
     };
   },
   simple: function(render, extRender) {

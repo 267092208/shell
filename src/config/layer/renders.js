@@ -636,7 +636,7 @@ const renders = {
         strokeWeight: 4,
         strokeOpacity: 1
       },
-      classBreakInfos: [
+      "class-break": [
         {
           minValue: 0,
           maxValue: 1000,
@@ -1381,34 +1381,34 @@ const renders = {
           defaultSymbol: {
             type: "picture-marker",
             url: "/images/tgz.png", //url不能为空
-            width: 0,
-            height: 0,
+            width: 20,
+            height: 20,
+            xoffset: 10,
+            yoffset: 10,
             anchor: "center"
           },
           "unique-value": [
             {
-              value: "true",
+              value: true,
               symbol: {
                 type: "picture-marker",
                 url: "/images/tgz.png",
                 width: 20,
                 height: 20,
-                anchor: "center",
                 xoffset: 10,
                 yoffset: 10,
-                scale: 0.7
+                scale: 0.7,
+                anchor: [1, -1]
               }
             },
             {
-              value: "false",
+              value: false,
               symbol: {
                 type: "picture-marker",
                 url: "/images/tgz.png",
                 width: 0,
                 height: 0,
-                anchor: "center",
-                xoffset: 10,
-                yoffset: 10
+                anchor: [0.5, 0.5]
               }
             }
           ]
@@ -1420,9 +1420,9 @@ const renders = {
           defaultSymbol: {
             type: "picture-marker",
             url: "/images/CRT.png",
-            width: 0,
-            height: 0,
-            anchor: "center"
+            width: 20,
+            height: 20,
+            anchor: [-1, 0.5]
           },
           "unique-value": [
             {
@@ -1432,8 +1432,9 @@ const renders = {
                 url: "/images/CRT.png",
                 width: 24,
                 height: 24,
-                xoffset: 0,
+                xoffset: 16,
                 yoffset: 16,
+                anchor: [-1, -1],
                 scale: 0.7
               }
             },
@@ -1447,6 +1448,7 @@ const renders = {
                 anchor: "center",
                 xoffset: 0,
                 yoffset: 16,
+                anchor: [-1, -1],
                 scale: 0.7
               }
             }
