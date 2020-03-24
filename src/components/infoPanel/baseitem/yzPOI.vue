@@ -3,7 +3,7 @@
                     <base-info-item  v-if="yzPOIVisible" >
                         <div slot="header" class="header-content">附近POI</div>
 
-                        <div slot="content">
+                        <div slot="content" v-loading="poiLoading" element-loading-text="园区数据正在加载中,请稍后">
                             <div v-if="POIData.length ==0">暂无数据</div>
                             <div
                                 class="poi-item"
@@ -17,7 +17,7 @@
                                 </div>
                                 <div class="intro">
                                     类型:
-                                    <span>{{item.类型}}</span>
+                                    <span>{{item.POI类型}}</span>
                                 </div>
                             </div>
                         </div>
@@ -27,6 +27,7 @@
 
 <script>
 import { mapState } from "vuex";
+import { getPOIInfo } from "@/data/yz";
 
 const baseInfoItem = () => import("@/components/infoPanel/common/baseInfoItem");
 
@@ -37,7 +38,8 @@ export default {
     },
     data() {
         return {
-            POIData:[]
+            POIData:[],
+            poiLoading:false
         };
     },
     computed: {
@@ -55,8 +57,12 @@ export default {
        
     },
     watch: {
-        selectFeature() {
-            if (this.selectFeature) {
+       
+      async  yzPOIVisible(visible){
+            if(visible){
+                this.poiLoading = true 
+               this.POIData = await getPOIInfo(this.selectFeature.get("id"))
+               this.poiLoading = false
             }
         }
     }
@@ -83,69 +89,12 @@ export default {
         justify-content: space-between;
     }
 
-    .noimg {
-        // width: 100%;
-        // height: 200px;
-        // background:url("~@/assets/images/noimages.jpg");
-    }
-
-    .img-list {
-        height: 200px;
-        overflow-y: auto;
-        .img-wrap {
-            position: relative;
-            .select-icon {
-                font-size: 20px;
-                position: absolute;
-                z-index: 9;
-                background-color: #67c23a;
-                bottom: 12px;
-                right: 14px;
-                color: #fff;
-                border-radius: 50%;
-                text-align: c;
-                line-height: 20px;
-            }
-        }
-
-        .station-img {
-            margin-bottom: 5px;
-            border: 3px solid $infopanel-title-bgcolor;
-            margin-right: 10px;
-
-            &:hover {
-                border: 3px solid $theme-color;
-                cursor: pointer;
-            }
-
-            .el-image-viewer__close {
-                color: $theme-header;
-                &:hover {
-                    color: $theme-color;
-                }
-            }
-
-            .el-image-viewer__actions__inner i {
-                &:hover {
-                    cursor: pointer;
-                    color: $theme-color;
-                }
-            }
-        }
-        .select {
-            &:hover {
-                border: 3px solid #fff;
-            }
-        }
-    }
-
-    .item {
-        i {
-            font-size: 14px;
-        }
-    }
-
-    .intro {
+    
+    
+    .poi-item {
+        display: flex;
+        justify-content:start;
+        .intro {
         display: inline-block;
         padding: 5px;
         margin-right: 10px;
@@ -154,5 +103,8 @@ export default {
             font-weight: 600;
         }
     }
+    }
+
+  
 }
 </style>

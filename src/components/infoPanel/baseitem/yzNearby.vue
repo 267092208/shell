@@ -1,40 +1,43 @@
 <template>
-        <div class="left-item">
-            <base-info-item  v-if="yzNearbyVisible">
-                <div slot="header" class="header-content">周边油站</div>
-                <div slot="content">
-                    <div class="intro">
-                        方圆2公里有:
-                        <span>{{infoIntro.near2kMount}}</span> 家加油站, 平均销量:
-                        <span>{{infoIntro.near2kSell}}</span>
-                    </div>
-                    <div class="intro">
-                        方圆5公里有:
-                        <span>{{infoIntro.near5kMount}}</span>家加油站, 平均销量:
-                        <span>{{infoIntro.near5kSell}}</span>
-                    </div>
-                    <div class="intro">
-                        直线距离最近的油库为:
-                        <span>{{infoIntro.nearest}}</span>
-                    </div>
+    <div class="left-item">
+        <base-info-item v-if="yzNearbyVisible">
+            <div slot="header" class="header-content">周边油站</div>
+            <div slot="content" v-loading="nearLoading" element-loading-text="周边数据正在加载中,请稍后">
+                 <div v-if="!nearInfo">暂无数据</div>
+                <div class="intro">
+                    方圆2公里有:
+                    <span>{{parseInt(nearInfo && nearInfo.r2Count)}}</span> 家加油站, 平均销量:
+                    <span>{{parseInt(nearInfo && nearInfo.r2Avg)}}</span>
                 </div>
-            </base-info-item>
-        </div>
+                <div class="intro">
+                    方圆5公里有:
+                    <span>{{parseInt(nearInfo && nearInfo.r5Avg)}}</span>家加油站, 平均销量:
+                    <span>{{parseInt(nearInfo && nearInfo.r5Count)}}</span>
+                </div>
+                <div class="intro">
+                    直线距离最近的油库为:
+                    <span>{{nearInfo && nearInfo.ykName}}</span>
+                </div>
+            </div>
+        </base-info-item>
+    </div>
 </template>
 
 <script>
 import { mapState } from "vuex";
+import { getNearInfo } from "@/data/yz";
 
 const baseInfoItem = () => import("@/components/infoPanel/common/baseInfoItem");
 
 export default {
     name: "yzNearby",
     props: {
-        yzNearbyVisible:Boolean
+        yzNearbyVisible: Boolean
     },
     data() {
         return {
-            infoIntro:null
+            nearInfo: null,
+            nearLoading: false
         };
     },
     computed: {
@@ -46,18 +49,16 @@ export default {
     components: {
         baseInfoItem
     },
-   created() {
-        if (this.selectFeature) {
-            this.infoIntro = this.selectFeature.getProperties();
-        }
-    },
-
-
+   
     methods: {},
     watch: {
-         selectFeature() {
-            if (this.selectFeature) {
-                this.infoIntro = this.selectFeature.properties;
+        async yzNearbyVisible(visible) {
+            if (visible) {
+                this.nearLoading = true;
+                this.nearInfo = await getNearInfo(this.selectFeature.get("id"));
+                console.log("this.nearInfo",this.nearInfo);
+                
+                this.nearLoading = false
             }
         }
     }
@@ -84,62 +85,9 @@ export default {
         justify-content: space-between;
     }
 
-    .noimg {
-        // width: 100%;
-        // height: 200px;
-        // background:url("~@/assets/images/noimages.jpg");
-    }
+  
 
-    .img-list {
-        height: 200px;
-        overflow-y: auto;
-        .img-wrap {
-            position: relative;
-            .select-icon {
-                font-size: 20px;
-                position: absolute;
-                z-index: 9;
-                background-color: #67c23a;
-                bottom: 12px;
-                right: 14px;
-                color: #fff;
-                border-radius: 50%;
-                text-align: c;
-                line-height: 20px;
-            }
-        }
-
-        .station-img {
-            margin-bottom: 5px;
-            border: 3px solid $infopanel-title-bgcolor;
-            margin-right: 10px;
-
-            &:hover {
-                border: 3px solid $theme-color;
-                cursor: pointer;
-            }
-
-            .el-image-viewer__close {
-                color: $theme-header;
-                &:hover {
-                    color: $theme-color;
-                }
-            }
-
-            .el-image-viewer__actions__inner i {
-                &:hover {
-                    cursor: pointer;
-                    color: $theme-color;
-                }
-            }
-        }
-        .select {
-            &:hover {
-                border: 3px solid #fff;
-            }
-        }
-    }
-
+    
     .item {
         i {
             font-size: 14px;

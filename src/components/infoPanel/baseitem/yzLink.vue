@@ -80,7 +80,7 @@ export default {
     },
     data() {
         return {
-            // relateStationList: [],
+            relationData: [],
             isIndeterminate: true,
             checkedRelateStations: [],
             checkAll: false,
@@ -191,8 +191,7 @@ export default {
                     type: "relation"
                 })
                 .then(res => {
-                    // this.relateStationList = res;
-
+                    this.checkedRelateStations = [];
                     this.$message({
                         type: "success",
                         message: "删除成功!"
@@ -218,9 +217,16 @@ export default {
                     })
                     .then(res => {
                         this.relationLoading = false;
+                        
                     });
             } else {
-                this.$store.dispatch("clearLinkFeatures", "relation");
+                this.$store
+                    .dispatch("clearLinkFeatures", "relation")
+                    .then(res => {});
+                this.$store.dispatch("setaddLinkStatus", {
+                    status: false,
+                    type: "relation"
+                });
             }
         }
     }

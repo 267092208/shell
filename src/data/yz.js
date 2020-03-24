@@ -111,3 +111,26 @@ export async function importSales (formData) {
     const result = await axios.post(url, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
     return result.data;
 }
+/**
+ * 获取油站的poi信息
+ * @param @param {*} id 油站id
+ */
+export async function getPOIInfo (id) {
+    const url = `/dataPages/poi/Handler.ashx?`;
+    const res = await axios.get(url, { params: { action: 'GetPOIInfoByYzID', id } });
+   return res.data
+    
+   
+}
+/**
+ * 获取油站的周边信息
+ * @param @param {*} id 油站id
+ */
+export async function getNearInfo (id) {
+    ////dataPages/xyyz/Handler.ashx?action=getRim&id=14846&_=1585010815038
+    const url = `/dataPages/xyyz/Handler.ashx?`;
+    const res = await axios.get(url, { params: { action: 'getRim', id } });
+   return res.data
+    
+   
+}

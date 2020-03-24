@@ -19,15 +19,19 @@ const mixin = {
     async updateRelationFeatures(type) {
       const layer = getLayerOL(this.selectFeatureLayer.id);
       let index = 0;
+      
+      let targetIndex = (this.competitorFeatures && this.competitorFeatures.length) + (this.relationFeatures && this.relationFeatures.length);
+      console.log("targetIndex",targetIndex);
+      
       const features = layer.getSource().getFeatures();
       const selectFeatureId = this.selectFeature.get("id");
-      let feature
+      let feature;
       if (type === "relation") {
         for (let i = 0; i < features.length; i++) {
-          if (this.relationFeatures && index === this.relationFeatures.length) {
+          if (index === targetIndex) {
             return;
           }
-           feature = features[i];
+          feature = features[i];
 
           if (selectFeatureId === feature.get("id")) {
             continue;
@@ -48,6 +52,7 @@ const mixin = {
             })
           ) {
             feature.setStyle(linkFeatureStyle(feature, layer, "competitor"));
+            index++;
           } else {
             feature.setStyle(null);
           }
@@ -56,10 +61,10 @@ const mixin = {
 
       if (type === "competitor") {
         for (let i = 0; i < features.length; i++) {
-          if (this.competitorFeatures && index === this.competitorFeatures.length) {
+          if (index === targetIndex) {
             return;
           }
-           feature = features[i];
+          feature = features[i];
 
           if (selectFeatureId === feature.get("id")) {
             continue;
@@ -80,6 +85,7 @@ const mixin = {
             })
           ) {
             feature.setStyle(linkFeatureStyle(feature, layer, "relation"));
+            index++;
           } else {
             feature.setStyle(null);
           }

@@ -20,7 +20,13 @@ export function linkFeatureStyle(feature, layer,type) {
   let styles = layer.getStyle(feature);
   while (styles instanceof Function) {
     styles = styles(feature);
+    
   }
+
+  if(feature.getStyle()){
+    styles = feature.getStyle()
+  }
+  
   let _styles = [];
   if (styles instanceof Array) {
     for (let i = 0; i < styles.length; i++) {
@@ -33,17 +39,32 @@ export function linkFeatureStyle(feature, layer,type) {
   let oldStyle = _styles[0];
   const geometry = feature.getGeometry();
   const [radius] = (oldStyle.getImage() && oldStyle.getImage().getImageSize()) || [32, 32];
-  _styles.push(
+  if(type === "relation"){
+    _styles.push(
     new Style({
       geometry: geometry,
       image: new RegularShape({
         radius: (radius / 4) * 3,
         points: 4,
         angle: Math.PI / 4,
-        stroke: new Stroke({ color: type==="relation"?"blue":"green", width: 2 })
+        stroke: new Stroke({ color: "blue", width: 2 })
       })
     })
   );
+  } else {
+    _styles.push(
+      new Style({
+        geometry: geometry,
+        image: new RegularShape({
+          radius: (radius / 4) * 4,
+          points: 4,
+          angle: Math.PI / 4,
+          stroke: new Stroke({ color: "green", width: 2 })
+        })
+      })
+    );
+  }
+  
   return _styles;
 }
 
