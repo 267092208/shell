@@ -45,22 +45,30 @@ const extLayerStyle = {
       name: "目标站点",
       renderer: {
         type: "unique-value",
-        field: "目标",
+        field: "是否目标+是否CRT",
         defaultSymbol: emptyMarkerSymbol,
         "unique-value": [
           {
-            value: false,
-            symbol: emptyMarkerSymbol
-          },
-          {
-            value: true,
+            //做偏移
+            value: "目标油站+CRT",
             symbol: {
               type: "picture-marker",
               url: "/images/tgz.png",
-              width: 23,
-              height: 22,
-              xoffset: 10,
-              yoffset: 10,
+              width: 20,
+              height: 20,
+              scale: 0.7,
+              anchor: [0.8, 0.5]
+            }
+          },
+          {
+            //不偏移
+            value: "目标油站",
+            symbol: {
+              type: "picture-marker",
+              url: "/images/tgz.png",
+              width: 20,
+              height: 20,
+              anchor: [0.5, 0.5],
               scale: 0.7
             }
           }
@@ -87,12 +95,14 @@ const extLayerStyle = {
         type: "unique-value",
         field: "目标",
         linkLayerIndex: 1,
-        defaultSymbol: emptyMarkerSymbol,
+        emptyMarkerSymbol,
+
+        defaultSymbol: {
+          type: "text",
+          field: "油站编号",
+          color: "#00f"
+        },
         "unique-value": [
-          {
-            value: false,
-            symbol: emptyMarkerSymbol
-          },
           {
             value: true,
             symbol: {
@@ -114,22 +124,28 @@ const extLayerStyle = {
       name: "显示CRT",
       renderer: {
         type: "unique-value",
-        field: "是否CRT油站",
+        field: "是否目标+是否CRT",
         defaultSymbol: emptyMarkerSymbol,
         "unique-value": [
           {
-            value: false,
-            symbol: emptyMarkerSymbol
-          },
-          {
-            value: true,
+            value: "目标油站+CRT",
             symbol: {
               type: "picture-marker",
               url: "/images/CRT.png",
-              width: 24,
-              height: 24,
-              xoffset: 0,
-              yoffset: 16,
+              width: 20,
+              height: 20,
+              anchor: [0.1, 0.5],
+              scale: 0.7
+            }
+          },
+          {
+            value: "非目标油站+CRT",
+            symbol: {
+              type: "picture-marker",
+              url: "/images/CRT.png",
+              width: 20,
+              height: 20,
+              anchor: [0.5, 0.5],
               scale: 0.7
             }
           }
@@ -213,12 +229,13 @@ const extLayerStyle = {
         type: "unique-value",
         field: "目标",
         linkLayerIndex: 1,
-        defaultSymbol: emptyMarkerSymbol,
+        emptyMarkerSymbol,
+        defaultSymbol: {
+          type: "text",
+          field: "油站编号",
+          color: "#00f"
+        },
         "unique-value": [
-          {
-            value: false,
-            symbol: emptyMarkerSymbol
-          },
           {
             value: true,
             symbol: {
@@ -339,12 +356,14 @@ const extLayerStyle = {
         type: "unique-value",
         field: "目标",
         linkLayerIndex: 1,
-        defaultSymbol: emptyMarkerSymbol,
+        emptyMarkerSymbol,
+
+        defaultSymbol: {
+          type: "text",
+          field: "油站编号",
+          color: "#00f"
+        },
         "unique-value": [
-          {
-            value: false,
-            symbol: emptyMarkerSymbol
-          },
           {
             value: true,
             symbol: {

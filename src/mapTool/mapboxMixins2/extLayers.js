@@ -93,10 +93,23 @@ function getExtLayerId(layerid, index) {
  * @param {*} index 扩展图层的索引
  */
 function showExtLayer(layerid, renderer, index) {
-  //获取ID  获取图层
-  const id = getExtLayerId(layerid, index);
+  //#region 采用 关联覆盖样式模式
+  if (renderer.linkLayerIndex) {
+    index = renderer.linkLayerIndex;
+    if (!renderer.linkVisible) {
+      const emptyMarkerSymbol =
+        renderer.emptyMarkerSymbol || renderer.defaultSymbol;
+      renderer = Object.assign({}, renderer, {
+        defaultSymbol: emptyMarkerSymbol
+      });
+    }
+  }
+  //#endregion
+
   //文本偏移策略
   let extRender = textanchor(layerid, index);
+  //获取ID  获取图层
+  const id = getExtLayerId(layerid, index);
   let extLayer = getLayerOL(id);
   //判断地图上是否有此图层
   if (!extLayer) {
@@ -104,14 +117,17 @@ function showExtLayer(layerid, renderer, index) {
     const layerSource = getLayerOL(layerid).getSource();
     const layerSource1 = new VectorSource();
     layerSource1.addFeatures(layerSource.getFeatures().map(t => t.clone()));
+    // 同步标签数据
+    layerSource.on("change", () => {
+      layerSource1.clear();
+      layerSource1.addFeatures(layerSource.getFeatures().map(t => t.clone()));
+    });
     extLayer = new VectorLayer({
       source: layerSource1,
       zIndex: getLayerOL(layerid).getZIndex()
       //declutter: true //标签整理
     });
     // extLayer.set("clickFn", getLayerOL(layerid).get("clickFn"));
-    // 绑定同样设置
-
     // extLayer.setProperties(getLayerOL(layerid).getProperties());
     map.addLayer(extLayer);
   }
@@ -121,8 +137,6 @@ function showExtLayer(layerid, renderer, index) {
     id: id,
     type: "symbol"
   });
-  //TODO:已经显示编号就修改编号的背景样式
-  console.log(renderer.linkLayerIndex);
 }
 
 function hideExtLayer(layerid, index) {
@@ -158,6 +172,10 @@ const mixin = {
           //判断是那种方式实现
           if (type == "extLayer") {
             if (layerVisible && visible) {
+              if (renderer.linkLayerIndex) {
+                renderer.linkVisible =
+                  layerRVs[renderer.linkLayerIndex].visible;
+              }
               showExtLayer(layerid, renderer, i);
             } else {
               hideExtLayer(layerid, i);
