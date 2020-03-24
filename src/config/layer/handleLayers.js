@@ -17,7 +17,7 @@ const handleLayers = {
       name: "目标社会站",
       render: {
         sourceID: "xyyz",
-        filterField: "是否目标站",
+        filterField: "目标",
         filterValue: true
       },
       visible: true
@@ -35,7 +35,7 @@ const handleLayers = {
       name: "非目标社会站",
       render: {
         sourceID: "xyyz",
-        filterField: "是否目标站",
+        filterField: "目标",
         filterValue: false
       },
       visible: false

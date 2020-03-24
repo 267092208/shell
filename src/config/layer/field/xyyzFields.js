@@ -30,7 +30,18 @@ const xyyz = [
     displayText: "品牌",
     type: "string",
     required: true,
-    enum: ["YC Shell", "SP", "PC", "BPPC", "IND", "CNOOC", "SC", "Caltex", "停车场", "TOPE"]
+    enum: [
+      "YC Shell",
+      "SP",
+      "PC",
+      "BPPC",
+      "IND",
+      "CNOOC",
+      "SC",
+      "Caltex",
+      "停车场",
+      "TOPE"
+    ]
   },
   {
     fieldName: "lat_baidu",
@@ -547,7 +558,9 @@ const xyyz = [
     displayText: "",
     type: "string",
     get() {
-      const isclose = (this["经营状况"] === "停业" || this["经营状况"] === "在建") && this["短期重开"] != true;
+      const isclose =
+        (this["经营状况"] === "停业" || this["经营状况"] === "在建") &&
+        this["短期重开"] != true;
       return `${this["品牌"]}-${isclose}`;
     }
   },
@@ -574,7 +587,9 @@ const xyyz = [
     displayText: "日销量",
     type: "number",
     get() {
-      return round1((this["Actual日销量_柴油"] || 0) + (this["Actual日销量_汽油"] || 0));
+      return round1(
+        (this["Actual日销量_柴油"] || 0) + (this["Actual日销量_汽油"] || 0)
+      );
     }
   },
   {
@@ -641,7 +656,10 @@ const xyyz = [
         return "Sec";
       } else if (AV7 >= 10 && AW7 < 10) {
         return "Sec";
-      } else if ((AV7 >= 8 && AV7 <= 12 && AW7 >= 10) || (AW7 >= 10 && AW7 <= 12 && AV7 >= 8)) {
+      } else if (
+        (AV7 >= 8 && AV7 <= 12 && AW7 >= 10) ||
+        (AW7 >= 10 && AW7 <= 12 && AV7 >= 8)
+      ) {
         return "SSec";
       } else {
         return "Prime";
@@ -660,7 +678,8 @@ const xyyz = [
       var w2 = this["网络类型2"];
       var st = this["开始时间"];
       var min = this["数车时长"];
-      var sc = (this["实测车流_汽油车"] || 0) + (this["实测车流_摩托车"] || 0) / 7;
+      var sc =
+        (this["实测车流_汽油车"] || 0) + (this["实测车流_摩托车"] || 0) / 7;
       var v = "汽油车";
       var r1 = getCl(sc, v, w1, st, min);
       var r2 = getCl(sc, v, w2, st, min);
@@ -887,6 +906,27 @@ const xyyz = [
     get() {
       return "Point";
     }
+  },
+  /* 扩展属性 */
+  {
+    fieldName: "是否目标+是否CRT",
+    displayText: "",
+    type: "string",
+    get() {
+      if (this["目标"]) {
+        return this["是否CRT油站"] ? "目标油站+CRT" : "目标油站";
+      } else {
+        return this["是否CRT油站"] ? "非目标油站+CRT" : "非目标油站";
+      }
+    }
+  },
+  {
+    fieldName: "数据源图层ID",
+    displayText: "",
+    type: "string",
+    get() {
+      return "xyyz";
+    }
   }
 ];
 
@@ -904,7 +944,8 @@ function IsGsYz(rowData) {
 
 //车流计算
 function getCl(num, vehicle, type, startTime, mins) {
-  if (!type || !num || !startTime || !mins || !vehicle || !startTime.getHours) return 0;
+  if (!type || !num || !startTime || !mins || !vehicle || !startTime.getHours)
+    return 0;
   var list = trafficFlowTable[vehicle][type];
   var t = startTime.getHours();
   var sl = num * (60 / mins); //实测1小时车流
