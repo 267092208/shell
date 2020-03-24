@@ -469,7 +469,7 @@ export default {
         this.fields = this.getTrueFields(true); // 添加模式
         this.isEdit = false;
         this.editting = false;
-        this.resetForm("form");
+        this.$refs['form'].resetFields();
         for (let item of this.fields) {
           form[item.fieldName] = item.type === "boolean" ? true : "";
           if (item.fieldName === "组团评级") {
@@ -532,7 +532,9 @@ export default {
     // 初始化
     this.hasGeo = false;
     try {
-      this.$refs["form"].resetFields();
+      // this.$refs["form"].resetFields();
+      this.form = {};
+      this.fields = {};
       this.endPoint();
       this.isEdit = false;
       this.editting = false;
