@@ -2,34 +2,47 @@ import { mapState } from "vuex";
 import { map } from "./map";
 import VectorLayer from "ol/layer/Vector";
 import VectorSource from "ol/source/Vector";
-import { Text, Fill, Circle as CircleStyle, Style, Stroke } from "ol/style";
 import { createdRenderer } from "../layerManager.js";
 import { getLayerOL } from "./utils";
 
-/// TODO:扩展图层目前仅考虑文本和图标符号
+///TODO:扩展图层目前仅考虑文本和图标符号
+///FIXME: 图标符号 会挡住 图层的点击事件
 
 const textanchors = [
   {
-    "text-anchor": "left",
-    "text-offset": [1, 0]
+    //left
+    textAlign: "left",
+    textBaseline: "middle",
+    offsetX: 14,
+    offsetY: 0
   },
   {
-    "text-anchor": "top",
-    "text-offset": [0, 1]
+    //right
+    textAlign: "right",
+    textBaseline: "middle",
+    offsetX: -14,
+    offsetY: 0
   },
   {
-    "text-anchor": "right",
-    "text-offset": [-1, 0]
+    //top
+    textAlign: "center",
+    textBaseline: "top",
+    offsetX: 0,
+    offsetY: 14
+  },
+  {
+    //bottom
+    textAlign: "center",
+    textBaseline: "bottom",
+    offsetX: 0,
+    offsetY: -14
   }
 ];
-
 /**
  * 文本方位策略的使用情况
  * @type {{[layerid:string]:{[index:number]:number}}}
  */
 const textanchorsUse = {};
-let align = null;
-
 /**
  * 查找并设置文本位置策略
  * @param {*} layerid
@@ -51,11 +64,9 @@ function textanchor(layerid, index) {
       }
     }
   }
-
   setTextanchor(layerid, index, c);
   return textanchors[c];
 }
-
 /**
  * 记录文本位置策略
  * @param {*} layerid
@@ -65,7 +76,6 @@ function textanchor(layerid, index) {
 function setTextanchor(layerid, index, textanchorIndex) {
   const tuse = textanchorsUse[layerid] || {};
   textanchorsUse[layerid] = tuse;
-
   if (textanchorIndex >= 0) {
     tuse[index] = textanchorIndex;
   } else {
@@ -77,169 +87,51 @@ function getExtLayerId(layerid, index) {
   return `${layerid}_extlayer_${index}`;
 }
 /**
- * 获取元素的文本样式
- * @param {*} feature 元素
- */
-function getOLText(feature) {
-  return feature && feature.getStyle().getText();
-}
-
-/**
  * 创建或显示扩展图层
  * @param {*} layerid 图层ID
  * @param {*} renderer 扩展图层的渲染器
  * @param {*} index 扩展图层的索引
  */
 function showExtLayer(layerid, renderer, index) {
-  // const source = `${layerid}_source`;
-
+  //获取ID  获取图层
   const id = getExtLayerId(layerid, index);
-  const tu = textanchor(layerid, index);
-  let align = null;
   //文本偏移策略
-  switch (tu["text-anchor"]) {
-    case "left":
-      align = "left";
-      break;
-    case "right":
-      align = "right";
-      break;
-    case "top":
-      align = "center";
-      break;
-  }
-
-  if (getLayerOL(id)) {
-    getLayerOL(id)
-      .getSource()
-      .getFeatures()
-      .forEach(item => {
-        if (item.getStyle() && getOLText(item)) {
-          getOLText(item).setOffsetX((tu["text-offset"][0] * 24) / 2 || 0);
-          getOLText(item).setOffsetY(tu["text-offset"][1] * 24 || 0);
-          getOLText(item).setTextAlign(align);
-          item.changed();
-        }
-      });
-
-    getLayerOL(id).setVisible(true);
-  } else {
-    let extRender = {};
-
-    extRender = createExtRender(renderer, layerid, index);
-
-    const layerSource = new VectorSource();
-    const originFeatures = getLayerOL(layerid)
-      .getSource()
-      .getFeatures();
-    originFeatures.forEach(item => {
-      layerSource.addFeature(item.clone());
+  let extRender = textanchor(layerid, index);
+  let extLayer = getLayerOL(id);
+  //判断地图上是否有此图层
+  if (!extLayer) {
+    //无图层创建扩展图层
+    const layerSource = getLayerOL(layerid).getSource();
+    const layerSource1 = new VectorSource();
+    layerSource1.addFeatures(layerSource.getFeatures().map(t => t.clone()));
+    extLayer = new VectorLayer({
+      source: layerSource1,
+      zIndex: getLayerOL(layerid).getZIndex()
+      //declutter: true //标签整理
     });
+    // extLayer.set("clickFn", getLayerOL(layerid).get("clickFn"));
+    // 绑定同样设置
 
-    const extLayer = new VectorLayer({
-      source: layerSource,
-      zIndex: 2
-      // declutter: true //标签整理
-    });
+    // extLayer.setProperties(getLayerOL(layerid).getProperties());
     map.addLayer(extLayer);
-
-    console.log();
-
-    if (renderer.linkLayerIndex ) {
-      //关联图层已存在，只修改关联图层某些要素的样式
-      let linkId = getExtLayerId(layerid, renderer.linkLayerIndex);
-      if (getLayerOL(linkId)) {
-        let linkStyleFun = getLayerOL(linkId).getStyleFunction();
-
-        getLayerOL(linkId)
-          .getSource()
-          .getFeatures()
-          .forEach(f => {
-            if (f.get(renderer.field)) {
-              // console.log(linkStyleFun(f).getText());
-              extRender = {
-                offsetX: linkStyleFun(f)
-                  .getText()
-                  .getOffsetX(),
-                offsetY: linkStyleFun(f)
-                  .getText()
-                  .getOffsetY(),
-                textAlign: linkStyleFun(f)
-                  .getText()
-                  .getTextAlign()
-              };
-              // f.setStyle(createdRenderer(renderer,extRender))
-
-              // f.changed()
-            }
-          });
-
-      }
-    } else {
-      extRender = createExtRender(renderer, layerid, index);
-    }
-    extLayer.setStyle(createdRenderer(renderer, extRender));
-    extLayer.setProperties({
-      id: id,
-      type: "symbol"
-    });
   }
+  extLayer.setVisible(true);
+  extLayer.setStyle(createdRenderer(renderer, extRender));
+  extLayer.setProperties({
+    id: id,
+    type: "symbol"
+  });
+  //TODO:已经显示编号就修改编号的背景样式
+  console.log(renderer.linkLayerIndex);
 }
 
 function hideExtLayer(layerid, index) {
   const id = getExtLayerId(layerid, index);
   const extLayer = getLayerOL(id);
-
   if (extLayer) {
     extLayer.setVisible(false);
   }
-
   setTextanchor(layerid, index, -1);
-}
-
-function extLayerExist(layerid, index) {
-  return !!getLayerOL(getExtLayerId(layerid, index));
-}
-
-function createExtRender(renderer, layerid, index) {
-  const tu = textanchor(layerid, index);
-  let align = null;
-  //文本偏移策略
-  switch (tu["text-anchor"]) {
-    case "left":
-      align = "left";
-      break;
-    case "right":
-      align = "right";
-      break;
-    case "top":
-      align = "center";
-      break;
-  }
-  let extRender = {};
-  if (renderer.type === "simple") {
-    extRender = {
-      offsetX: (tu["text-offset"][0] * 24) / 2,
-      offsetY: tu["text-offset"][1] * 24,
-      textAlign: align
-    };
-  } else if (renderer.type === "unique-value") {
-    const symbolType = renderer.uniqueValueInfos[1].symbol.type;
-
-    extRender = {};
-    if (symbolType === "text") {
-      extRender = {
-        offsetX: (tu["text-offset"][0] * 24) / 2,
-        offsetY: tu["text-offset"][1] * 24,
-        textAlign: align
-        // backgroundFillColor: "#FFFF00",
-        // StrokeColor: "#FF0000",
-        // padding: [0, 0.5, 0, 0.5]
-      };
-    }
-  }
-
-  return extRender;
 }
 
 const mixin = {
@@ -251,7 +143,8 @@ const mixin = {
   computed: {
     ...mapState({
       layersVisibleEx: state => state.layer.visible,
-      extLayers: state => state.layer.extLayers
+      extLayers: state => state.layer.extLayers,
+      layersRenderer: state => state.layer.renderer
     })
   },
   methods: {
@@ -261,14 +154,24 @@ const mixin = {
         const layerRVs = this.extLayers[layerid];
         const layerVisible = this.layersVisible[layerid];
         for (let i = 0; i < layerRVs.length; i++) {
-          const { renderer, visible } = layerRVs[i];
-          if (layerVisible && visible) {
-            showExtLayer(layerid, renderer, i);
-          } else {
-            hideExtLayer(layerid, i);
+          const { renderer, visible, type } = layerRVs[i];
+          //判断是那种方式实现
+          if (type == "extLayer") {
+            if (layerVisible && visible) {
+              showExtLayer(layerid, renderer, i);
+            } else {
+              hideExtLayer(layerid, i);
+            }
+          } else if (type == "extStyle") {
+            console.log(this.layersRenderer[layerid]);
+            //
           }
+          //   console.log(type);
         }
       }
+    },
+    async extRenders(layerid, renderer) {
+      // const res = await this.$store.dispatch('setLayerRender', {layerid: this.currentLayer.id, render: this.currentLayer.renderers[label]});
     }
   },
   watch: {

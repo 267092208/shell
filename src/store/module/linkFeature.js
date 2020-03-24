@@ -84,10 +84,10 @@ const linkFeature = {
       if (type === "competitor") {
         await linkData.addRelation(layerId, feature, bh, type);
 
-        context.state.relationFeatures = await linkData.getRelations(layerId, { id: feature.id, type });
+        context.state.competitorFeatures = await linkData.getRelations(layerId, { id: feature.id, type });
         // context.state.relationFeatures = Object.assign({},context.state.relationFeatures)
 
-        return context.state.relationFeatures;
+        return context.state.competitorFeatures;
       }
     },
     /**
@@ -97,13 +97,20 @@ const linkFeature = {
      */
     async delLinkFeatures(context, param) {
       const { layerId, feature, delFeatures, type } = param;
+      if (type === "relation") {
+        await linkData.removeRelation(layerId, feature, delFeatures, type);
 
-      await linkData.removeRelation(layerId, feature, delFeatures, type);
+        context.state.relationFeatures = await linkData.getRelations(layerId, { id: feature.id, type });
+        return context.state.relationFeatures;
+      }
 
-      context.state.relationFeatures = await linkData.getRelations(layerId, { id: feature.id, type });
-      // context.state.relationFeatures = Object.assign({},context.state.relationFeatures)
+      if (type === "competitor") {
+        await linkData.removeRelation(layerId, feature, delFeatures, type);
 
-      return context.state.relationFeatures;
+        context.state.competitorFeatures = await linkData.getRelations(layerId, { id: feature.id, type });
+
+        return context.state.competitorFeatures;
+      }
     }
   }
 };

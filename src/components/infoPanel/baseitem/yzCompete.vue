@@ -2,18 +2,18 @@
     <div class="left-item">
         <base-info-item v-if="yzCompeteVisible">
             <div slot="header" class="header-content">竞争油站</div>
-            <div slot="content" v-loading="relationLoading" element-loading-text="竞争油站正在加载中,请稍后">
+            <div slot="content" v-loading="competeLoading" element-loading-text="竞争油站正在加载中,请稍后">
                 <div v-if="competitorFeatures && competitorFeatures.length === 0">暂无数据</div>
                 <div v-else>
                     <el-checkbox
                         :indeterminate="isIndeterminate"
-                        v-model="checkAll"
+                        v-model="checkAllCompete"
                         @change="handleCheckAllChange"
                     >全选</el-checkbox>
                     <div style="margin: 15px 0;"></div>
 
                     <el-checkbox-group
-                        v-model="checkedRelateStations"
+                        v-model="checkedCompStations"
                         @change="handleCheckedCitiesChange"
                         class="check-group"
                     >
@@ -41,7 +41,7 @@
                         icon="el-icon-close"
                         size="mini"
                         @click="cancelAdd"
-                        :disabled="!isAddLink"
+                        :disabled="!isAddComp"
                     ></el-button>
 
                     <el-button
@@ -50,7 +50,7 @@
                         icon="el-icon-delete"
                         size="mini"
                         @click="deleteLinkStation"
-                        :disabled="!checkedRelateStations.length"
+                        :disabled="!checkedCompStations.length"
                     ></el-button>
                     <el-button
                         title="填写油站编号添加"
@@ -79,11 +79,10 @@ export default {
         return {
             // relateStationList: [],
             isIndeterminate: true,
-            checkedRelateStations: [],
-            checkAll: false,
-            isAddLink: false,
-            isCancelLink: false,
-            relationLoading: false
+            checkedCompStations: [],
+            checkAllCompete: false,
+            isAddComp: false,
+            competeLoading: false
         };
     },
     computed: {
@@ -101,14 +100,16 @@ export default {
     methods: {
         //全选
         handleCheckAllChange(val) {
-            this.checkedRelateStations = val ? this.competitorFeatures : [];
+            this.checkedCompStations = val ? this.competitorFeatures : [];
             this.isIndeterminate = false;
         },
         handleCheckedCitiesChange(value) {
             let checkedCount = value.length;
-            this.checkAll = checkedCount === this.competitorFeatures.length;
+            this.checkAllCompete =
+                checkedCount === this.competitorFeatures.length;
             this.isIndeterminate =
-                checkedCount > 0 && checkedCount < this.competitorFeatures.length;
+                checkedCount > 0 &&
+                checkedCount < this.competitorFeatures.length;
         },
 
         //通过编号添加竞争油站
@@ -150,7 +151,7 @@ export default {
         addStation() {},
         //在地图上选点竞争油站
         async addLinkStation() {
-            this.isAddLink = true;
+            this.isAddComp = true;
             this.$store.dispatch("setaddLinkStatus", {
                 status: true,
                 type: "competitor"
@@ -158,7 +159,7 @@ export default {
         },
         //取消添加竞争油站
         cancelAdd() {
-            this.isAddLink = false;
+            this.isAddComp = false;
             this.$store
                 .dispatch("setaddLinkStatus", {
                     status: false,
@@ -184,12 +185,12 @@ export default {
                 .dispatch("delLinkFeatures", {
                     layerId: this.selectFeatureLayer.id,
                     feature: this.selectFeature,
-                    delFeatures: this.checkedRelateStations,
+                    delFeatures: this.checkedCompStations,
                     type: "competitor"
                 })
                 .then(res => {
                     // this.relateStationList = res;
-
+                    this.checkedCompStations = [];
                     this.$message({
                         type: "success",
                         message: "删除成功!"
@@ -206,7 +207,7 @@ export default {
     watch: {
         yzCompeteVisible(visible) {
             if (visible) {
-                this.relationLoading = true;
+                this.competeLoading = true;
                 this.$store
                     .dispatch("initlinkFeatures", {
                         featureId: this.selectFeature.get("id"),
@@ -214,10 +215,14 @@ export default {
                         type: "competitor"
                     })
                     .then(res => {
-                        this.relationLoading = false;
+                        this.competeLoading = false;
                     });
             } else {
                 this.$store.dispatch("clearLinkFeatures", "competitor");
+                this.$store.dispatch("setaddLinkStatus", {
+                    status: false,
+                    type: "competitor"
+                });
             }
         }
     }

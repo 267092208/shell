@@ -24,12 +24,22 @@ import Feature from "ol/Feature";
  */
 const symbolConverter = {
   "picture-marker": function(symbol, extRender) {
+    if (symbol.anchor == "center") {
+      symbol.anchor = [0.5, 0.5];
+    }
+    extRender = {
+      scale: symbol.scale || 1,
+      anchor: symbol.anchor || [0.5, 0.5],
+      ...extRender
+    };
+    console.log(symbol, symbol.width, symbol.height);
     return new Style({
       image: new Icon({
         src: symbol.url,
+        imgSize: [symbol.width, symbol.height],
         size: [symbol.width, symbol.height],
-        scale: (extRender && extRender.scale) || 1,
-        anchor: (extRender && extRender.anchor) || [0.5, 0.5]
+        ...extRender,
+        opacity: symbol.opacity || 1
       })
     });
   },
@@ -60,7 +70,7 @@ const symbolConverter = {
       });
     };
   },
-  text: function(symbol) {
+  text: function(symbol, extRender) {
     const fill = new Fill({
       color: symbol.color || "#00f"
     });
@@ -74,15 +84,19 @@ const symbolConverter = {
       new Fill({
         color: symbol.backgroundFillColor
       });
+    extRender = { textAlign: "left", ...extRender };
     return function(feature) {
+      if (!symbol.size) symbol.size = 12;
       return new Style({
-        text: Text({
-          font: symbol.size || 12,
+        zIndex: 10,
+        text: new Text({
+          font: symbol.size + 'px "sans-serif","Open Sans", "Arial Unicode MS"',
           fill,
           text: feature.get(symbol.field).toString(),
           backgroundStroke,
           padding: symbol.padding,
-          backgroundFill
+          backgroundFill,
+          ...extRender
         })
       });
     };
@@ -123,7 +137,7 @@ const symbolConverter = {
  */
 const converterStyle = {
   "class-break": function(render, extRender) {
-    const styles = {};
+    const styles = [];
     const renderType = render.type;
     const defaultStyle = symbolConverter[render.defaultSymbol.type](
       render.defaultSymbol,
@@ -177,8 +191,9 @@ const converterStyle = {
         return styles[kong];
       } else if (styles[value]) {
         return styles[value];
+      } else {
+        return defaultStyle;
       }
-      return defaultStyle;
     };
   },
   simple: function(render, extRender) {
@@ -206,8 +221,7 @@ function createdRenderer(renders, extRender) {
    */
   let compositeStyles = {};
 
-  const renderType = renders.type;
-  if (renders.layerType === "Composite") {
+  if (renders && renders.layerType === "Composite") {
     //
   } else {
     if (Array.isArray(renders)) {
@@ -215,25 +229,28 @@ function createdRenderer(renders, extRender) {
         ...renders.map(render => converterStyle[render.type](render, extRender))
       );
     } else {
+      const renderType = renders.type;
       styles.push(converterStyle[renderType](renders, extRender));
     }
   }
   return function(feature) {
-    if (renders.layerType === "Composite") {
-      const layerId = renders.render(feature.get("数据源图层ID"));
+    if (renders && renders.layerType === "Composite") {
+      const layerId = feature.get("数据源图层ID");
       if (!compositeStyles[layerId]) {
-        const compositeRender = renders.render(layerId);
-        compositeStyles[layerId] = [
-          converterStyle[renderType](compositeRender, extRender)
-        ];
+        const compositeRenders = renders.render(layerId);
+        compositeStyles[layerId] = compositeRenders.map(compositeRender => {
+          const renderType = compositeRender.type;
+          return converterStyle[renderType](compositeRender, extRender);
+        });
       }
       styles = compositeStyles[layerId];
     }
-    const featureStyles = styles.map(style => {
+    const featureStyles = styles.map((style, index) => {
       let returnStyle = style;
       while (returnStyle instanceof Function) {
         returnStyle = returnStyle(feature);
       }
+      returnStyle.setZIndex(index);
       return returnStyle;
     });
     return featureStyles;
