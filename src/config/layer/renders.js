@@ -1174,284 +1174,290 @@ const renders = {
       }
     }
   ],
-  target: {
-    layerType: "Composite",
-    nti: [
-      {
-        name: "按crt显示",
-        type: "unique-value",
-        field: "是否目标+是否CRT",
-        defaultSymbol: {
-          type: "picture-marker",
-          url: "/sysPages/styleHandlers/Icons/635165835936941250.png-gray.png",
-          width: 24,
-          height: 24,
-          anchor: "center"
+  target: [
+    {
+      layerType: "Composite",
+      nti: [
+        {
+          name: "按crt显示",
+          type: "unique-value",
+          field: "是否目标+是否CRT",
+          defaultSymbol: {
+            type: "picture-marker",
+            url:
+              "/sysPages/styleHandlers/Icons/635165835936941250.png-gray.png",
+            width: 24,
+            height: 24,
+            anchor: "center"
+          },
+          "unique-value": [
+            {
+              value: "目标油站+CRT",
+              symbol: {
+                type: "picture-marker",
+                url: "/sysPages/styleHandlers/Icons/NTI_CRT2.png",
+                width: 24,
+                height: 24,
+                anchor: "center"
+              }
+            },
+            {
+              value: "非目标油站+CRT",
+              symbol: {
+                type: "picture-marker",
+                url: "/sysPages/styleHandlers/Icons/NTI_CRT1.png",
+                width: 24,
+                height: 24,
+                anchor: "center"
+              }
+            },
+            // PC
+            {
+              value: "非目标油站",
+              symbol: {
+                type: "picture-marker",
+                url: "/sysPages/styleHandlers/Icons/635185923345684794.png",
+                width: 24,
+                height: 24,
+                anchor: "center"
+              }
+            },
+            {
+              value: "目标油站",
+              symbol: {
+                type: "picture-marker",
+                url: "/sysPages/styleHandlers/Icons/635185923222406700.png",
+                width: 24,
+                height: 24,
+                anchor: "center"
+              }
+            }
+          ]
+        }
+      ],
+      xyyz: [
+        {
+          name: "按品牌显示",
+          type: "unique-value",
+          field: "品牌",
+          defaultSymbol: {
+            type: "picture-marker",
+            url: "/sysPages/styleHandlers/Icons/yz.png",
+            width: 24,
+            height: 24,
+            anchor: "center"
+          },
+          "unique-value": [
+            {
+              value: "SP",
+              symbol: {
+                type: "picture-marker",
+                url: "/sysPages/styleHandlers/Icons/635165835936941250.png",
+                width: 24,
+                height: 24,
+                anchor: "center",
+                MinIcon: "#FA02FF",
+                TextColor: "#3D2727"
+              }
+            },
+            {
+              value: "PC",
+              symbol: {
+                type: "picture-marker",
+                url: "/sysPages/styleHandlers/Icons/635165835991316250.png",
+                width: 24,
+                height: 24,
+                anchor: "center",
+                MinIcon: "#FC7B19",
+                TextColor: "#AD4E05"
+              }
+            },
+            {
+              value: "BPPC",
+              symbol: {
+                type: "picture-marker",
+                url: "/sysPages/styleHandlers/Icons/635165836054441250.png",
+                width: 24,
+                height: 24,
+                anchor: "center",
+                MinIcon: "#16E000",
+                TextColor: "#045E13"
+              }
+            },
+
+            {
+              value: "IND",
+              symbol: {
+                type: "picture-marker",
+                url: "/sysPages/styleHandlers/Icons/635165836104128750.png",
+                width: 24,
+                height: 24,
+                anchor: "center",
+                MinIcon: "#2C25F7",
+                TextColor: "#A000A3"
+              }
+            },
+            {
+              value: "CNOOC",
+              symbol: {
+                type: "picture-marker",
+                url: "/sysPages/styleHandlers/Icons/635168276804919539.png",
+                width: 24,
+                height: 24,
+                anchor: "center",
+                MinIcon: "#0CC0D1",
+                TextColor: "#AF0F1F"
+              }
+            },
+
+            {
+              value: "SC",
+              symbol: {
+                type: "picture-marker",
+                url: "/sysPages/styleHandlers/Icons/635168276872418675.png",
+                width: 24,
+                height: 24,
+                anchor: "center",
+                MinIcon: "#02484F",
+                TextColor: "#200F6D"
+              }
+            },
+            {
+              value: "Caltex",
+              symbol: {
+                type: "picture-marker",
+                url: "/sysPages/styleHandlers/Icons/635168276919605571.png",
+                width: 24,
+                height: 24,
+                anchor: "center",
+                MinIcon: "#145607",
+                TextColor: "#072107"
+              }
+            },
+            {
+              value: "YC Shell",
+              symbol: {
+                type: "picture-marker",
+                url: "/sysPages/styleHandlers/Icons/635165836217410000.png",
+                width: 24,
+                height: 24,
+                anchor: "center",
+                MinIcon: "#FF0F0F",
+                TextColor: "#B59A07"
+              }
+            },
+
+            {
+              value: "停车场",
+              symbol: {
+                type: "picture-marker",
+                url: "/sysPages/styleHandlers/Icons/636202504781415330.png",
+                width: 24,
+                height: 24,
+                anchor: "center",
+                MinIcon: "#FF0F0F",
+                TextColor: "#DD5858"
+              }
+            },
+
+            {
+              value: "TOPE-false",
+              symbol: {
+                type: "picture-marker",
+                url: "/sysPages/styleHandlers/Icons/TOPE.png",
+                width: 24,
+                height: 24,
+                anchor: "center",
+                MinIcon: "#EF4F4F",
+                TextColor: "#593DF7"
+              }
+            }
+          ]
         },
-        "unique-value": [
-          {
-            value: "目标油站+CRT",
-            symbol: {
-              type: "picture-marker",
-              url: "/sysPages/styleHandlers/Icons/NTI_CRT2.png",
-              width: 24,
-              height: 24,
-              anchor: "center"
-            }
+        {
+          name: "按是否目标站",
+          type: "unique-value",
+          field: "target-是否目标站",
+          defaultSymbol: {
+            type: "picture-marker",
+            url: "/images/tgz.png", //url不能为空
+            width: 0,
+            height: 0,
+            anchor: "center"
           },
-          {
-            value: "非目标油站+CRT",
-            symbol: {
-              type: "picture-marker",
-              url: "/sysPages/styleHandlers/Icons/NTI_CRT1.png",
-              width: 24,
-              height: 24,
-              anchor: "center"
+          "unique-value": [
+            {
+              value: "true",
+              symbol: {
+                type: "picture-marker",
+                url: "/images/tgz.png",
+                width: 20,
+                height: 20,
+                anchor: "center",
+                xoffset: 10,
+                yoffset: 10,
+                scale: 0.7
+              }
+            },
+            {
+              value: "false",
+              symbol: {
+                type: "picture-marker",
+                url: "/images/tgz.png",
+                width: 0,
+                height: 0,
+                anchor: "center",
+                xoffset: 10,
+                yoffset: 10
+              }
             }
+          ]
+        },
+        {
+          name: "按是否CRT",
+          type: "unique-value",
+          field: "是否CRT油站",
+          defaultSymbol: {
+            type: "picture-marker",
+            url: "/images/CRT.png",
+            width: 0,
+            height: 0,
+            anchor: "center"
           },
-          // PC
-          {
-            value: "非目标油站",
-            symbol: {
-              type: "picture-marker",
-              url: "/sysPages/styleHandlers/Icons/635185923345684794.png",
-              width: 24,
-              height: 24,
-              anchor: "center"
+          "unique-value": [
+            {
+              value: "true",
+              symbol: {
+                type: "picture-marker",
+                url: "/images/CRT.png",
+                width: 24,
+                height: 24,
+                xoffset: 0,
+                yoffset: 16,
+                scale: 0.7
+              }
+            },
+            {
+              value: "false",
+              symbol: {
+                type: "picture-marker",
+                url: "/images/CRT.png",
+                width: 0,
+                height: 0,
+                anchor: "center",
+                xoffset: 0,
+                yoffset: 16,
+                scale: 0.7
+              }
             }
-          },
-          {
-            value: "目标油站",
-            symbol: {
-              type: "picture-marker",
-              url: "/sysPages/styleHandlers/Icons/635185923222406700.png",
-              width: 24,
-              height: 24,
-              anchor: "center"
-            }
-          }
-        ]
+          ]
+        }
+      ],
+      render: function(id) {
+        return this[id];
       }
-    ],
-    xyyz: [
-      {
-        name: "按品牌显示",
-        type: "unique-value",
-        field: "品牌",
-        defaultSymbol: {
-          type: "picture-marker",
-          url: "/sysPages/styleHandlers/Icons/yz.png",
-          width: 24,
-          height: 24,
-          anchor: "center"
-        },
-        "unique-value": [
-          {
-            value: "SP",
-            symbol: {
-              type: "picture-marker",
-              url: "/sysPages/styleHandlers/Icons/635165835936941250.png",
-              width: 24,
-              height: 24,
-              anchor: "center",
-              MinIcon: "#FA02FF",
-              TextColor: "#3D2727"
-            }
-          },
-          {
-            value: "PC",
-            symbol: {
-              type: "picture-marker",
-              url: "/sysPages/styleHandlers/Icons/635165835991316250.png",
-              width: 24,
-              height: 24,
-              anchor: "center",
-              MinIcon: "#FC7B19",
-              TextColor: "#AD4E05"
-            }
-          },
-          {
-            value: "BPPC",
-            symbol: {
-              type: "picture-marker",
-              url: "/sysPages/styleHandlers/Icons/635165836054441250.png",
-              width: 24,
-              height: 24,
-              anchor: "center",
-              MinIcon: "#16E000",
-              TextColor: "#045E13"
-            }
-          },
-
-          {
-            value: "IND",
-            symbol: {
-              type: "picture-marker",
-              url: "/sysPages/styleHandlers/Icons/635165836104128750.png",
-              width: 24,
-              height: 24,
-              anchor: "center",
-              MinIcon: "#2C25F7",
-              TextColor: "#A000A3"
-            }
-          },
-          {
-            value: "CNOOC",
-            symbol: {
-              type: "picture-marker",
-              url: "/sysPages/styleHandlers/Icons/635168276804919539.png",
-              width: 24,
-              height: 24,
-              anchor: "center",
-              MinIcon: "#0CC0D1",
-              TextColor: "#AF0F1F"
-            }
-          },
-
-          {
-            value: "SC",
-            symbol: {
-              type: "picture-marker",
-              url: "/sysPages/styleHandlers/Icons/635168276872418675.png",
-              width: 24,
-              height: 24,
-              anchor: "center",
-              MinIcon: "#02484F",
-              TextColor: "#200F6D"
-            }
-          },
-          {
-            value: "Caltex",
-            symbol: {
-              type: "picture-marker",
-              url: "/sysPages/styleHandlers/Icons/635168276919605571.png",
-              width: 24,
-              height: 24,
-              anchor: "center",
-              MinIcon: "#145607",
-              TextColor: "#072107"
-            }
-          },
-          {
-            value: "YC Shell",
-            symbol: {
-              type: "picture-marker",
-              url: "/sysPages/styleHandlers/Icons/635165836217410000.png",
-              width: 24,
-              height: 24,
-              anchor: "center",
-              MinIcon: "#FF0F0F",
-              TextColor: "#B59A07"
-            }
-          },
-
-          {
-            value: "停车场",
-            symbol: {
-              type: "picture-marker",
-              url: "/sysPages/styleHandlers/Icons/636202504781415330.png",
-              width: 24,
-              height: 24,
-              anchor: "center",
-              MinIcon: "#FF0F0F",
-              TextColor: "#DD5858"
-            }
-          },
-
-          {
-            value: "TOPE-false",
-            symbol: {
-              type: "picture-marker",
-              url: "/sysPages/styleHandlers/Icons/TOPE.png",
-              width: 24,
-              height: 24,
-              anchor: "center",
-              MinIcon: "#EF4F4F",
-              TextColor: "#593DF7"
-            }
-          }
-        ]
-      },
-      {
-        name: "按是否目标站",
-        type: "unique-value",
-        field: "target-是否目标站",
-        defaultSymbol: {
-          type: "picture-marker",
-          url: "/images/tgz.png", //url不能为空
-          width: 0,
-          height: 0,
-          anchor: "center"
-        },
-        "unique-value": [
-          {
-            value: "true",
-            symbol: {
-              type: "picture-marker",
-              url: "/images/tgz.png",
-              width: 20,
-              height: 20,
-              anchor: "center",
-              xoffset: 10,
-              yoffset: 10
-            }
-          },
-          {
-            value: "false",
-            symbol: {
-              type: "picture-marker",
-              url: "/images/tgz.png",
-              width: 0,
-              height: 0,
-              anchor: "center",
-              xoffset: 10,
-              yoffset: 10
-            }
-          }
-        ]
-      },
-      {
-        name: "按是否CRT",
-        type: "unique-value",
-        field: "是否CRT油站",
-        defaultSymbol: {
-          type: "picture-marker",
-          url: "/images/CRT.png",
-          width: 0,
-          height: 0,
-          anchor: "center"
-        },
-        "unique-value": [
-          {
-            value: "true",
-            symbol: {
-              type: "picture-marker",
-              url: "/images/CRT.png",
-              width: 24,
-              height: 24,
-              xoffset: 0,
-              yoffset: 16
-            }
-          },
-          {
-            value: "false",
-            symbol: {
-              type: "picture-marker",
-              url: "/images/CRT.png",
-              width: 0,
-              height: 0,
-              anchor: "center",
-              xoffset: 0,
-              yoffset: 16
-            }
-          }
-        ]
-      }
-    ],
-    render: function(id) {
-      return this[id];
     }
-  }
+  ]
 };
 
 renders["shellyz"] = renders["gsyz"] = renders["xyyz"];

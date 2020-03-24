@@ -215,7 +215,7 @@ function createdRenderer(renders, extRender) {
    */
   let compositeStyles = {};
 
-  if (renders.layerType === "Composite") {
+  if (renders && renders.layerType === "Composite") {
     //
   } else {
     if (Array.isArray(renders)) {
@@ -228,22 +228,23 @@ function createdRenderer(renders, extRender) {
     }
   }
   return function(feature) {
-    if (renders.layerType === "Composite") {
-      const layerId = renders.render(feature.get("数据源图层ID"));
+    if (renders && renders.layerType === "Composite") {
+      const layerId = feature.get("数据源图层ID");
       if (!compositeStyles[layerId]) {
-        const compositeRender = renders.render(layerId);
-        const renderType = renders.type;
-        compositeStyles[layerId] = [
-          converterStyle[renderType](compositeRender, extRender)
-        ];
+        const compositeRenders = renders.render(layerId);
+        compositeStyles[layerId] = compositeRenders.map(compositeRender => {
+          const renderType = compositeRender.type;
+          return converterStyle[renderType](compositeRender, extRender);
+        });
       }
       styles = compositeStyles[layerId];
     }
-    const featureStyles = styles.map(style => {
+    const featureStyles = styles.map((style, index) => {
       let returnStyle = style;
       while (returnStyle instanceof Function) {
         returnStyle = returnStyle(feature);
       }
+      returnStyle.setZIndex(index);
       return returnStyle;
     });
     return featureStyles;
