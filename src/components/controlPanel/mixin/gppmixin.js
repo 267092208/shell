@@ -15,16 +15,13 @@ const mixin = {
             rightPanelName: state => state.panel.panelComponent.right,
             extent: state => state.panel.extent,
             geometryInstance: state => state.editGeometry.geometryInstance,
-      drawMode: state => state.editGeometry.drawMode,
+            drawMode: state => state.editGeometry.drawMode,
         }),
         hasExtentFields() {
             if (this.isEdit) {
                 if (!this.selectFeatureLayer) return false;
                 if (this.selectFeatureLayer.id === "poigroups" || this.selectFeatureLayer.id === 'roadnetwork') return this.selectFeatureLayer.id;
             }
-        },
-        getExtentFieldOwnerId() {
-            return this.hasExtentFields ? this.selectFeature.id : undefined
         },
         filterFields() {
             if (this.fields && this.fields.length > 0)
@@ -127,7 +124,7 @@ const mixin = {
             this.resetForm('form');
             /** 特例 */
             if (this.selectFeatureLayer.id === 'roadnetwork')
-                this.panelExtentValue = await this.getRoadNetWork();
+                this.panelExtentValue = await this.getRoadNetWork(data.id);
             if (data) {
                 const values_ = data.values_ || data.properties
                 this.isEdit = true; // 编辑模式
@@ -205,8 +202,8 @@ const mixin = {
         },
         /**特例方法 */
         /** 获得路网的行政区划 */
-        async getRoadNetWork() {
-            const res = await GetWayToDivision(this.getExtentFieldOwnerId).catch(err => console.log(err))
+        async getRoadNetWork(id) {
+            const res = await GetWayToDivision(id).catch(err => console.log(err))
 
             return (typeof res === 'object') ? res.join('\n') : '加载行政区划失败'
         },

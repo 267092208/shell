@@ -77,7 +77,7 @@
                 type="button"
                 style="wdith: 100%;flex: 1;"
                 size="medium"
-                @click="computAreaYp"
+                @click="computAreaYp(form['ID'])"
               >重新统计销量</el-button>
             </el-row>
 
@@ -143,8 +143,8 @@ export default {
     /**
      * {ID, Csum, Ncsum, Qsum, Nqsum, CountSum }
      */
-    async computAreaYp() {
-      const res = await GetAreaYpData(this.getExtentFieldOwnerId).catch(err =>
+    async computAreaYp(id) {
+      const res = await GetAreaYpData(id).catch(err =>
         console.log(err)
       );
       if (typeof res === "object" && "Csum" in res) {
