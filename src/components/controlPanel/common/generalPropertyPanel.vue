@@ -26,7 +26,7 @@
               :prop="item.fieldName"
               :rules="createRule(item)"
             >
-            <!-- v-show=" !hideLngLatWithisEdit(item.fieldName) && item.displayText" -->
+              <!-- v-show=" !hideLngLatWithisEdit(item.fieldName) && item.displayText" -->
               <component
                 v-if="item.enum == null"
                 :disabled=" item.fieldName === 'lng_baidu' || item.fieldName === 'lat_baidu'"
@@ -144,9 +144,7 @@ export default {
      * {ID, Csum, Ncsum, Qsum, Nqsum, CountSum }
      */
     async computAreaYp(id) {
-      const res = await GetAreaYpData(id).catch(err =>
-        console.log(err)
-      );
+      const res = await GetAreaYpData(id).catch(err => console.log(err));
       if (typeof res === "object" && "Csum" in res) {
         this.form["柴油总年销量mln"] = res.Csum;
         this.form["汽油总年销量mln"] = res.Qsum;
@@ -253,6 +251,7 @@ export default {
       } else {
         // 编辑模式
         const geometry = this.geometryInstance.getGeometry().getGeometry();
+        console.log(geometry, this.editFeatureLayer);
         const res = await this.$store
           .dispatch("updateLayerFeature", {
             layerid: this.editFeatureLayer.id,
@@ -292,13 +291,15 @@ export default {
               } else if (this.currentLayer.id === "corridor") {
                 await this.corridorSubmitFn();
               } else {
-                if (this.hasGeo) await this.defaultSubmitFnWithGeo();
+                if (this.hasGeo)
+                  await this.defaultSubmitFnWithGeo().catch(err => err);
                 else await this.defaultSubmitFn();
               }
             } catch (err) {
               this.saving = false;
               console.log(err);
             }
+            console.log("123");
             this.saving = false;
             this.closePanel();
           } else {
@@ -313,7 +314,7 @@ export default {
               } else if (this.editFeatureLayer.id === "xl") {
                 await this.xlSubmitFn();
               } else if (this.editFeatureLayer.id === "corridor") {
-                  await this.corridorSubmitFn();
+                await this.corridorSubmitFn();
               } else {
                 if (this.hasGeo) await this.defaultSubmitFnWithGeo();
                 else await this.defaultSubmitFn();
@@ -333,9 +334,12 @@ export default {
     },
     async beginEdit() {
       this.editting = true;
-      this.editFeature = this.selectFeature;
-      this.editFeatureLayer = this.selectFeatureLayer;
-        await this.$store.commit("setPanelExtent", { editPanel: true });
+      if (this.selectFeatureLayer.id !== "target") {
+        // target已经预先设置了
+        this.editFeature = this.selectFeature;
+        this.editFeatureLayer = this.selectFeatureLayer;
+      }
+      await this.$store.commit("setPanelExtent", { editPanel: true });
       if (this.hasGeo) {
         this.$parent.closeButton = false;
         let res;
@@ -527,10 +531,14 @@ export default {
   deactivated() {
     // 初始化
     this.hasGeo = false;
-    this.$refs["form"].resetFields();
-    this.endPoint();
-    this.isEdit = false;
-    this.editting = false;
+    try {
+      this.$refs["form"].resetFields();
+      this.endPoint();
+      this.isEdit = false;
+      this.editting = false;
+    } catch (err) {
+      err;
+    }
   },
   watch: {
     actionsPanelVisible(b) {

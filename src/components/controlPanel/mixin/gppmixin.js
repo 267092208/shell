@@ -3,6 +3,7 @@ import gcoord from 'gcoord';
 import { modelToEntityKeyValue } from '@/data/layer'
 import { GetWayToDivision } from '@/data/roadnetwork'
 import corridor from "@/config/layer/field/corridorFields";
+import target from "@/config/layer/field/targetFields";
 
 
 const mixin = {
@@ -16,6 +17,7 @@ const mixin = {
             extent: state => state.panel.extent,
             geometryInstance: state => state.editGeometry.geometryInstance,
             drawMode: state => state.editGeometry.drawMode,
+            base: state => state.layer.base
         }),
         hasExtentFields() {
             if (this.isEdit) {
@@ -51,7 +53,7 @@ const mixin = {
         };
     },
     methods: {
-        getTrueFields(isadd) {
+        getTrueFields(isadd, extent = undefined) {
             let buff = [];
             let fields, id;
             if (isadd) {
@@ -60,6 +62,16 @@ const mixin = {
             } else {
                 fields = this.selectFeatureLayer.fields//.filter(({displayText}) => displayText != '经度' && displayText != '纬度')
                 id = this.selectFeatureLayer.id
+            }
+            /** target 目标站数据源处理 */
+            if (id === 'target') {
+                if (extent === 'nti' || extent === 'xyyz') {
+                   fields = fields[`target-${extent}`]
+                   id = extent;
+                   this.editFeatureLayer = this.base.find(item => item.id === extent); // 预先存储
+                } else {
+                    throw new Error('错误目标数据源');
+                }
             }
             if (id === 'nti' || id === 'gsnti') {
                 fields = fields.filter(item => {
@@ -82,6 +94,12 @@ const mixin = {
                     );
                 });
                 return buff.concat(fields)
+            } else if (id === 'target'){
+                // console.log('123', extent)
+                // if (extent === 'nti' || extent === 'xyyz') {
+                //     return this.getTrueFields(false)
+                // }
+                throw new Error('错误的id')
             } else if (id === 'poi') {
                 fields = fields.filter(item => {
                     const { displayText } = item;
@@ -120,11 +138,14 @@ const mixin = {
         async getPropertyByFeature(data) {
             this.panelExtentValue = null;
             this.$parent.title = this.selectFeatureLayer ? this.selectFeatureLayer.name : undefined;
-            this.fields = this.getTrueFields(false) // 编辑模式
+            this.fields = this.getTrueFields(false, data.values_['数据源图层ID']) // 编辑模式
             this.resetForm('form');
             /** 特例 */
             if (this.selectFeatureLayer.id === 'roadnetwork')
                 this.panelExtentValue = await this.getRoadNetWork(data.id);
+            if (this.selectFeatureLayer.id === 'target') {
+                this.editFeature = data; // 预先存储
+            }
             if (data) {
                 const values_ = data.values_ || data.properties
                 this.isEdit = true; // 编辑模式

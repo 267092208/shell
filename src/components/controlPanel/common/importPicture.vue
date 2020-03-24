@@ -28,9 +28,27 @@
         <i class="el-icon-plus"></i>
       </el-upload>
 
-      <el-dialog :visible.sync="dialogIVisible" :append-to-body="true">
-        <img width="100%" :src="dialogImageUrl" alt />
+      <el-dialog
+        :visible.sync="dialogIVisible"
+        :append-to-body="true"
+        :close-on-click-modal="false"
+      >
+        <img width="100%" :src="dialogImageUrl" alt/>
+        <el-button
+          icon="el-icon-arrow-left"
+          circle 
+          class="arrow-btn"
+          style="left: 50px;"
+          @click.native="keyLeftUp"
+        ></el-button>
+        <el-button
+          icon="el-icon-arrow-right"
+          circle 
+          class="arrow-btn"
+          @click.native="keyRightUp"
+        ></el-button>
       </el-dialog>
+      <div ref="dialogTools"></div>
     </div>
   </el-dialog>
 </template>
@@ -61,9 +79,27 @@ export default {
       dialogIVisible: false,
       loading: false,
       fileList: [],
+      previewFileIndex: 0
     };
   },
   methods: {
+    keyLeftUp(e) {
+      this.previewFileIndex =
+        Math.abs(this.previewFileIndex - 1 + this.fileList.length) % this.fileList.length;
+      this.dialogImageUrl = this.fileList[this.previewFileIndex].url;
+    },
+    keyRightUp(e) {
+      this.previewFileIndex =
+        Math.abs(this.previewFileIndex + 1) % this.fileList.length;
+      this.dialogImageUrl = this.fileList[this.previewFileIndex].url;
+    },
+    keyupEvent(e) {
+      if (e.code === "ArrowLeft") {
+        this.keyLeftUp();
+      } else if (e.code === "ArrowRight") {
+        this.keyRightUp();
+      }
+    },
     handleClose(done) {
       this.fileList = [];
       this.$emit("update:dialogVisible", false);
@@ -72,6 +108,9 @@ export default {
       this.$emit("update:dialogVisible", b);
     },
     handlePictureCardPreview(file) {
+      this.previewFileIndex = this.fileList.findIndex(
+        item => item.uid === file.uid
+      );
       this.dialogImageUrl = file.url;
       this.dialogIVisible = true;
     },
@@ -79,34 +118,35 @@ export default {
       // console.log(file,fileList);
     },
     async handleHttpRemove(file, fileList) {
-      const val = await this.$confirm(
-        `确定要删除${file.name}文件？`,
-        "提示",
-        {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning"
-        }
-      ).catch(cancel => {return false})
-     if (val === false) {
-          this.$message({ type: "error", message: "已取消删除", offset: 60 });
-          return new Promise.catch();
-     } 
-      const res = await delPhotoForSQ(this.selectFeature.id, `/photo/sq/93/${file.name}`).catch(err => err)
-      if (res && res.Msg==='OK') {
-              this.$message({
-                type: "success",
-                message: "删除成功!",
-                offset: 60
-              })
-              return true;
+      const val = await this.$confirm(`确定要删除${file.name}文件？`, "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      }).catch(cancel => {
+        return false;
+      });
+      if (val === false) {
+        this.$message({ type: "error", message: "已取消删除", offset: 60 });
+        return new Promise.catch();
+      }
+      const res = await delPhotoForSQ(
+        this.selectFeature.id,
+        `/photo/sq/${this.selectFeature.id}/${file.name}`
+      ).catch(err => err);
+      if (res && res.Msg === "OK") {
+        this.$message({
+          type: "success",
+          message: "删除成功!",
+          offset: 60
+        });
+        return true;
       } else {
-         this.$message({
-                type: "error",
-                message: `${res}`,
-                offset: 60
-         })
-         return new Promise.catch();
+        this.$message({
+          type: "error",
+          message: `${res}`,
+          offset: 60
+        });
+        return new Promise.catch();
       }
     },
     onUploadExceed() {
@@ -144,14 +184,23 @@ export default {
         this.currentLayer.id,
         this.selectFeature.id,
         formData
-      )
+      );
       return data.Name;
     },
-    handleSuccess (response, file, fileList) {
-      this.$message.success({message: `上传成功!`, offset: 60})
+    handleSuccess(response, file, fileList) {
+      this.$message.success({ message: `上传成功!`, offset: 60 });
+      const { status, name, uid } = file;
+      this.fileList.push({ status, name, uid, url: response });
     },
     handleError(err, file, fileList) {
-      this.$message.error({message: `${err}`, offset: 60})
+      this.$message.error({ message: `${err}`, offset: 60 });
+    }
+  },
+  watch: {
+    dialogIVisible(val) {
+      console.log(val);
+      if (val) window.addEventListener("keyup", this.keyupEvent);
+      else window.removeEventListener("keyup", this.keyupEvent);
     }
   }
 };
@@ -187,5 +236,14 @@ export default {
     margin: 0 auto;
     padding-left: 5px;
   }
+  
 }
+.arrow-btn{
+    position: fixed; right: 50px; top: 45%; background: #9e9e9e54;
+    font-size: 30px;
+    color: #fff;
+    &:hover {
+      transform: scale(1.25);
+    }
+  }
 </style>
