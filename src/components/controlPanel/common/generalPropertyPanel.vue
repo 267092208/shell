@@ -16,17 +16,17 @@
             size="mini"
             :status-icon="true"
             :inline-message="true"
-              :disabled="isEdit===true && editting === false"
+            :disabled="isEdit===true && editting === false"
           >
             <el-form-item
               size="mini"
-              v-for="(item, index) in filterFields"
+              v-for="(item, index) in showFilterFields"
               :key="index"
               :label="item.displayText"
               :prop="item.fieldName"
-              v-show=" !hideLngLatWithisEdit(item.fieldName) && item.displayText"
               :rules="createRule(item)"
             >
+            <!-- v-show=" !hideLngLatWithisEdit(item.fieldName) && item.displayText" -->
               <component
                 v-if="item.enum == null"
                 :disabled=" item.fieldName === 'lng_baidu' || item.fieldName === 'lat_baidu'"
@@ -77,7 +77,7 @@
                 type="button"
                 style="wdith: 100%;flex: 1;"
                 size="medium"
-                @click="computAreaYp"
+                @click="computAreaYp(form['ID'])"
               >重新统计销量</el-button>
             </el-row>
 
@@ -131,15 +131,20 @@ export default {
   mixins: [gppmixin],
   methods: {
     hideLngLatWithisEdit(fieldName) {
-      if (this.isEdit === true && this.editting === false && (fieldName === 'lng_baidu' || fieldName === 'lat_baidu')) { // 只在这情况隐藏
+      if (
+        this.isEdit === true &&
+        this.editting === false &&
+        (fieldName === "lng_baidu" || fieldName === "lat_baidu")
+      ) {
+        // 只在这情况隐藏
         return true;
       } else return false;
     },
     /**
      * {ID, Csum, Ncsum, Qsum, Nqsum, CountSum }
      */
-    async computAreaYp() {
-      const res = await GetAreaYpData(this.getExtentFieldOwnerId).catch(err =>
+    async computAreaYp(id) {
+      const res = await GetAreaYpData(id).catch(err =>
         console.log(err)
       );
       if (typeof res === "object" && "Csum" in res) {
@@ -151,9 +156,9 @@ export default {
       // if (this.editting === true) { // 编辑中无法关闭
       //   this.$message.error({message: '编辑中无法关闭，请先保存', offset: 60});
       // } else {
-        this.isEdit = false;
-        this.editting = false;
-        this.$parent.close();
+      this.isEdit = false;
+      this.editting = false;
+      this.$parent.close();
       // }
     },
     async resetForm(formName) {
@@ -197,7 +202,10 @@ export default {
           .catch(async err => {
             this.$message.error({ message: "添加失败!", offset: 60 });
           });
-        if (typeof res === "string" ||  (typeof res === 'object' &&"Msg" in res))
+        if (
+          typeof res === "string" ||
+          (typeof res === "object" && "Msg" in res)
+        )
           this.$message.error({ message: `"添加失败!"${res.Msg}`, offset: 60 });
         else this.$message.success({ message: "添加成功", offset: 60 });
       } else {
@@ -206,14 +214,17 @@ export default {
           .dispatch("updateLayerFeature", {
             layerid: this.selectFeatureLayer.id,
             feature: {
-              id: this.form['ID'],
+              id: this.form["ID"],
               properties: this.form
             }
           })
           .catch(async err => {
             this.$message.error({ message: "更新失败!", offset: 60 });
           });
-        if (typeof res === "string" || (typeof res === 'object' &&"Msg" in res))
+        if (
+          typeof res === "string" ||
+          (typeof res === "object" && "Msg" in res)
+        )
           this.$message.error({ message: `"更新失败!"${res.Msg}`, offset: 60 });
         else this.$message.success({ message: "更新成功", offset: 60 });
       }
@@ -221,7 +232,7 @@ export default {
     async defaultSubmitFnWithGeo() {
       if (false === this.isEdit) {
         //添加模式
-        const geometry = this.geometryInstance.getGeometry().getGeometry()
+        const geometry = this.geometryInstance.getGeometry().getGeometry();
         const res = await this.$store
           .dispatch("addLayerFeature", {
             layerid: this.currentLayer.id,
@@ -241,7 +252,7 @@ export default {
         await this.endPoint();
       } else {
         // 编辑模式
-        const geometry = this.geometryInstance.getGeometry().getGeometry()
+        const geometry = this.geometryInstance.getGeometry().getGeometry();
         const res = await this.$store
           .dispatch("updateLayerFeature", {
             layerid: this.editFeatureLayer.id,
@@ -302,7 +313,7 @@ export default {
               } else if (this.editFeatureLayer.id === "xl") {
                 await this.xlSubmitFn();
               } else if (this.editFeatureLayer.id === "corridor") {
-                await this.corridorSubmitFn();
+                  await this.corridorSubmitFn();
               } else {
                 if (this.hasGeo) await this.defaultSubmitFnWithGeo();
                 else await this.defaultSubmitFn();
@@ -322,21 +333,29 @@ export default {
     },
     async beginEdit() {
       this.editting = true;
+      this.editFeature = this.selectFeature;
+      this.editFeatureLayer = this.selectFeatureLayer;
+        await this.$store.commit("setPanelExtent", { editPanel: true });
       if (this.hasGeo) {
         this.$parent.closeButton = false;
-        await this.$store.commit('setPanelExtent', {editPanel: true})
-        this.editFeature = this.selectFeature;
-        this.editFeatureLayer = this.selectFeatureLayer;
         let res;
-        res = await this.$store.dispatch("getGeometry", { drawMode: "Point", feature: this.selectFeature }).catch(err => {
+        res = await this.$store
+          .dispatch("getGeometry", {
+            drawMode: "Point",
+            feature: this.selectFeature
+          })
+          .catch(err => {
             console.log("err-----", err);
           });
         res.on("update", () => {
-          let point = res.getFeature().getGeometry().getCoordinates();
+          let point = res
+            .getFeature()
+            .getGeometry()
+            .getCoordinates();
           this.updateCoordinate(
             gcoord.transform(point, gcoord.EPSG3857, gcoord.WGS84)
           );
-        })
+        });
       }
     },
     /**
@@ -394,7 +413,9 @@ export default {
     },
     deleteFeature() {
       const selectFeature = this.hasGeo ? this.editFeature : this.selectFeature;
-      const selectFeatureLayer = this.hasGeo ? this.editFeatureLayer : this.selectFeatureLayer;
+      const selectFeatureLayer = this.hasGeo
+        ? this.editFeatureLayer
+        : this.selectFeatureLayer;
       this.$confirm(`是否删除该${selectFeatureLayer.name}`, "警告", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
@@ -464,25 +485,30 @@ export default {
     },
     close() {
       this.$refs["form"].resetFields();
-      if(this.hasGeo) this.endPoint();
+      if (this.hasGeo) this.endPoint();
     },
     async beginSetPoint(isEdit) {
       if (isEdit === false) {
         let res;
-        res = await this.$store.dispatch("getGeometry", { drawMode: "Point" }).catch(err => {
+        res = await this.$store
+          .dispatch("getGeometry", { drawMode: "Point" })
+          .catch(err => {
             console.log("err-----", err);
           });
         res.on("update", () => {
-          let point = res.getFeature().getGeometry().getCoordinates();
+          let point = res
+            .getFeature()
+            .getGeometry()
+            .getCoordinates();
           this.updateCoordinate(
             gcoord.transform(point, gcoord.EPSG3857, gcoord.WGS84)
           );
-        })
-      } 
+        });
+      }
     },
     endPoint() {
       this.$parent.closeButton = true;
-      this.$store.commit('setPanelExtent', null); // 清空
+      this.$store.commit("setPanelExtent", null); // 清空
       this.geometryInstance &&
         // this.geometryInstance.getGeometry() &&
         this.geometryInstance.disable();
@@ -502,7 +528,7 @@ export default {
     // 初始化
     this.hasGeo = false;
     this.$refs["form"].resetFields();
-    if(this.hasGeo) this.endPoint();
+    this.endPoint();
     this.isEdit = false;
     this.editting = false;
   },

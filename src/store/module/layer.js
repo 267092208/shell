@@ -383,6 +383,9 @@ const layer = {
       const source = context.state.source[param.layerid];
       if (source) {
         const i = source.findIndex(t => t.id == param.feature.id);
+        // if ('geometry' in source[i] && ('geometry' in param.feature) === false) { // 传进来的缺少geometry
+        //     param.feature['geometry'] = source[i]['geometry']                                // 则使用原来的
+        // }
         source.splice(i, 1, param.feature);
         context.state.source = Object.assign({}, context.state.source);
       }

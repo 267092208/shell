@@ -15,16 +15,13 @@ const mixin = {
             rightPanelName: state => state.panel.panelComponent.right,
             extent: state => state.panel.extent,
             geometryInstance: state => state.editGeometry.geometryInstance,
-      drawMode: state => state.editGeometry.drawMode,
+            drawMode: state => state.editGeometry.drawMode,
         }),
         hasExtentFields() {
             if (this.isEdit) {
                 if (!this.selectFeatureLayer) return false;
                 if (this.selectFeatureLayer.id === "poigroups" || this.selectFeatureLayer.id === 'roadnetwork') return this.selectFeatureLayer.id;
             }
-        },
-        getExtentFieldOwnerId() {
-            return this.hasExtentFields ? this.selectFeature.id : undefined
         },
         filterFields() {
             if (this.fields && this.fields.length > 0)
@@ -33,6 +30,9 @@ const mixin = {
                     return !item.readonly && !("get" in item);
                 });
             else return [];
+        },
+        showFilterFields() {
+            return this.filterFields.filter(item => !this.hideLngLatWithisEdit(item.fieldName) && item.displayText)
         }
     },
     data() {
@@ -124,7 +124,7 @@ const mixin = {
             this.resetForm('form');
             /** 特例 */
             if (this.selectFeatureLayer.id === 'roadnetwork')
-                this.panelExtentValue = await this.getRoadNetWork();
+                this.panelExtentValue = await this.getRoadNetWork(data.id);
             if (data) {
                 const values_ = data.values_ || data.properties
                 this.isEdit = true; // 编辑模式
@@ -143,7 +143,6 @@ const mixin = {
         },
         routerResultMessage(res) {
             let action = this.isEdit ? '修改' : '添加'
-            console.log(res);
             if (!res) {
                 if (!res) this.$message.error({ message: `${action}失败!${res}`, offset: 60 });
                 else this.$message.success({ message: `${action}成功`, offset: 60 });
@@ -155,8 +154,14 @@ const mixin = {
         },
         createPathBaidu() {
             const edit = this.$store.state.editGeometry;
-            const mode = edit.drawMode;
-            const geoInstance = edit.geometryInstance
+            let mode = edit.drawMode;
+            let geoInstance = edit.geometryInstance;
+            if (geoInstance == null) {
+                if (typeof this.extent === 'object' && 'geometry' in this.extent) { // now, only poigroups layer use this.
+                    geoInstance = this.extent.geometry
+                    mode = this.extent.mode
+                } 
+            }
             let path_baidu;
             switch (mode) {
                 case 'Circle': {
@@ -197,8 +202,8 @@ const mixin = {
         },
         /**特例方法 */
         /** 获得路网的行政区划 */
-        async getRoadNetWork() {
-            const res = await GetWayToDivision(this.getExtentFieldOwnerId).catch(err => console.log(err))
+        async getRoadNetWork(id) {
+            const res = await GetWayToDivision(id).catch(err => console.log(err))
 
             return (typeof res === 'object') ? res.join('\n') : '加载行政区划失败'
         },
@@ -206,7 +211,7 @@ const mixin = {
          * @type {'Polygon'|'Box'|'Circle} mode 
          */
         async poigroupsSubmitFn() {
-            const geoInstance = this.$store.state.editGeometry.geometryInstance
+            const geoInstance = this.$store.state.editGeometry.geometryInstance || this.extent.geometry;
             let model;
             let res;
             // 获取model，提交数据，提示信息 分添加/编辑模式
@@ -286,7 +291,10 @@ const mixin = {
                 ...this.form,
                 InfoID: ''
             }
-            const res = await this.$store.dispatch('addLayerFeature', { layerid: 'roadnetwork', feature: { properties: model } }).catch(err => err);
+            const geometry = geoInstance.getGeometry().getGeometry();
+            const res = await this.$store.dispatch('addLayerFeature', { layerid: 'roadnetwork', feature: {id: this.form['ID'], geometry: {
+                type: geometry.getType(),
+                coordinates: geometry.getCoordinates()}, properties: model } }).catch(err => err);
             this.routerResultMessage(res);
             if(this.isEdit === false) await geoInstance.disable();
         },
@@ -343,7 +351,7 @@ const mixin = {
                     Geo: Geo,
                 }
             }
-
+            
             if (this.isEdit === false) res = await this.$store.dispatch('addLayerFeature', { layerid: 'corridor', feature: {id: this.form.ID, properties: model } }).catch(err => err.substring(err.indexOf('转换错误')));
             else res = await this.$store.dispatch('updateLayerFeature', { layerid: 'corridor', feature: {id: this.form.ID, properties: model } }).catch(err => err.substring(err.indexOf('转换错误')));
             this.routerResultMessage(res);
