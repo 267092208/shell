@@ -35,7 +35,7 @@ const mixin = {
             else return [];
         },
         showFilterFields() {
-            return filterFields.filter(item => !this.hideLngLatWithisEdit(item.fieldName) && item.displayText)
+            return this.filterFields.filter(item => !this.hideLngLatWithisEdit(item.fieldName) && item.displayText)
         }
     },
     data() {
