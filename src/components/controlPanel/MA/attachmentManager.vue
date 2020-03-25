@@ -212,12 +212,12 @@ export default {
         });
     },
     // file = this.fileList[this.selected.tabIndex]
-    // async showSetting() {
-    //   this.loadingSetting = true;
-    //   const res = await getFileRole(this.fileList[this.selected.tabIndex].ID);
-    //   this.setting = res.result;
-    //   this.loadingSetting = false;
-    // },
+    async showSetting() {
+      this.loadingSetting = true;
+      const res = await getFileRole(this.fileList[this.selected.tabIndex].ID);
+      this.setting = res.result;
+      this.loadingSetting = false;
+    },
     async updateRoles() {
       let rnames = "";
       switch (this.setting) {
