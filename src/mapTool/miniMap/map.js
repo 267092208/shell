@@ -164,7 +164,7 @@ export default function createdMap(param) {
     throw "target 不很为空";
   }
   // if (!editPoint) { throw "editPoint 不很为空" }
-  target.innerHTML = '';
+  target.innerHTML = "";
   searchSource.clear();
   ol_editPoint.setCoordinates(editPoint);
   let map = new Map({
@@ -249,8 +249,8 @@ export default function createdMap(param) {
       ol_editPoint.setCoordinates(editPoint);
       BaiduView.animate({
         center: editPoint,
-        duration: 500,
-      })//.setCenter(editPoint);
+        duration: 500
+      });
     },
     /**
      * 获取当前地图编辑的图标的位置

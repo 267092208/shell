@@ -137,7 +137,7 @@ function showExtLayer(layerid, renderer, index) {
     extLayer = new VectorLayer({
       source: layerSource1,
       zIndex: getLayerOL(layerid).getZIndex()
-      //declutter: true//标签整理
+      //declutter: true //标签整理
     });
     map.addLayer(extLayer);
   }
@@ -222,7 +222,6 @@ const mixin = {
                 });
               }
             }
-            console.log(this.layersRenderer[layerid]);
             //#endregion
           }
         }

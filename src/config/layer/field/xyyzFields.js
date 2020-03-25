@@ -1,9 +1,7 @@
 /**
  * @module 图层字段配置
  */
-
 import trafficFlowTable from "@/data/trafficFlowTable";
-
 const xyyz = [
   /* 常规字段 */
   {
@@ -929,7 +927,6 @@ const xyyz = [
     }
   }
 ];
-
 function round1(x) {
   return Math.round(x * 10) / 10;
 }
@@ -942,7 +939,14 @@ function IsGsYz(rowData) {
   return rowData["是否高速公路"];
 }
 
-//车流计算
+/**
+ * 车流计算
+ * @param {*} num
+ * @param {*} vehicle
+ * @param {*} type
+ * @param {*} startTime
+ * @param {*} mins
+ */
 function getCl(num, vehicle, type, startTime, mins) {
   if (!type || !num || !startTime || !mins || !vehicle || !startTime.getHours)
     return 0;
