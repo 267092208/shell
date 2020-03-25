@@ -162,6 +162,14 @@ const nti = [
     get() {
       return "Point";
     }
+  },
+  {
+    fieldName: "数据源图层ID",
+    displayText: "",
+    type: "string",
+    get() {
+      return "nti";
+    }
   }
 ];
 

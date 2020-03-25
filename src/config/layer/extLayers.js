@@ -96,7 +96,6 @@ const extLayerStyle = {
         field: "目标",
         linkLayerIndex: 1,
         emptyMarkerSymbol,
-
         defaultSymbol: {
           type: "text",
           field: "油站编号",
@@ -357,7 +356,6 @@ const extLayerStyle = {
         field: "目标",
         linkLayerIndex: 1,
         emptyMarkerSymbol,
-
         defaultSymbol: {
           type: "text",
           field: "油站编号",

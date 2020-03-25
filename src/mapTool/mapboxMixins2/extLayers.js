@@ -111,26 +111,37 @@ function showExtLayer(layerid, renderer, index) {
   //获取ID  获取图层
   const id = getExtLayerId(layerid, index);
   let extLayer = getLayerOL(id);
-  //判断地图上是否有此图层
+  //#region 判断地图上是否有此图层
   if (!extLayer) {
     //无图层创建扩展图层
     const layerSource = getLayerOL(layerid).getSource();
     const layerSource1 = new VectorSource();
-    layerSource1.addFeatures(layerSource.getFeatures().map(t => t.clone()));
+    layerSource1.addFeatures(
+      layerSource.getFeatures().map(t => {
+        const f = t.clone();
+        f.getStyle() && f.setStyle(null);
+        return f;
+      })
+    );
     // 同步标签数据
     layerSource.on("change", () => {
       layerSource1.clear();
-      layerSource1.addFeatures(layerSource.getFeatures().map(t => t.clone()));
+      layerSource1.addFeatures(
+        layerSource.getFeatures().map(t => {
+          const f = t.clone();
+          f.getStyle() && f.setStyle(null);
+          return f;
+        })
+      );
     });
     extLayer = new VectorLayer({
       source: layerSource1,
       zIndex: getLayerOL(layerid).getZIndex()
-      //declutter: true //标签整理
+      //declutter: true//标签整理
     });
-    // extLayer.set("clickFn", getLayerOL(layerid).get("clickFn"));
-    // extLayer.setProperties(getLayerOL(layerid).getProperties());
     map.addLayer(extLayer);
   }
+  //#endregion
   extLayer.setVisible(true);
   extLayer.setStyle(createdRenderer(renderer, extRender));
   extLayer.setProperties({
@@ -171,7 +182,9 @@ const mixin = {
           const { renderer, visible, type } = layerRVs[i];
           //判断是那种方式实现
           if (type == "extLayer") {
+            //#region 扩展图层
             if (layerVisible && visible) {
+              //FIXME:bug有关联的样式要在此这个的之前
               if (renderer.linkLayerIndex) {
                 renderer.linkVisible =
                   layerRVs[renderer.linkLayerIndex].visible;
@@ -180,11 +193,38 @@ const mixin = {
             } else {
               hideExtLayer(layerid, i);
             }
+            //#endregion
           } else if (type == "extStyle") {
+            //#region 扩展样式
+            /**
+             * @type {Array}
+             */
+            let layerRenderer = this.layersRenderer[layerid];
+            if (!Array.isArray(layerRenderer)) {
+              layerRenderer = [layerRenderer];
+            }
+            if (layerVisible && visible) {
+              if (!layerRenderer.includes(renderer)) {
+                layerRenderer.push(renderer);
+                this.$store.dispatch("setLayerRender", {
+                  layerid: layerid,
+                  render: layerRenderer
+                });
+              }
+              // layerRenderer
+            } else {
+              const index = layerRenderer.indexOf(renderer);
+              if (index > -1) {
+                layerRenderer.splice(index, 1);
+                this.$store.dispatch("setLayerRender", {
+                  layerid: layerid,
+                  render: layerRenderer
+                });
+              }
+            }
             console.log(this.layersRenderer[layerid]);
-            //
+            //#endregion
           }
-          //   console.log(type);
         }
       }
     },
